@@ -1046,7 +1046,7 @@
     function notFoundHtml() { return '<span class="t">Не нашёл точного ответа</span>Чтобы не выдумывать — лучше спросите основателя напрямую: ' + TG + ' · ' + MAIL + '. Это тот же принцип, что и у KAVACHAM: право молчать вместо фабрикации.'; }
     function addNotFound() { add('a', notFoundHtml()); }
     /* лёгкое форматирование ответа ассистента (**жирный**, переводы строк) */
-    function fmtLLM(t) { return esc(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n{2,}/g, '<br><br>').replace(/\n/g, '<br>'); }
+    function fmtLLM(t) { return esc(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/^\s*[*-]\s+/gm, '• ').replace(/\n{2,}/g, '<br><br>').replace(/\n/g, '<br>'); }
     var CHAT_URL = 'https://kavacham-stt-928986955802.us-central1.run.app/api/chat';
     var ASK_URL = 'https://kavacham-stt-928986955802.us-central1.run.app/api/ask';
     /* сетевой сбой ассистента → тихо шлём вопрос основателю (копилка); токен — на сервере */
