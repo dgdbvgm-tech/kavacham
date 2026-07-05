@@ -3,19 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>КАВАЧАМ — цифровая броня учения Шрилы Прабхупады</title>
-<meta name="description" content="КАВАЧАМ (kavacham.ai) — ИИ, который отвечает только словами Шрилы Прабхупады и всегда приводит проверяемую ссылку на источник. Цифровой библиотекарь-апологет, защищающий чистоту парампары.">
+<title>KAVACHAM — цифровая броня учения Шрилы Прабхупады</title>
+<meta name="description" content="KAVACHAM (kavacham.ai) — ИИ, который отвечает только словами Шрилы Прабхупады и всегда приводит проверяемую ссылку на источник. Цифровой библиотекарь-апологет, защищающий чистоту парампары.">
 <meta name="theme-color" content="#0C1030">
 <meta name="color-scheme" content="light dark">
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="КАВАЧАМ">
-<meta property="og:title" content="КАВАЧАМ — цифровая броня учения Шрилы Прабхупады">
+<meta property="og:site_name" content="KAVACHAM">
+<meta property="og:title" content="KAVACHAM — цифровая броня учения Шрилы Прабхупады">
 <meta property="og:description" content="ИИ, который отвечает только дословными цитатами со ссылкой на первоисточник. Никаких выдумок — или честное молчание.">
 <meta property="og:url" content="https://dgdbvgm-tech.github.io/kavacham/">
 <meta property="og:locale" content="ru_RU">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="КАВАЧАМ — цифровая броня учения Шрилы Прабхупады">
+<meta name="twitter:title" content="KAVACHAM — цифровая броня учения Шрилы Прабхупады">
 <meta name="twitter:description" content="ИИ, который отвечает только дословными цитатами со ссылкой на первоисточник.">
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230C1030'/%3E%3Cpath d='M50 16 78 27v22c0 18-12 30-28 35C34 79 22 67 22 49V27z' fill='none' stroke='%23C9A24B' stroke-width='4'/%3E%3Ccircle cx='50' cy='47' r='6' fill='%23E7CE8C'/%3E%3C/svg%3E">
@@ -24,7 +28,7 @@
 {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  "name": "КАВАЧАМ",
+  "name": "KAVACHAM",
   "alternateName": "KAVACHAM — Knowledge-Anchored Vaishnava Apologetics & Citation Hub with Authoritative Mantras",
   "url": "https://dgdbvgm-tech.github.io/kavacham/",
   "inLanguage": "ru",
@@ -60,9 +64,10 @@
     --shadow:    0 1px 2px rgba(20,20,40,0.05), 0 14px 40px rgba(20,20,50,0.09);
     --glass:     rgba(11,15,44,0.72);
 
-    --serif: "Palatino Linotype","Iowan Old Style", Palatino, "Book Antiqua", Georgia, "Times New Roman", serif;
+    /* 2 гарнитуры: Noto Serif (заголовки, санскрит-IAST, цитаты) + системный sans (текст/интерфейс).
+       Noto Serif выбран как «no-tofu» — гарантированно рендерит всю диакритику IAST и кириллицу на любой ОС. */
+    --serif: "Noto Serif", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, "Times New Roman", serif;
     --sans:  system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    --mono:  ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, "Liberation Mono", monospace;
 
     --maxw: 1120px;
     --pad-x: clamp(1.1rem, 5vw, 2.2rem);
@@ -134,7 +139,7 @@
   }
   .nav .brand { font-family: var(--serif); font-weight: 600; font-size: 1.15rem; letter-spacing: 0.14em; color: var(--gold-hi); text-decoration: none; white-space: nowrap; }
   .nav .links { display: flex; gap: 1.4rem; align-items: center; }
-  .nav .links a { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--deep-dim); text-decoration: none; transition: color .2s; }
+  .nav .links a { font-family: var(--sans); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--deep-dim); text-decoration: none; transition: color .2s; }
   .nav .links a:hover { color: var(--gold-hi); }
   .nav .nav-cta {
     font-family: var(--sans); font-weight: 600; font-size: 0.86rem;
@@ -171,7 +176,7 @@
     transform: translate(-50%,-50%) rotate(45deg); background: var(--gold); box-shadow: 0 0 10px rgba(201,162,75,0.5); }
 
   .eyebrow {
-    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase;
+    font-family: var(--sans); font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase;
     color: var(--accent); display: inline-flex; align-items: center; gap: 0.6em; margin: 0 0 1.1rem; max-width: 100%;
   }
   .eyebrow::before { content: ""; width: 1.7rem; height: 1px; background: var(--accent-2); opacity: 0.7; flex: none; }
@@ -190,7 +195,7 @@
     background: radial-gradient(72% 62% at 50% 44%, rgba(12,16,48,0.4), transparent 76%); }
   .hero .inner { position: relative; z-index: 2; max-width: 62rem; }
 
-  .hero-kicker { font-family: var(--mono); font-size: clamp(0.62rem,1.5vw,0.78rem); letter-spacing: 0.34em; text-transform: uppercase; color: var(--deep-dim); margin: 0 0 0.9rem; }
+  .hero-kicker { font-family: var(--sans); font-size: clamp(0.62rem,1.5vw,0.78rem); letter-spacing: 0.34em; text-transform: uppercase; color: var(--deep-dim); margin: 0 0 0.9rem; }
   .hero-kicker .cite { letter-spacing: 0.1em; }
 
   .wordmark {
@@ -204,7 +209,7 @@
   }
   @keyframes shimmer { to { background-position: -250% 0; } }
 
-  .decode { font-family: var(--mono); font-size: clamp(0.56rem, 2.2vw, 0.7rem); letter-spacing: 0.1em; line-height: 1.75;
+  .decode { font-family: var(--sans); font-size: clamp(0.56rem, 2.2vw, 0.7rem); letter-spacing: 0.1em; line-height: 1.75;
     text-transform: uppercase; color: var(--deep-dim); max-width: 34rem; margin: 0.7rem 0 1.5rem; opacity: 0.9; }
   .decode b { color: var(--gold-hi); font-weight: 700; }
 
@@ -223,7 +228,7 @@
   .btn-primary:hover { box-shadow: 0 12px 34px rgba(201,162,75,0.42); }
   .btn-ghost:hover { border-color: var(--gold); }
 
-  .statstrip { display: grid; grid-template-columns: repeat(3, auto); gap: 1.2rem 2.2rem; font-family: var(--mono); justify-content: start; }
+  .statstrip { display: grid; grid-template-columns: repeat(3, auto); gap: 1.2rem 2.2rem; font-family: var(--sans); justify-content: start; }
   @media (max-width: 480px) { .statstrip { grid-template-columns: repeat(3, 1fr); gap: 1rem 0.8rem; } }
   .statstrip .s { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; }
   .statstrip .s b { font-size: clamp(1.4rem, 5vw, 2rem); color: var(--gold-hi); font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -239,7 +244,7 @@
   .law::before { content: ""; position: absolute; left: 0; top: 0.2rem; bottom: 0.2rem; width: 2px;
     background: linear-gradient(var(--gold), var(--gold-lo)); border-radius: 2px; }
   .law q { font-family: var(--serif); font-style: italic; font-size: clamp(1.3rem, 4.6vw, 2.05rem); line-height: 1.34; quotes: "«" "»"; display: block; }
-  .law .who { margin-top: 1rem; font-family: var(--mono); font-size: 0.74rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+  .law .who { margin-top: 1rem; font-family: var(--sans); font-size: 0.74rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
   .deep .law .who { color: var(--gold-hi); }
 
   /* сетки — robust: гарантированно 1 колонка на узком экране */
@@ -255,12 +260,12 @@
   .card h3 { font-size: 1.24rem; }
   .card p { color: var(--text-2); font-size: 0.97rem; }
   .deep .card p { color: var(--deep-dim); }
-  .mono-tag { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+  .mono-tag { font-family: var(--sans); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
   .deep .mono-tag { color: var(--gold-hi); }
 
   .steps { display: grid; gap: 0; margin-top: 2.4rem; border-top: 1px solid var(--rule); }
   .step { display: grid; grid-template-columns: 3.5rem 1fr; gap: 1.2rem; padding: 1.6rem 0; border-bottom: 1px solid var(--rule); align-items: start; }
-  .step .num { font-family: var(--mono); font-size: 1.4rem; color: var(--accent); font-weight: 600; }
+  .step .num { font-family: var(--sans); font-size: 1.4rem; color: var(--accent); font-weight: 600; }
   .step h3 { font-size: 1.2rem; margin: 0 0 0.35rem; }
   .step p { color: var(--text-2); max-width: 52ch; }
   @media (max-width: 560px) { .step { grid-template-columns: 2.4rem 1fr; gap: 0.9rem; } }
@@ -268,30 +273,30 @@
   .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: 1px; margin-top: 2.4rem;
     background: var(--deep-rule); border: 1px solid var(--deep-rule); border-radius: 6px; overflow: hidden; }
   .fact { background: var(--deep-2); padding: 1.5rem 1.4rem; display: flex; flex-direction: column; gap: 0.45rem; }
-  .fact .big { font-family: var(--mono); font-size: clamp(1.6rem, 5vw, 2.3rem); color: var(--gold-hi); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .fact .big { font-family: var(--sans); font-size: clamp(1.6rem, 5vw, 2.3rem); color: var(--gold-hi); font-weight: 600; font-variant-numeric: tabular-nums; }
   .fact .lbl { color: var(--deep-ink); font-weight: 600; }
   .fact .sub { color: var(--deep-dim); font-size: 0.9rem; }
   .fact.wide { grid-column: 1 / -1; }
 
   .versus { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: 1.1rem; margin-top: 2.2rem; }
   .vs-col { border-radius: 6px; padding: 1.4rem 1.4rem; border: 1px solid var(--rule); background: var(--panel); }
-  .vs-col .vs-h { font-family: var(--mono); font-size: 0.74rem; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0.9rem; display: flex; align-items: center; gap: 0.5em; }
+  .vs-col .vs-h { font-family: var(--sans); font-size: 0.74rem; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0.9rem; display: flex; align-items: center; gap: 0.5em; }
   .vs-col.bad .vs-h { color: #C0705B; }
   .vs-col.good .vs-h { color: var(--verify); }
   .vs-line { display: flex; gap: 0.7em; align-items: baseline; padding: 0.5rem 0; border-top: 1px dashed var(--rule); color: var(--text-2); font-size: 0.95rem; }
   .vs-line:first-of-type { border-top: none; }
-  .vs-line .mk { font-family: var(--mono); flex: none; font-weight: 700; }
+  .vs-line .mk { font-family: var(--sans); flex: none; font-weight: 700; }
   .vs-col.bad .mk { color: #C0705B; }
   .vs-col.good .mk { color: var(--verify); }
 
   .ask-card { background: var(--panel); border: 1px solid var(--rule); border-radius: 8px; padding: 1.9rem 1.7rem; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 0.85rem; }
-  .ask-card .idx { font-family: var(--mono); color: var(--accent); font-size: 0.76rem; letter-spacing: 0.12em; }
+  .ask-card .idx { font-family: var(--sans); color: var(--accent); font-size: 0.76rem; letter-spacing: 0.12em; }
   .ask-card h3 { font-size: 1.45rem; }
   .ask-card ul { margin: 0.2rem 0 0; padding-left: 1.1rem; color: var(--text-2); }
   .ask-card li { margin: 0.35rem 0; }
 
   .contact { display: flex; flex-wrap: wrap; gap: 0.9rem; align-items: center; margin-top: 2.2rem; }
-  .contact .note { font-family: var(--mono); font-size: 0.78rem; color: var(--deep-dim); }
+  .contact .note { font-family: var(--sans); font-size: 0.78rem; color: var(--deep-dim); }
   .paper .contact .note { color: var(--text-dim); }
 
   footer { background: var(--deep-2); color: var(--deep-ink); padding: clamp(2.6rem,7vw,3.4rem) var(--pad-x); text-align: center; padding-bottom: calc(clamp(2.6rem,7vw,3.4rem) + env(safe-area-inset-bottom)); }
@@ -306,19 +311,32 @@
   .demo-bar { display: flex; align-items: center; gap: 0.6rem; padding: 0.7rem 1rem; border-bottom: 1px solid var(--deep-rule); background: rgba(255,255,255,0.03); }
   .demo-bar .dots { display: inline-flex; gap: 0.35rem; }
   .demo-bar .dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--deep-rule); }
-  .demo-bar .ttl { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--deep-dim); }
+  .demo-bar .ttl { font-family: var(--sans); font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--deep-dim); }
   .demo-body { padding: 1.3rem 1.1rem; display: flex; flex-direction: column; gap: 1.1rem; }
   .demo .q { align-self: flex-end; max-width: 86%; background: rgba(201,162,75,0.16); color: var(--gold-hi); padding: 0.6rem 0.95rem; border-radius: 13px 13px 4px 13px; font-size: 0.95rem; }
   .demo .a { align-self: flex-start; max-width: 94%; display: flex; flex-direction: column; gap: 0.6rem; }
   .demo .a > p { color: var(--deep-dim); font-size: 0.94rem; }
   .demo .a blockquote { margin: 0; padding: 0.5rem 0 0.5rem 1rem; border-left: 2px solid var(--gold); font-family: var(--serif); font-style: italic; font-size: 1.05rem; line-height: 1.46; color: var(--deep-ink); }
-  .demo .src { align-self: flex-start; font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.03em; color: var(--gold-hi); text-decoration: none; border: 1px solid var(--gold); border-radius: 999px; padding: 0.26rem 0.72rem; transition: background .2s, color .2s; }
+  .demo .src { align-self: flex-start; font-family: var(--sans); font-size: 0.72rem; letter-spacing: 0.03em; color: var(--gold-hi); text-decoration: none; border: 1px solid var(--gold); border-radius: 999px; padding: 0.26rem 0.72rem; transition: background .2s, color .2s; }
   .demo .src:hover { background: var(--gold); color: #241a05; }
   .demo .a.silence p { color: var(--deep-dim); font-style: italic; }
-  .demo .a.silence .tag { font-family: var(--mono); font-style: normal; font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--verify); display: inline-block; margin-left: 0.5rem; }
-  .demo-foot { padding: 0.8rem 1.1rem; border-top: 1px solid var(--deep-rule); font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--deep-dim); }
+  .demo .a.silence .tag { font-family: var(--sans); font-style: normal; font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--verify); display: inline-block; margin-left: 0.5rem; }
+  .demo-foot { padding: 0.8rem 1.1rem; border-top: 1px solid var(--deep-rule); font-family: var(--sans); font-size: 0.64rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--deep-dim); }
 
-  footer .sign { margin-top: 1.7rem; font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--deep-dim); opacity: 0.5; }
+  /* санскрит строгой транслитерацией (IAST) — всегда serif Noto для корректной диакритики */
+  .skt { font-family: var(--serif); font-style: italic; }
+  /* раскрываемый разбор по ньяе */
+  .demo details { border-left: 2px solid var(--gold-lo); padding-left: 0.9rem; margin-top: 0.1rem; }
+  .demo details > summary { cursor: pointer; list-style: none; font-family: var(--sans); font-size: 0.76rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold-hi); display: inline-flex; align-items: center; gap: 0.45em; padding: 0.25rem 0; }
+  .demo details > summary::-webkit-details-marker { display: none; }
+  .demo details > summary::before { content: "▸"; display: inline-block; transition: transform .2s; }
+  .demo details[open] > summary::before { transform: rotate(90deg); }
+  .demo details .body { padding: 0.7rem 0 0.2rem; display: flex; flex-direction: column; gap: 0.7rem; }
+  .demo details .body > p { color: var(--deep-dim); font-size: 0.92rem; }
+  .demo details .body blockquote { font-size: 0.98rem; }
+  .stage { font-family: var(--sans); font-weight: 700; font-size: 0.66rem; letter-spacing: 0.09em; text-transform: uppercase; color: var(--gold-hi); }
+
+  footer .sign { margin-top: 1.7rem; font-family: var(--sans); font-size: 0.62rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--deep-dim); opacity: 0.5; }
 
   /* появление при скролле */
   .reveal { opacity: 0; transform: translateY(20px); transition: opacity .7s ease, transform .7s ease; }
@@ -334,7 +352,7 @@
 <a class="skip" href="#main">К содержанию</a>
 
 <header class="nav">
-  <a class="brand" href="#top">КАВАЧАМ</a>
+  <a class="brand" href="#top">KAVACHAM</a>
   <nav class="links" aria-label="Разделы">
     <a href="#problem">Проблема</a>
     <a href="#solution">Решение</a>
@@ -348,13 +366,13 @@
 <main id="main">
 
 <!-- ============ HERO ============ -->
-<section class="band deep hero" id="top" aria-label="КАВАЧАМ">
+<section class="band deep hero" id="top" aria-label="KAVACHAM">
   <canvas id="yantra" aria-hidden="true"></canvas>
   <div class="inner">
     <p class="hero-kicker reveal">Нараяна-кавачам · <a class="cite" href="https://vedabase.io/ru/library/sb/6/8/" target="_blank" rel="noopener">ШБ 6.8</a> · «броня»</p>
-    <h1 class="wordmark reveal">КАВАЧАМ</h1>
+    <h1 class="wordmark reveal">KAVACHAM</h1>
     <p class="decode reveal"><b>K</b>nowledge-<b>A</b>nchored <b>V</b>aishnava <b>A</b>pologetics &amp; <b>C</b>itation <b>H</b>ub with <b>A</b>uthoritative <b>M</b>antras</p>
-    <p class="hero-kicker reveal" style="margin-bottom:1.6rem">kavacham.ai · цифровая броня учения</p>
+    <p class="hero-kicker reveal" style="margin-bottom:1.6rem">КАВАЧАМ · kavacham.ai · цифровая броня учения</p>
     <h1 class="thesis reveal">Искусственный интеллект, который отвечает <b>только словами Шрилы&nbsp;Прабхупады</b> — и всегда приводит ссылку на источник.</h1>
     <p class="lede reveal">Не «умная нейросеть», а <span class="term">цифровой библиотекарь</span>: находит то, что уже сказано в первоисточниках, приводит дословно — и молчит там, где опоры нет.</p>
     <div class="cta-row reveal">
@@ -386,7 +404,7 @@
         <div class="vs-line"><span class="mk">✕</span><span>Никогда не скажет «я не знаю» — всегда сочиняет</span></div>
       </div>
       <div class="vs-col good">
-        <div class="vs-h">✦ КАВАЧАМ</div>
+        <div class="vs-h">✦ KAVACHAM</div>
         <div class="vs-line"><span class="mk">✓</span><span>Каждое слово — дословная цитата с кликабельной ссылкой</span></div>
         <div class="vs-line"><span class="mk">✓</span><span>Только выверенные источники в парампаре</span></div>
         <div class="vs-line"><span class="mk">✓</span><span>Три рубежа проверки чистоты — от источника до ответа</span></div>
@@ -409,9 +427,9 @@
 <div class="thread-div on-paper"><span></span></div>
 
 <!-- ============ РЕШЕНИЕ ============ -->
-<section class="band paper alt" id="solution" aria-label="Что такое КАВАЧАМ">
+<section class="band paper alt" id="solution" aria-label="Что такое KAVACHAM">
   <div class="inner">
-    <p class="eyebrow reveal">Что такое КАВАЧАМ</p>
+    <p class="eyebrow reveal">Что такое KAVACHAM</p>
     <h2 class="kicker reveal">Находит то, что уже сказано, — и показывает, где именно.</h2>
     <p class="lead reveal">Три обещания, на которых стоит весь агент. Они записаны в его конституцию и не могут быть нарушены ради «красивого ответа».</p>
     <div class="grid g-3">
@@ -423,12 +441,12 @@
       <div class="card reveal">
         <span class="mono-tag">02 · честность</span>
         <h3>Право молчать</h3>
-        <p>Если ответа в источниках нет, КАВАЧАМ прямо говорит: «в моих источниках нет основания». Честный отказ равноценен ответу.</p>
+        <p>Если ответа в источниках нет, KAVACHAM прямо говорит: «в моих источниках нет основания». Честный отказ равноценен ответу.</p>
       </div>
       <div class="card reveal">
         <span class="mono-tag">03 · смирение</span>
         <h3>Не гуру и не вани</h3>
-        <p>Это библиотекарь, а не наставник. Вани даёт гуру; живое общение с преданными ничем не заменить. КАВАЧАМ лишь подаёт точную книгу.</p>
+        <p>Это библиотекарь, а не наставник. Вани даёт гуру; живое человеческое общение ничем не заменить. KAVACHAM лишь подаёт точную книгу.</p>
       </div>
     </div>
   </div>
@@ -439,10 +457,27 @@
   <div class="inner">
     <p class="eyebrow reveal">Живой пример — самое сильное доказательство</p>
     <h2 class="kicker reveal">Так выглядит ответ. Каждое слово — проверяемо.</h2>
-    <p class="lead reveal" style="color:var(--deep-dim)">Цитаты ниже — настоящие, ссылки рабочие: нажмите — откроется первоисточник. Именно так отвечает КАВАЧАМ — находит сказанное и показывает, где.</p>
+    <p class="lead reveal" style="color:var(--deep-dim)">Цитаты ниже — настоящие, ссылки рабочие: нажмите — откроется первоисточник. Именно так отвечает KAVACHAM — находит сказанное и показывает, где.</p>
     <div class="demo reveal">
-      <div class="demo-bar"><span class="dots"><i></i><i></i><i></i></span><span class="ttl">КАВАЧАМ · поиск по вани</span></div>
+      <div class="demo-bar"><span class="dots"><i></i><i></i><i></i></span><span class="ttl">KAVACHAM · поиск по вани</span></div>
       <div class="demo-body">
+        <div class="q">Можно ли доказать существование Бога одной логикой — без опоры на писание?</div>
+        <div class="a">
+          <p>Короткий ответ — по иерархии праман (эпистемологии Гаудия-веданты):</p>
+          <blockquote>Одна «сухая логика» к истине не приводит. Восприятие и вывод несовершенны — окончательный арбитр это <span class="skt">śabda</span> (писание в парампаре). Логика <span class="skt">śāstra</span> служит, а не отменяет её.</blockquote>
+          <details>
+            <summary>Подробный разбор по ньяе</summary>
+            <div class="body">
+              <p><span class="stage">Пурвапакша</span> — оппонент требует доказать Бога только через <span class="skt">pratyakṣa</span> (восприятие) и <span class="skt">anumāna</span> (логический вывод).</p>
+              <p><span class="stage">Кхандана</span> — обусловленная душа несёт четыре изъяна (ошибки, невнимательность, склонность обманывать, несовершенство чувств), поэтому восприятие и вывод ненадёжны как высший источник. «Сухие доводы» отверг Сам Махапрабху:</p>
+              <blockquote>«Сухая логика не приводит к окончательному выводу… Подлинный смысл религиозных заповедей скрыт в сердце безгрешного святого».</blockquote>
+              <a class="src" href="https://vedabase.io/ru/library/cc/madhya/17/186/" target="_blank" rel="noopener">Ч.-ч., Мадхья 17.186 ↗</a>
+              <p><span class="stage">Сиддханта</span> — <span class="skt">śabda-pramāṇa</span> есть мула-прамана; логика (<span class="skt">śāstra-yukti</span>) её обслуживает. Бог не «вычисляется» изолированным рассудком, а открывается тому, кто предаётся, ведомый писанием:</p>
+              <blockquote>Тот, кто, пройдя через множество рождений… вручает себя Мне… Такая великая душа встречается очень редко.</blockquote>
+              <a class="src" href="https://vedabase.io/ru/library/bg/7/19/" target="_blank" rel="noopener">Бхагавад-гита 7.19 ↗</a>
+            </div>
+          </details>
+        </div>
         <div class="q">Как обрести истинное знание?</div>
         <div class="a">
           <p>Господь Кришна отвечает прямо:</p>
@@ -473,7 +508,7 @@
     <div class="steps reveal">
       <div class="step"><div class="num">01</div><div><h3>Источник</h3><p>Белые, серые и чёрные списки. Доверяем только выверенным хранилищам вани (Vanisource / BLS, издания BBT) и отвергаем агрегаторы с ошибками перевода.</p></div></div>
       <div class="step"><div class="num">02</div><div><h3>Документ</h3><p>У каждого текста — статус проверки: ожидает сверки, сверен владельцем или сверен с официальным изданием. Ничто не идёт в ответ «вслепую».</p></div></div>
-      <div class="step"><div class="num">03</div><div><h3>Ответ</h3><p>По умолчанию — только из доверенного контура. Спорное и чувствительное уходит на ревью человеку. Публикация — всегда с одобрения преданного.</p></div></div>
+      <div class="step"><div class="num">03</div><div><h3>Ответ</h3><p>По умолчанию — только из доверенного контура. Спорное и чувствительное уходит на ревью человеку. Публикация — всегда с одобрения человека.</p></div></div>
     </div>
   </div>
 </section>
@@ -501,7 +536,7 @@
   <div class="inner">
     <p class="eyebrow reveal">Как этим будут пользоваться</p>
     <h2 class="kicker reveal">Как поиск — но с доказательствами.</h2>
-    <p class="lead reveal">Библиотека и индекс — фундамент. Поверх него — понятный интерфейс: преданный задаёт вопрос и получает ответ, который можно проверить в один клик.</p>
+    <p class="lead reveal">Библиотека и индекс — фундамент. Поверх него — понятный интерфейс: человек задаёт вопрос и получает ответ, который можно проверить в один клик.</p>
     <div class="grid g-3">
       <div class="card reveal"><span class="mono-tag">поиск · чат</span><h3>Спросите как человека</h3><p>Вопрос обычными словами, на любом языке — в строке поиска или в диалоге. Ответ приходит цитатами со ссылками, без «воды» и догадок.</p></div>
       <div class="card reveal"><span class="mono-tag">чекбоксы · фильтр</span><h3>Выберите источник</h3><p>Селектор корпусов: искать только по книгам Шрилы Прабхупады, только по письмам, по лекциям, по трудам ачарьев — или по всему сразу. Вы управляете кругом доверия.</p></div>
@@ -516,7 +551,7 @@
   <div class="inner">
     <p class="eyebrow reveal">Почему это всерьёз</p>
     <h2 class="kicker reveal">Логика — в наследство от Самого Шри Чайтаньи.</h2>
-    <p class="lead reveal">Навадвипа времён Махапрабху была мировой столицей логики (навья-ньяя). Сам Нимай Пандит — непобедимый логик, обративший в преданность величайшего логика Индии. КАВАЧАМ наследует эту дисциплину:</p>
+    <p class="lead reveal">Навадвипа времён Махапрабху была мировой столицей логики (навья-ньяя). Сам Нимай Пандит — непобедимый логик, обративший в преданность величайшего логика Индии. KAVACHAM наследует эту дисциплину:</p>
     <p class="lead reveal">строгая опора на шастру, честный разбор возражения в его сильнейшей форме, никаких уловок и высмеивания. Цель — не «победить» собеседника, а защитить истину для тех, кто слушает.</p>
   </div>
 </section>
@@ -528,17 +563,44 @@
     <h2 class="kicker reveal">Брихат-мриданга XXI века.</h2>
     <div class="law reveal" style="margin: 0 0 2.4rem">
       <q>Мы не враги машин.</q>
-      <div class="who">— Шрила Прабхупада, письмо 8 декабря 1968</div>
+      <div class="who">— Шрила Прабхупада · <a class="cite" href="https://vanisource.org/wiki/681208_-_Letter_to_Kirtanananda_written_from_Los_Angeles" target="_blank" rel="noopener">письмо, 8 декабря 1968</a></div>
     </div>
     <p class="lead reveal" style="color:var(--deep-dim); max-width:48rem">
       Бхактисиддханта Сарасвати называл печатный станок <i style="color:var(--deep-ink);font-family:var(--serif)">брихат-мридангой</i> — его «звук» летит дальше барабана. Каждый ачарья брал самый мощный канал своей эпохи: печать → журналы и английский язык → радио и ТВ. ИИ — брихат-мриданга XXI века по тому же критерию: «слышен» на всех языках, персонально, круглосуточно — буквально «газета каждую секунду».
     </p>
     <p class="lead reveal" style="color:var(--deep-dim); max-width:48rem; margin-top:1.1rem">
-      Е.С. Бхакти Вигьяна Госвами называет интернет самой важной сферой проповеди сегодня. КАВАЧАМ — юкта-вайрагья: техника на службе преданности, а не бегство от неё.
+      Е.С. Бхакти Вигьяна Госвами называет интернет самой важной сферой проповеди сегодня. KAVACHAM — юкта-вайрагья: техника на службе преданности, а не бегство от неё.
     </p>
     <div class="law reveal" style="margin-top:2.6rem">
-      <q>We should not compromise in any way… but we can so tastefully present the real thing.</q>
-      <div class="who">— Шрила Прабхупада · технология меняется — послание нет</div>
+      <q>We should not compromise in any way just to accommodate the public idea, but we can so tastefully present the real thing that we will change the people to accommodate us.</q>
+      <div class="who">технология меняется — послание нет · <a class="cite" href="https://vanisource.org/wiki/720216_-_Letter_to_Siddhesvara_and_Krsnakanti_written_from_Calcutta" target="_blank" rel="noopener">Шрила Прабхупада, письмо 16.02.1972</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ МОМЕНТ НАЗРЕЛ (дискурс ИСККОН) ============ -->
+<section class="band paper alt" aria-label="Почему сейчас">
+  <div class="inner">
+    <p class="eyebrow reveal">Момент назрел — и ниша свободна</p>
+    <h2 class="kicker reveal">ИСККОН уже благословил ИИ-проповедь. Эталон пока не создан.</h2>
+    <p class="lead reveal">Идея не идёт против течения — она отвечает на запрос, уже сформулированный внутри самого общества.</p>
+    <div class="grid g-3">
+      <div class="card reveal">
+        <span class="mono-tag">благословение</span>
+        <h3>Рамка уже задана</h3>
+        <p>Официальное медиа ИСККОН статьёй «AI for the Golden Age» прямо благословляет образовательные чат-боты по книгам Прабхупады, ИИ-перевод и распространение — в терминах юкта-вайрагьи. Это ровно то, что делает KAVACHAM.</p>
+        <a class="cite" href="https://iskconnews.org/ai-for-the-golden-age" target="_blank" rel="noopener">ISKCON News · «AI for the Golden Age»</a>
+      </div>
+      <div class="card reveal">
+        <span class="mono-tag">критика = наше ТЗ</span>
+        <h3>Мы — ответ на страх</h3>
+        <p>Главная внутренняя критика — «Vibe Siddhanta and The Dangers of AI» — бьёт в галлюцинации, предвзятость и неспособность обычных LLM к герменевтике. KAVACHAM спроектирован как прямой ответ: строго по источникам, проверяемые цитаты, право молчать.</p>
+      </div>
+      <div class="card reveal">
+        <span class="mono-tag">окно открыто</span>
+        <h3>Нишу никто не занял</h3>
+        <p>Официальной позиции GBC по ИИ пока нет; всё остальное — частные инициативы. Место эталонного, проверяемого ИИ-инструмента для проповеди и апологетики институционально свободно.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -561,7 +623,7 @@
           <li>Говинда-бхашья Баладевы Видьябхушаны</li>
           <li>Песенники ачарьев в надёжном переводе</li>
         </ul>
-        <p class="muted">Если у вас есть выверенное издание — оно станет частью защищённого корпуса и послужит всем преданным.</p>
+        <p class="muted">Если у вас есть выверенное издание — оно станет частью защищённого корпуса и послужит всем, кто изучает наследие.</p>
         <p class="muted">В планах — труды и других духовных учителей традиции: продукт служит ученикам разных Гуру, и каждый найдёт выверенную опору.</p>
       </div>
       <div class="ask-card reveal">
@@ -588,8 +650,7 @@
 <footer>
   <div class="om">✦</div>
   <p class="closing">Защита учения — это слова Прабхупады, найденные и приведённые точно.</p>
-  <p class="sig"><b>КАВАЧАМ</b> · Gaudiya Jnana Kosh · основатель проекта — Даял-Говинда&nbsp;дас</p>
-  <p class="sig" style="margin-top:0.4rem"><a href="https://t.me/dgdbvgm" target="_blank" rel="noopener">Telegram · @dgdbvgm</a> &nbsp;·&nbsp; Харе Кришна 🙏</p>
+  <p class="sig"><b>KAVACHAM</b> · Gaudiya Jnana Kosh · основатель проекта — Даял-Говинда&nbsp;дас</p>
   <p class="sign">DGD &nbsp;|&nbsp; ZERO ENTROPY</p>
 </footer>
 
