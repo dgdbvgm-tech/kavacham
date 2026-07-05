@@ -9,6 +9,7 @@
 <meta property="og:description" content="Что внутри защищённой библиотеки — по корпусам и произведениям.">
 <meta property="og:url" content="https://dgdbvgm-tech.github.io/kavacham/corpus.html">
 <meta property="og:image" content="https://dgdbvgm-tech.github.io/kavacham/og.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230C1030'/%3E%3Cpath d='M50 16 78 27v22c0 18-12 30-28 35C34 79 22 67 22 49V27z' fill='none' stroke='%23C9A24B' stroke-width='4'/%3E%3Ccircle cx='50' cy='47' r='6' fill='%23E7CE8C'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&display=swap">
 <style>
   :root{--deep:#0C1030;--deep-2:#131A44;--ink:#ECE6D4;--dim:#A2A6C8;--rule:rgba(201,162,75,0.22);
@@ -35,6 +36,14 @@
   .banner{margin:1.3rem auto 0;max-width:44rem;font-family:var(--sans);font-size:.88rem;line-height:1.5;color:var(--dim);
     border:1px solid var(--rule);border-radius:12px;padding:.8rem 1rem;background:rgba(201,162,75,0.05)}
   .banner b{color:var(--gold-hi)}
+  .explain{max-width:48rem;margin:0 auto;border:1px solid var(--rule);border-radius:12px;background:rgba(255,255,255,0.02);overflow:hidden}
+  .explain summary{cursor:pointer;list-style:none;padding:.9rem 1.1rem;font-family:var(--sans);font-size:.86rem;letter-spacing:.02em;color:var(--gold-hi)}
+  .explain summary::-webkit-details-marker{display:none}
+  .explain summary::before{content:"❔ ";opacity:.8}
+  .explain[open] summary{border-bottom:1px solid var(--rule)}
+  .explain .body{padding:1rem 1.1rem;font-size:.92rem;line-height:1.6;color:var(--dim)}
+  .explain .body b{color:var(--ink)}
+  .explain .body p{margin:.5rem 0}
   hr.thread{border:0;height:1px;background:linear-gradient(90deg,transparent,var(--rule),transparent);margin:1.8rem 0}
   .corp{margin:1.6rem 0;border:1px solid var(--rule);border-radius:14px;padding:1.2rem 1.3rem;background:rgba(255,255,255,0.02)}
   .corp-head{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;flex-wrap:wrap}
@@ -70,6 +79,15 @@
     <div class="banner">⏳ Индексация продолжается: <b>54%</b> корпуса (20 512 из ~37 660 документов). Крупные своды (напр. Шримад-Бхагаватам) ещё загружаются — каталог пополняется автоматически.</div>
   </header>
   <hr class="thread">
+  <details class="explain">
+    <summary>Что такое «фрагменты» и зачем векторизация</summary>
+    <div class="body">
+      <p>Каждый документ мы делим на небольшие <b>смысловые фрагменты</b> (по абзацам/стихам) и превращаем в числовые «отпечатки смысла» — <b>векторы</b>. Это и есть векторизация.</p>
+      <p><b>Зачем.</b> Поиск идёт не по совпадению слов, а по смыслу: на вопрос система находит те самые места первоисточников, где ответ есть по сути, даже если формулировка другая — и приводит их дословно, со ссылкой.</p>
+      <p><b>Почему фрагментами.</b> Мелкий фрагмент — точное попадание в нужный стих или абзац, а не «вся книга целиком». Поэтому фрагментов в разы больше, чем документов: один документ даёт много точек поиска. Это стандарт индустрии для честного поиска по большим корпусам (retrieval).</p>
+      <p><b>Ценность для нас.</b> Точность и проверяемость: ответ собирается из конкретных найденных мест, а не выдумывается. Это фундамент «трёх рубежей чистоты».</p>
+    </div>
+  </details>
   <section class="corp">
   <div class="corp-head">
     <h2>Шрила Прабхупада</h2>
@@ -337,7 +355,7 @@
 
   <footer class="doc">
     <p>Каталог отражает выверенную библиотеку — «указатель, не переиздатель». <a href="./">На главную →</a></p>
-    <p class="when">Обновлено автоматически из векторного индекса · 2026-07-05 21:37</p>
+    <p class="when">Обновлено автоматически из векторного индекса · 2026-07-05 22:19</p>
     <p class="sign">KAVACHAM · DGD · ZERO ENTROPY</p>
   </footer>
 </div>
