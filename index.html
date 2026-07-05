@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>KAVACHAM — цифровая броня учения Шрилы Прабхупады</title>
-<meta name="description" content="KAVACHAM (kavacham.ai) — ИИ, который отвечает только словами Шрилы Прабхупады и всегда приводит проверяемую ссылку на источник. Цифровой библиотекарь-апологет, защищающий чистоту парампары.">
+<meta name="description" content="KAVACHAM (kavacham.ai) — ИИ, который отвечает только словами Шрилы Прабхупады и ачарьев парампары и всегда приводит проверяемую ссылку на источник. Цифровой библиотекарь-апологет, защищающий чистоту парампары.">
 <meta name="theme-color" content="#0C1030">
 <meta name="color-scheme" content="light dark">
 
@@ -37,7 +37,7 @@
   "alternateName": "KAVACHAM — Knowledge-Anchored Vaishnava Apologetics & Citation Hub with Authoritative Mantras",
   "url": "https://dgdbvgm-tech.github.io/kavacham/",
   "inLanguage": "ru",
-  "description": "ИИ-агент, отвечающий только дословными цитатами из первоисточников учения Шрилы Прабхупады с проверяемыми ссылками.",
+  "description": "ИИ-агент, отвечающий только дословными цитатами из выверенных первоисточников парампары (Шрила Прабхупада и ачарьи) с проверяемыми ссылками.",
   "author": { "@type": "Person", "name": "Даял-Говинда дас" }
 }
 </script>
@@ -154,7 +154,28 @@
   }
   .nav .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(201,162,75,0.35); }
   .nav .progress { position: absolute; left: 0; bottom: -1px; height: 2px; width: 0; background: linear-gradient(90deg, var(--gold-lo), var(--gold-hi)); box-shadow: 0 0 8px rgba(201,162,75,0.6); }
-  @media (max-width: 680px) { .nav .links { display: none; } }
+
+  /* гамбургер (виден только на узком экране) */
+  .nav-burger { display: none; background: none; border: none; cursor: pointer; padding: 0.45rem; flex: none; }
+  .nav-burger span { display: block; width: 22px; height: 2px; margin: 4px 0; border-radius: 2px; background: var(--gold-hi); transition: transform .25s ease, opacity .2s ease; }
+  .nav-burger[aria-expanded="true"] span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  .nav-burger[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+  .nav-burger[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+  @media (max-width: 680px) {
+    .nav-burger { display: block; }
+    .nav .brand { margin-right: auto; }
+    .nav .links {
+      position: absolute; top: 100%; left: 0; right: 0; display: flex; flex-direction: column; gap: 0;
+      padding: 0.35rem var(--pad-x) 0.9rem; background: var(--deep); border-bottom: 1px solid var(--deep-rule);
+      box-shadow: 0 22px 44px rgba(0,0,0,0.45);
+      transform: translateY(-120%); opacity: 0; pointer-events: none; transition: transform .28s ease, opacity .2s ease;
+    }
+    .nav .links.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+    .nav .links a { padding: 0.9rem 0.2rem; font-size: 0.82rem; border-bottom: 1px solid var(--deep-rule); }
+    .nav .links a:last-child { border-bottom: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .nav .links { transition: opacity .2s ease; } .nav-burger span { transition: none; } }
 
   /* ——— СЕКЦИИ / ПОЛОСЫ ——— */
   .band { position: relative; padding: var(--pad-y) var(--pad-x); }
@@ -361,6 +382,20 @@
     .btn:hover, .card:hover, .nav .nav-cta:hover { transform: none; }
   }
 
+  /* кнопка «наверх» — нижний левый угол (не конфликтует с виджетом справа) */
+  .to-top { position: fixed; left: max(1rem, env(safe-area-inset-left)); bottom: max(1rem, env(safe-area-inset-bottom)); z-index: 1150;
+    width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--deep-rule); cursor: pointer;
+    background: var(--deep); color: var(--gold-hi); font-size: 1.15rem; line-height: 1;
+    display: inline-flex; align-items: center; justify-content: center;
+    opacity: 0; transform: translateY(12px); pointer-events: none;
+    transition: opacity .25s ease, transform .25s ease, border-color .2s ease; box-shadow: 0 8px 24px rgba(0,0,0,0.32); }
+  @supports ((backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px))) {
+    .to-top { background: var(--glass); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+  }
+  .to-top.show { opacity: 1; transform: none; pointer-events: auto; }
+  .to-top:hover { border-color: var(--gold); }
+  @media (prefers-reduced-motion: reduce) { .to-top { transition: opacity .2s ease; } }
+
   /* ——— виджет «Спросить о проекте» (retrieval по базе знаний, без ключей и галлюцинаций) ——— */
   .ask-fab { position: fixed; right: max(1rem, env(safe-area-inset-right)); bottom: max(1rem, env(safe-area-inset-bottom)); z-index: 1200;
     display: inline-flex; align-items: center; gap: 0.5em; padding: 0.75rem 1.05rem; border: none; border-radius: 999px; cursor: pointer;
@@ -420,13 +455,15 @@
 
 <header class="nav">
   <a class="brand" href="#top">KAVACHAM</a>
-  <nav class="links" aria-label="Разделы">
+  <nav class="links" id="navLinks" aria-label="Разделы">
     <a href="#problem">Проблема</a>
     <a href="#solution">Решение</a>
+    <a href="#demo">Пример</a>
     <a href="#proof">Что сделано</a>
     <a href="#help">Помочь</a>
   </nav>
   <a class="nav-cta" href="#help">Поддержать</a>
+  <button class="nav-burger" id="navBurger" type="button" aria-label="Открыть меню" aria-expanded="false" aria-controls="navLinks"><span></span><span></span><span></span></button>
   <span class="progress" id="progress" aria-hidden="true"></span>
 </header>
 
@@ -440,7 +477,7 @@
     <h1 class="wordmark reveal">KAVACHAM</h1>
     <p class="decode reveal"><b>K</b>nowledge-<b>A</b>nchored <b>V</b>aishnava <b>A</b>pologetics &amp; <b>C</b>itation <b>H</b>ub with <b>A</b>uthoritative <b>M</b>antras</p>
     <p class="hero-kicker reveal" style="margin-bottom:1.6rem">КАВАЧАМ · kavacham.ai · цифровая броня учения</p>
-    <h1 class="thesis reveal">Искусственный интеллект, который отвечает <b>только словами Шрилы&nbsp;Прабхупады</b> — и всегда приводит ссылку на источник.</h1>
+    <h1 class="thesis reveal">Искусственный интеллект, который отвечает <b>только словами Шрилы&nbsp;Прабхупады и ачарьев парампары</b> — и всегда приводит ссылку на источник.</h1>
     <p class="lede reveal">Не «умная нейросеть», а <span class="term">цифровой библиотекарь</span>: находит то, что уже сказано в первоисточниках, приводит дословно — и молчит там, где опоры нет.</p>
     <div class="cta-row reveal">
       <a class="btn btn-primary" href="#help">Поддержать проект →</a>
@@ -754,6 +791,8 @@
 
 </main>
 
+<button class="to-top" id="toTop" type="button" aria-label="Наверх" title="Наверх">↑</button>
+
 <!-- ============ ВИДЖЕТ «СПРОСИТЬ О ПРОЕКТЕ» ============ -->
 <button class="ask-fab" id="askFab" aria-label="Спросить о проекте">✦ <span class="lbl">Спросить о проекте</span></button>
 <div class="ask-panel" id="askPanel" role="dialog" aria-label="Вопросы о проекте KAVACHAM">
@@ -791,16 +830,27 @@
       revs.forEach(function (r, i) { r.style.transitionDelay = (Math.min(i % 4, 3) * 55) + 'ms'; io.observe(r); });
     } else { revs.forEach(function (r) { r.classList.add('in'); }); }
 
-    /* прогресс-нить в навбаре */
+    /* прогресс-нить в навбаре + кнопка «наверх» */
     var bar = document.getElementById('progress');
-    if (bar) {
-      var tick = function () {
-        var h = document.documentElement;
-        var max = h.scrollHeight - h.clientHeight;
-        bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%';
-      };
-      window.addEventListener('scroll', tick, { passive: true });
-      window.addEventListener('resize', tick); tick();
+    var toTop = document.getElementById('toTop');
+    var tick = function () {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      if (bar) bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%';
+      if (toTop) toTop.classList.toggle('show', h.scrollTop > 600);
+    };
+    window.addEventListener('scroll', tick, { passive: true });
+    window.addEventListener('resize', tick); tick();
+    if (toTop) { toTop.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); }); }
+
+    /* мобильное меню (гамбургер): доступно, закрытие по клику/Esc/тапу вне */
+    var burger = document.getElementById('navBurger'), navLinks = document.getElementById('navLinks');
+    if (burger && navLinks) {
+      var closeMenu = function () { navLinks.classList.remove('open'); burger.setAttribute('aria-expanded', 'false'); };
+      burger.addEventListener('click', function (e) { e.stopPropagation(); var open = navLinks.classList.toggle('open'); burger.setAttribute('aria-expanded', open ? 'true' : 'false'); });
+      navLinks.addEventListener('click', function (e) { if (e.target.tagName === 'A') closeMenu(); });
+      document.addEventListener('click', function (e) { if (navLinks.classList.contains('open') && !navLinks.contains(e.target) && !burger.contains(e.target)) closeMenu(); });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeMenu(); });
     }
 
     /* янтра-щит (Canvas) — лёгкая и деградируемая */
