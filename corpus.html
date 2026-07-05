@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Каталог корпуса — KAVACHAM</title>
+<meta name="description" content="Что внутри библиотеки KAVACHAM: корпуса, произведения и объём — по данным векторного индекса.">
+<meta property="og:title" content="Каталог корпуса KAVACHAM">
+<meta property="og:description" content="Что внутри защищённой библиотеки — по корпусам и произведениям.">
+<meta property="og:url" content="https://dgdbvgm-tech.github.io/kavacham/corpus.html">
+<meta property="og:image" content="https://dgdbvgm-tech.github.io/kavacham/og.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<style>
+  :root{--deep:#0C1030;--deep-2:#131A44;--ink:#ECE6D4;--dim:#A2A6C8;--rule:rgba(201,162,75,0.22);
+    --gold:#C9A24B;--gold-lo:#A9863A;--gold-hi:#E7CE8C;
+    --serif:"Noto Serif","Palatino Linotype",Palatino,Georgia,serif;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;--pad:clamp(1.1rem,5vw,2.2rem)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+  body{background:radial-gradient(1200px 500px at 50% -10%,rgba(201,162,75,0.08),transparent 60%),var(--deep);
+    color:var(--ink);font-family:var(--serif);line-height:1.6;padding:0 var(--pad) calc(3rem + env(safe-area-inset-bottom));
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:54rem;margin:0 auto}
+  .topbar{position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center;gap:1rem;
+    padding:0.9rem 0;margin-bottom:1.2rem;border-bottom:1px solid var(--rule);
+    background:linear-gradient(180deg,var(--deep) 70%,rgba(12,16,48,0.6));backdrop-filter:blur(6px)}
+  .topbar a{font-family:var(--sans);font-size:0.74rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--dim);text-decoration:none;transition:color .2s}
+  .topbar a:hover{color:var(--gold-hi)}
+  .topbar .brand{color:var(--gold-hi);font-weight:600}
+  header.doc{padding:1.4rem 0 1rem;text-align:center}
+  .eyebrow{font-family:var(--sans);font-size:0.72rem;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold);opacity:.9}
+  h1.title{font-weight:700;font-size:clamp(1.8rem,6vw,2.6rem);margin:.5rem 0 .5rem;text-wrap:balance}
+  .tot{font-family:var(--sans);font-size:.9rem;color:var(--dim)}
+  .tot b{color:var(--gold-hi);font-variant-numeric:tabular-nums}
+  .banner{margin:1.3rem auto 0;max-width:44rem;font-family:var(--sans);font-size:.88rem;line-height:1.5;color:var(--dim);
+    border:1px solid var(--rule);border-radius:12px;padding:.8rem 1rem;background:rgba(201,162,75,0.05)}
+  .banner b{color:var(--gold-hi)}
+  hr.thread{border:0;height:1px;background:linear-gradient(90deg,transparent,var(--rule),transparent);margin:1.8rem 0}
+  .corp{margin:1.6rem 0;border:1px solid var(--rule);border-radius:14px;padding:1.2rem 1.3rem;background:rgba(255,255,255,0.02)}
+  .corp-head{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;flex-wrap:wrap}
+  .corp-head h2{font-size:clamp(1.15rem,3.4vw,1.45rem);color:var(--gold-hi);line-height:1.2}
+  .corp-meta{font-family:var(--sans);font-size:.82rem;color:var(--dim);white-space:nowrap}
+  .corp-meta b{color:var(--ink);font-variant-numeric:tabular-nums}
+  .corp-sub{color:var(--dim);font-size:.95rem;margin:.3rem 0 .2rem}
+  .corp-note{font-family:var(--sans);font-size:.8rem;color:var(--dim);opacity:.85;margin:.5rem 0 .2rem}
+  ul.works{list-style:none;margin:.7rem 0 0;display:grid;grid-template-columns:1fr;gap:.1rem}
+  ul.works li{display:flex;justify-content:space-between;gap:1rem;padding:.5rem .2rem;border-bottom:1px solid rgba(201,162,75,0.1)}
+  ul.works li:last-child{border-bottom:0}
+  .w-name{color:var(--ink);font-size:.95rem}
+  .w-num{font-family:var(--sans);font-size:.78rem;color:var(--dim);white-space:nowrap;font-variant-numeric:tabular-nums}
+  @media(min-width:640px){ul.works{grid-template-columns:1fr 1fr;gap:.1rem .0}
+    ul.works li{border-bottom:1px solid rgba(201,162,75,0.1)}}
+  footer.doc{margin-top:2.4rem;padding-top:1.4rem;border-top:1px solid var(--rule);text-align:center;color:var(--dim)}
+  footer.doc a{color:var(--gold-hi);text-decoration:none}
+  footer.doc .when{font-family:var(--sans);font-size:.72rem;opacity:.7;margin-top:.6rem}
+  footer.doc .sign{margin-top:1rem;font-family:var(--sans);font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--dim);opacity:.5}
+  @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="topbar">
+    <a href="./"><span aria-hidden="true">←</span>&nbsp; <span class="brand">KAVACHAM</span></a>
+    <a href="./constitution.html">Конституция</a>
+  </nav>
+  <header class="doc">
+    <p class="eyebrow">Что внутри библиотеки</p>
+    <h1 class="title">Каталог корпуса</h1>
+    <p class="tot"><b>20 512</b> документов · <b>442 829</b> фрагментов · <b>9</b> корпусов</p>
+    <div class="banner">⏳ Индексация продолжается: <b>54%</b> корпуса (20 512 из ~37 660 документов). Крупные своды (напр. Шримад-Бхагаватам) ещё загружаются — каталог пополняется автоматически.</div>
+  </header>
+  <hr class="thread">
+  <section class="corp">
+  <div class="corp-head">
+    <h2>Шрила Прабхупада</h2>
+    <div class="corp-meta"><b>2 919</b> док. · 40 615 фрагм.</div>
+  </div>
+  <p class="corp-sub">Книги, лекции, беседы и письма — корпус вани</p>
+<p class="corp-note">2 919 произведений/текстов, сгруппированы по разделам</p>
+  <ul class="works">
+    <li><span class="w-name">Conversations</span><span class="w-num">1 600 док.</span></li>
+    <li><span class="w-name">Books</span><span class="w-num">675 док.</span></li>
+    <li><span class="w-name">Lectures</span><span class="w-num">642 док.</span></li>
+    <li><span class="w-name">Puteshestvie-vglub-sebya.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Veda-tayny-vostoka.md</span><span class="w-num">1 док.</span></li>
+  </ul>
+</section>
+
+<section class="corp">
+  <div class="corp-head">
+    <h2>Бхагавад-гита как она есть</h2>
+    <div class="corp-meta"><b>653</b> док. · 2 334 фрагм.</div>
+  </div>
+  <p class="corp-sub">Стихи с дословным переводом (Vedabase)</p>
+<p class="corp-note">653 произведений/текстов, сгруппированы по разделам</p>
+  <ul class="works">
+    <li><span class="w-name">18</span><span class="w-num">74 док.</span></li>
+    <li><span class="w-name">2</span><span class="w-num">71 док.</span></li>
+    <li><span class="w-name">11</span><span class="w-num">52 док.</span></li>
+    <li><span class="w-name">3</span><span class="w-num">43 док.</span></li>
+    <li><span class="w-name">4</span><span class="w-num">42 док.</span></li>
+    <li><span class="w-name">6</span><span class="w-num">42 док.</span></li>
+    <li><span class="w-name">10</span><span class="w-num">40 док.</span></li>
+    <li><span class="w-name">1</span><span class="w-num">39 док.</span></li>
+    <li><span class="w-name">9</span><span class="w-num">34 док.</span></li>
+    <li><span class="w-name">7</span><span class="w-num">30 док.</span></li>
+    <li><span class="w-name">13</span><span class="w-num">29 док.</span></li>
+    <li><span class="w-name">8</span><span class="w-num">28 док.</span></li>
+    <li><span class="w-name">5</span><span class="w-num">27 док.</span></li>
+    <li><span class="w-name">14</span><span class="w-num">24 док.</span></li>
+    <li><span class="w-name">17</span><span class="w-num">24 док.</span></li>
+    <li><span class="w-name">15</span><span class="w-num">19 док.</span></li>
+    <li><span class="w-name">16</span><span class="w-num">19 док.</span></li>
+    <li><span class="w-name">12</span><span class="w-num">16 док.</span></li>
+  </ul>
+</section>
+
+<section class="corp">
+  <div class="corp-head">
+    <h2>Чайтанья-чаритамрита</h2>
+    <div class="corp-meta"><b>11 329</b> док. · 25 962 фрагм.</div>
+  </div>
+  <p class="corp-sub">Стихи с дословным переводом (Vedabase)</p>
+<p class="corp-note">11 329 произведений/текстов, сгруппированы по разделам</p>
+  <ul class="works">
+    <li><span class="w-name">Мадхья-лила</span><span class="w-num">5 918 док.</span></li>
+    <li><span class="w-name">Антья-лила</span><span class="w-num">3 166 док.</span></li>
+    <li><span class="w-name">Ади-лила</span><span class="w-num">2 245 док.</span></li>
+  </ul>
+</section>
+
+<section class="corp">
+  <div class="corp-head">
+    <h2>Е.С. Бхакти Вигьяна Госвами</h2>
+    <div class="corp-meta"><b>2 500</b> док. · 231 973 фрагм.</div>
+  </div>
+  <p class="corp-sub">Лекции, семинары и беседы</p>
+<p class="corp-note">2 468 произведений/текстов, сгруппированы по разделам</p>
+  <ul class="works">
+    <li><span class="w-name">Telegram</span><span class="w-num">456 док.</span></li>
+    <li><span class="w-name">Files</span><span class="w-num">299 док.</span></li>
+    <li><span class="w-name">2009</span><span class="w-num">253 док.</span></li>
+    <li><span class="w-name">2008</span><span class="w-num">217 док.</span></li>
+    <li><span class="w-name">2007</span><span class="w-num">145 док.</span></li>
+    <li><span class="w-name">2011</span><span class="w-num">102 док.</span></li>
+    <li><span class="w-name">2005</span><span class="w-num">80 док.</span></li>
+    <li><span class="w-name">2006</span><span class="w-num">71 док.</span></li>
+    <li><span class="w-name">2014</span><span class="w-num">68 док.</span></li>
+    <li><span class="w-name">2013</span><span class="w-num">58 док.</span></li>
+    <li><span class="w-name">2020</span><span class="w-num">55 док.</span></li>
+    <li><span class="w-name">2012</span><span class="w-num">53 док.</span></li>
+    <li><span class="w-name">Books</span><span class="w-num">53 док.</span></li>
+    <li><span class="w-name">Answers</span><span class="w-num">52 док.</span></li>
+    <li><span class="w-name">2024</span><span class="w-num">51 док.</span></li>
+    <li><span class="w-name">2016</span><span class="w-num">47 док.</span></li>
+    <li><span class="w-name">2015</span><span class="w-num">44 док.</span></li>
+    <li><span class="w-name">2019</span><span class="w-num">41 док.</span></li>
+    <li><span class="w-name">2023</span><span class="w-num">39 док.</span></li>
+    <li><span class="w-name">2025</span><span class="w-num">38 док.</span></li>
+    <li><span class="w-name">2017</span><span class="w-num">32 док.</span></li>
+    <li><span class="w-name">Gdocs</span><span class="w-num">32 док.</span></li>
+    <li><span class="w-name">2018</span><span class="w-num">24 док.</span></li>
+    <li><span class="w-name">2022</span><span class="w-num">21 док.</span></li>
+    <li><span class="w-name">2026</span><span class="w-num">21 док.</span></li>
+    <li><span class="w-name">Articles</span><span class="w-num">21 док.</span></li>
+    <li><span class="w-name">1995</span><span class="w-num">18 док.</span></li>
+    <li><span class="w-name">1999</span><span class="w-num">16 док.</span></li>
+    <li><span class="w-name">2010</span><span class="w-num">16 док.</span></li>
+    <li><span class="w-name">2021</span><span class="w-num">16 док.</span></li>
+    <li><span class="w-name">2001</span><span class="w-num">15 док.</span></li>
+    <li><span class="w-name">Sandarbha notes</span><span class="w-num">8 док.</span></li>
+    <li><span class="w-name">1994</span><span class="w-num">7 док.</span></li>
+    <li><span class="w-name">1997</span><span class="w-num">7 док.</span></li>
+    <li><span class="w-name">2000</span><span class="w-num">7 док.</span></li>
+    <li><span class="w-name">2004</span><span class="w-num">7 док.</span></li>
+    <li><span class="w-name">Mission</span><span class="w-num">6 док.</span></li>
+    <li><span class="w-name">1996</span><span class="w-num">2 док.</span></li>
+    <li><span class="w-name">1998</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Books texts</span><span class="w-num">1 док.</span></li>
+  </ul>
+</section>
+
+<section class="corp">
+  <div class="corp-head">
+    <h2>Ачарьи парампары</h2>
+    <div class="corp-meta"><b>306</b> док. · 6 293 фрагм.</div>
+  </div>
+  <p class="corp-sub">Бхактивинода Тхакур и другие ачарьи</p>
+<p class="corp-note">306 произведений/текстов, сгруппированы по разделам</p>
+  <ul class="works">
+    <li><span class="w-name">Бхактивинода Тхакур</span><span class="w-num">300 док.</span></li>
+    <li><span class="w-name">Bhaktivinoda-ru</span><span class="w-num">5 док.</span></li>
+    <li><span class="w-name">Vishvanatha</span><span class="w-num">1 док.</span></li>
+  </ul>
+</section>
+
+<section class="corp">
+  <div class="corp-head">
+    <h2>Библиотека книг и песенников</h2>
+    <div class="corp-meta"><b>2 480</b> док. · 122 889 фрагм.</div>
+  </div>
+  <p class="corp-sub">Дополнительные тексты и бхаджаны</p>
+<p class="corp-note">1 737 произведений/текстов, сгруппированы по разделам</p>
+  <ul class="works">
+    <li><span class="w-name">Newsletters magazines</span><span class="w-num">1 362 док.</span></li>
+    <li><span class="w-name">Iskcon authors</span><span class="w-num">456 док.</span></li>
+    <li><span class="w-name">Pastimes stories</span><span class="w-num">296 док.</span></li>
+    <li><span class="w-name">Children education</span><span class="w-num">112 док.</span></li>
+    <li><span class="w-name">Culture practice</span><span class="w-num">92 док.</span></li>
+    <li><span class="w-name">Biography history</span><span class="w-num">43 док.</span></li>
+    <li><span class="w-name">Ачарьи</span><span class="w-num">40 док.</span></li>
+    <li><span class="w-name">Other</span><span class="w-num">37 док.</span></li>
+    <li><span class="w-name">Prabhupada books</span><span class="w-num">16 док.</span></li>
+    <li><span class="w-name">Holy name</span><span class="w-num">13 док.</span></li>
+    <li><span class="w-name">Iskcon docs manuals</span><span class="w-num">13 док.</span></li>
+  </ul>
+</section>
+
+<section class="corp">
+  <div class="corp-head">
+    <h2>Образовательные материалы</h2>
+    <div class="corp-meta"><b>219</b> док. · 2 479 фрагм.</div>
+  </div>
+  <p class="corp-sub">Курсы и пособия</p>
+<p class="corp-note">211 произведений/текстов, сгруппированы по разделам</p>
+  <ul class="works">
+    <li><span class="w-name">Bhaktilata site</span><span class="w-num">97 док.</span></li>
+    <li><span class="w-name">Iskcon ministry</span><span class="w-num">90 док.</span></li>
+    <li><span class="w-name">Etiquette</span><span class="w-num">9 док.</span></li>
+    <li><span class="w-name">Iskcon media catalog</span><span class="w-num">8 док.</span></li>
+    <li><span class="w-name">Bhaktilata</span><span class="w-num">7 док.</span></li>
+    <li><span class="w-name">Care</span><span class="w-num">7 док.</span></li>
+    <li><span class="w-name">Documents</span><span class="w-num">1 док.</span></li>
+  </ul>
+</section>
+
+<section class="corp">
+  <div class="corp-head">
+    <h2>Резолюции и протоколы GBC</h2>
+    <div class="corp-meta"><b>87</b> док. · 4 228 фрагм.</div>
+  </div>
+  <p class="corp-sub">Руководящие документы (1975–2025)</p>
+<p class="corp-note">87 произведений/текстов, сгруппированы по разделам</p>
+  <ul class="works">
+    <li><span class="w-name">Documents ru</span><span class="w-num">16 док.</span></li>
+    <li><span class="w-name">Documents</span><span class="w-num">13 док.</span></li>
+    <li><span class="w-name">Gbc 1975.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 1976.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 1977.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 1978.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 1979.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 1980.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 1981.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 1982.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 1983.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 1984.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 1985.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 1986.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 1987.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 1988.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 1989.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 1990.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 1991.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 1992.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 1993.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 1994.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 1995.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 1996.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 1997.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 1998.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 1999.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 2000.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 2001.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 2002.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 2003.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 2004.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 2005.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 2006.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 2007.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 2008.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 2009.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 2010.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 2011.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 2012.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 2013.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 2014.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 2015.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 2016.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 2017.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 2017 midterm.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 2018.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 2018 midterm.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 2019.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 2019 midterm.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 2020.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 2021.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 2022.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 2023.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 2024.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 2025.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc 2026.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Gbc gaudiya math.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Kodeks-eticheskogo-povedeniya.md</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Law-book-ru.md</span><span class="w-num">1 док.</span></li>
+  </ul>
+</section>
+
+<section class="corp">
+  <div class="corp-head">
+    <h2>Апологетика и статьи</h2>
+    <div class="corp-meta"><b>19</b> док. · 6 056 фрагм.</div>
+  </div>
+  <p class="corp-sub">Полемические и разъясняющие тексты</p>
+
+  <ul class="works">
+    <li><span class="w-name">Прабхупада-лиламрита, том 1</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Трансцендентный дневник, том 1</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Прабхупада-лиламрита, том 2</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Трансцендентный дневник, том 5</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Трансцендентный дневник, том 4</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Трансцендентный дневник, том 3</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Мольба о нектаре Святого Имени</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Взрыв Харе Кришна</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Трансцендентный дневник, том 2.2</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Трансцендентный дневник, том 2.1</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Искусство повторения Святого Имени</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Парипрашна. Искусство задавать вопросы (Гуру-таттва таранга, том 1)</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Забота о преданных Кришны</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Скрытые препятствия на пути бхакти</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Реформа джапы</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Вступление в молитвенную жизнь</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Океан нектара Святого Имени</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Культивирование Святого Имени</span><span class="w-num">1 док.</span></li>
+    <li><span class="w-name">Ложь бывших кришнаитов, или как придать известным фактам подвижный смысл</span><span class="w-num">1 док.</span></li>
+  </ul>
+</section>
+
+  <footer class="doc">
+    <p>Каталог отражает выверенную библиотеку — «указатель, не переиздатель». <a href="./">На главную →</a></p>
+    <p class="when">Обновлено автоматически из векторного индекса · 2026-07-05 21:37</p>
+    <p class="sign">KAVACHAM · DGD · ZERO ENTROPY</p>
+  </footer>
+</div>
+</body>
+</html>
