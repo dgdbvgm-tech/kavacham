@@ -1043,30 +1043,46 @@
     }
     function add(cls, html) { var d = document.createElement('div'); d.className = 'ask-msg ' + cls; d.innerHTML = html; log.appendChild(d); log.scrollTop = log.scrollHeight; return d; }
     function addAnswer(s) { add('a', '<span class="t">' + esc(s.title) + '</span>' + esc(s.body) + '<div class="src">✦ из базы знаний проекта — без домыслов</div>'); }
-    function addNotFound() { add('a', '<span class="t">Не нашёл точного ответа</span>Чтобы не выдумывать — лучше спросите основателя напрямую: ' + TG + ' · ' + MAIL + '. Это тот же принцип, что и у KAVACHAM: право молчать вместо фабрикации.'); }
-    /* вопрос без ответа → тихо шлём основателю в Telegram (копилка бэклога); токен — на сервере */
+    function notFoundHtml() { return '<span class="t">Не нашёл точного ответа</span>Чтобы не выдумывать — лучше спросите основателя напрямую: ' + TG + ' · ' + MAIL + '. Это тот же принцип, что и у KAVACHAM: право молчать вместо фабрикации.'; }
+    function addNotFound() { add('a', notFoundHtml()); }
+    /* лёгкое форматирование ответа ассистента (**жирный**, переводы строк) */
+    function fmtLLM(t) { return esc(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n{2,}/g, '<br><br>').replace(/\n/g, '<br>'); }
+    var CHAT_URL = 'https://kavacham-stt-928986955802.us-central1.run.app/api/chat';
     var ASK_URL = 'https://kavacham-stt-928986955802.us-central1.run.app/api/ask';
+    /* сетевой сбой ассистента → тихо шлём вопрос основателю (копилка); токен — на сервере */
     function notifyMiss(q) {
       try { fetch(ASK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question: q, meta: 'виджет о проекте · ' + (navigator.language || '') }) }).catch(function () {}); } catch (e) {}
     }
+    /* локальный поиск не нашёл → ИИ-ассистент (Gemini, строго по базе); при промахе сервер сам уведомит основателя */
+    function askLLM(q) {
+      var el = add('a', '<span class="t">Ассистент думает…</span>ищу ответ строго по базе знаний');
+      fetch(CHAT_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question: q, meta: 'виджет о проекте · ' + (navigator.language || '') }) })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) {
+          if (d && d.grounded && d.answer) { el.innerHTML = '<span class="t">✦ Ответ ассистента</span>' + fmtLLM(d.answer) + '<div class="src">ИИ-ассистент, строго по базе знаний проекта</div>'; }
+          else { el.innerHTML = notFoundHtml(); }
+          log.scrollTop = log.scrollHeight;
+        })
+        .catch(function () { el.innerHTML = notFoundHtml(); notifyMiss(q); });
+    }
     function answer(q) {
       add('u', esc(q));
-      if (!loaded) { add('a', '<span class="t">База знаний недоступна</span>Напишите основателю: ' + TG + ' · ' + MAIL); return; }
-      /* несколько вопросов сразу («Чем помочь? Какие планы?») → отвечаем на каждый */
+      if (!loaded) { askLLM(q); return; } /* локальная база не загрузилась — ассистент всё равно ответит (KB есть на сервере) */
+      /* несколько вопросов сразу («Чем помочь? Какие планы?») → отвечаем на каждый локально */
       var parts = (q.indexOf('?') >= 0 ? q.split('?') : [q]).map(function (x) { return x.trim(); }).filter(function (x) { return x.length > 2; });
       if (parts.length > 1) {
         var seen = {}, found = 0;
         parts.forEach(function (p) { var s = search(p); if (s && !seen[s.title]) { seen[s.title] = 1; found++; addAnswer(s); } });
-        if (!found) { addNotFound(); notifyMiss(q); }
+        if (!found) askLLM(q);
         return;
       }
       var s = search(q);
-      if (s) addAnswer(s); else { addNotFound(); notifyMiss(q); }
+      if (s) addAnswer(s); else askLLM(q);
     }
     var CHIPS = ['Что такое KAVACHAM?', 'Что уже сделано?', 'Как это работает?', 'Какие планы?', 'Чем помочь?', 'Кто оплачивает?'];
     function greet() {
       if (greeted) return; greeted = true;
-      add('a', '<span class="t">Спросите что угодно о проекте</span>Отвечаю строго по базе знаний — что сделано, что в планах, как устроено под капотом, инфраструктура, контакты. Если ответа нет — честно скажу.');
+      add('a', '<span class="t">Спросите что угодно о проекте</span>Отвечаю строго по базе знаний — что сделано, планы, устройство, термины. Сложные вопросы разбирает ИИ-ассистент. Чего нет в базе — честно скажу и передам вопрос основателю.');
       var c = document.createElement('div'); c.className = 'ask-msg a';
       var wrap = document.createElement('div'); wrap.className = 'ask-chips';
       CHIPS.forEach(function (q) {
