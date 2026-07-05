@@ -146,6 +146,7 @@
   .nav .links { display: flex; gap: 1.05rem; align-items: center; }
   .nav .links a { font-family: var(--sans); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--deep-dim); text-decoration: none; transition: color .2s; white-space: nowrap; }
   .nav .links a:hover { color: var(--gold-hi); }
+  .nav .links a.nav-extra { display: none; } /* Принципы/Брихат/Конституция — только в гамбургере, чтобы не перегружать десктоп-строку */
   .nav .nav-cta {
     font-family: var(--sans); font-weight: 600; font-size: 0.86rem;
     padding: 0.5rem 1rem; border-radius: 3px; text-decoration: none; white-space: nowrap;
@@ -173,6 +174,7 @@
     }
     .nav .links.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
     .nav .links a { padding: 0.9rem 0.2rem; font-size: 0.82rem; border-bottom: 1px solid var(--deep-rule); }
+    .nav .links a.nav-extra { display: block; }
     .nav .links a:last-child { border-bottom: none; }
   }
   @media (prefers-reduced-motion: reduce) { .nav .links { transition: opacity .2s ease; } .nav-burger span { transition: none; } }
@@ -480,6 +482,9 @@
     <a href="#demo">Пример</a>
     <a href="#proof">Что сделано</a>
     <a href="corpus.html">Каталог</a>
+    <a href="#principles" class="nav-extra">Принципы</a>
+    <a href="#brihat" class="nav-extra">Брихат-мриданга</a>
+    <a href="constitution.html" class="nav-extra">Конституция</a>
     <a href="#help">Помочь</a>
     <a href="#contact">Контакты</a>
     <a href="#" id="navAsk">Спросить</a>
@@ -732,7 +737,7 @@
 </section>
 
 <!-- ============ СЛУЖЕНИЕ ============ -->
-<section class="band deep" aria-label="Брихат-мриданга XXI века">
+<section class="band deep" id="brihat" aria-label="Брихат-мриданга XXI века">
   <div class="inner">
     <p class="eyebrow reveal">Почему именно ИИ — и почему это в русле парампары</p>
     <h2 class="kicker reveal">Брихат-мриданга XXI века.</h2>
