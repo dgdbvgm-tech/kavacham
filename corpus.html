@@ -37,10 +37,14 @@
     border:1px solid var(--rule);border-radius:12px;padding:.8rem 1rem;background:rgba(201,162,75,0.05)}
   .banner b{color:var(--gold-hi)}
   .explain{max-width:48rem;margin:0 auto;border:1px solid var(--rule);border-radius:12px;background:rgba(255,255,255,0.02);overflow:hidden}
-  .explain summary{cursor:pointer;list-style:none;padding:.9rem 1.1rem;font-family:var(--sans);font-size:.86rem;letter-spacing:.02em;color:var(--gold-hi)}
+  .explain summary{position:relative;cursor:pointer;list-style:none;padding:.9rem 8.5rem .9rem 1.1rem;font-family:var(--sans);font-size:.86rem;letter-spacing:.02em;color:var(--gold-hi)}
   .explain summary::-webkit-details-marker{display:none}
   .explain summary::before{content:"❔ ";opacity:.8}
+  .explain summary::after{content:"нажмите ▾";position:absolute;right:1rem;top:50%;transform:translateY(-50%);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:#0C1030;background:var(--gold-hi);border-radius:999px;padding:.28rem .6rem;white-space:nowrap;animation:explainpulse 2.2s ease-in-out infinite}
+  .explain[open] summary::after{content:"свернуть ▴";color:var(--dim);background:transparent;border:1px solid var(--rule);animation:none}
   .explain[open] summary{border-bottom:1px solid var(--rule)}
+  @keyframes explainpulse{0%,100%{box-shadow:0 0 0 0 rgba(201,162,75,0)}50%{box-shadow:0 0 0 5px rgba(201,162,75,.22)}}
+  @media(prefers-reduced-motion:reduce){.explain summary::after{animation:none}}
   .explain .body{padding:1rem 1.1rem;font-size:.92rem;line-height:1.6;color:var(--dim)}
   .explain .body b{color:var(--ink)}
   .explain .body p{margin:.5rem 0}
@@ -355,7 +359,7 @@
 
   <footer class="doc">
     <p>Каталог отражает выверенную библиотеку — «указатель, не переиздатель». <a href="./">На главную →</a></p>
-    <p class="when">Обновлено автоматически из векторного индекса · 2026-07-05 22:19</p>
+    <p class="when">Обновлено автоматически из векторного индекса · 2026-07-05 23:31</p>
     <p class="sign">KAVACHAM · DGD · ZERO ENTROPY</p>
   </footer>
 </div>
