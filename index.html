@@ -324,6 +324,10 @@
   .contact { display: flex; flex-wrap: wrap; gap: 0.9rem; align-items: center; margin-top: 2.2rem; }
   .contact .note { font-family: var(--sans); font-size: 0.78rem; color: var(--deep-dim); }
   .paper .contact .note { color: var(--text-dim); }
+  .contact-title { margin-top: 2.6rem; font-family: var(--serif); font-weight: 600; font-size: clamp(1.25rem,3.6vw,1.6rem); color: var(--text); }
+  .contact-title + .contact { margin-top: 1rem; }
+  /* отступ под липкую шапку при переходе по якорям меню */
+  .band[id], #contact { scroll-margin-top: 84px; }
 
   footer { background: var(--deep-2); color: var(--deep-ink); padding: clamp(2.6rem,7vw,3.4rem) var(--pad-x); text-align: center; padding-bottom: calc(clamp(2.6rem,7vw,3.4rem) + env(safe-area-inset-bottom)); }
   /* ——— блок «Принципы агента» (дистиллят конституции) ——— */
@@ -818,7 +822,8 @@
         <p class="muted">Если откликается — давайте сложим усилия: это соборное служение, а не работа одиночки.</p>
       </div>
     </div>
-    <div class="contact reveal" id="contact">
+    <h3 class="contact-title reveal" id="contact">Контакты</h3>
+    <div class="contact reveal">
       <a class="btn btn-primary" href="https://t.me/dmitriibagnin" target="_blank" rel="noopener">Написать в Telegram&nbsp;· @dmitriibagnin</a>
       <a class="btn" href="mailto:dgdbvgm@gmail.com" style="border-color:var(--rule);color:var(--text);background:var(--panel)">Почта&nbsp;· dgdbvgm@gmail.com</a>
       <span class="note">напишу лично — отвечу на вопросы и покажу систему в работе</span>
