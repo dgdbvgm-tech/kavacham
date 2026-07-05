@@ -143,10 +143,9 @@
     .nav { background: var(--glass); -webkit-backdrop-filter: blur(14px) saturate(1.4); backdrop-filter: blur(14px) saturate(1.4); }
   }
   .nav .brand { font-family: var(--serif); font-weight: 600; font-size: 1.15rem; letter-spacing: 0.14em; color: var(--gold-hi); text-decoration: none; white-space: nowrap; }
-  .nav .links { display: flex; gap: 1.4rem; align-items: center; }
-  .nav .links a { font-family: var(--sans); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--deep-dim); text-decoration: none; transition: color .2s; }
+  .nav .links { display: flex; gap: 1.05rem; align-items: center; }
+  .nav .links a { font-family: var(--sans); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--deep-dim); text-decoration: none; transition: color .2s; white-space: nowrap; }
   .nav .links a:hover { color: var(--gold-hi); }
-  .nav .links a.nav-mob { display: none; } /* Контакты и «Спросить» — только в мобильном гамбургере */
   .nav .nav-cta {
     font-family: var(--sans); font-weight: 600; font-size: 0.86rem;
     padding: 0.5rem 1rem; border-radius: 3px; text-decoration: none; white-space: nowrap;
@@ -163,7 +162,7 @@
   .nav-burger[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
   .nav-burger[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
 
-  @media (max-width: 680px) {
+  @media (max-width: 900px) {
     .nav-burger { display: block; }
     .nav .brand { margin-right: auto; }
     .nav .links {
@@ -174,7 +173,6 @@
     }
     .nav .links.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
     .nav .links a { padding: 0.9rem 0.2rem; font-size: 0.82rem; border-bottom: 1px solid var(--deep-rule); }
-    .nav .links a.nav-mob { display: block; }
     .nav .links a:last-child { border-bottom: none; }
   }
   @media (prefers-reduced-motion: reduce) { .nav .links { transition: opacity .2s ease; } .nav-burger span { transition: none; } }
@@ -328,6 +326,17 @@
   .paper .contact .note { color: var(--text-dim); }
 
   footer { background: var(--deep-2); color: var(--deep-ink); padding: clamp(2.6rem,7vw,3.4rem) var(--pad-x); text-align: center; padding-bottom: calc(clamp(2.6rem,7vw,3.4rem) + env(safe-area-inset-bottom)); }
+  /* ——— блок «Принципы агента» (дистиллят конституции) ——— */
+  .laws { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.7rem; text-align: left; }
+  .law-item { border: 1px solid var(--deep-rule); border-radius: 10px; padding: 1.1rem 1.15rem; background: rgba(255,255,255,0.02); }
+  .law-item .n { font-family: var(--sans); font-size: 0.66rem; letter-spacing: 0.16em; color: var(--gold); opacity: 0.8; }
+  .law-item h3 { font-family: var(--serif); font-size: 1.04rem; color: var(--gold-hi); margin: 0.25rem 0 0.4rem; }
+  .law-item p { margin: 0; font-size: 0.9rem; line-height: 1.5; color: var(--deep-dim); }
+  .laws-note { margin-top: 1.6rem; font-size: 0.94rem; color: var(--deep-dim); line-height: 1.6; max-width: 52rem; }
+  .laws-note a { color: var(--gold-hi); text-decoration: none; border-bottom: 1px solid rgba(201,162,75,0.4); }
+  .laws-note a:hover { border-bottom-color: var(--gold-hi); }
+  @media (max-width: 900px) { .laws { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .laws { grid-template-columns: 1fr; } }
   footer .founder { margin: 0 auto 1.9rem; max-width: 232px; }
   footer .founder img { width: 100%; height: auto; display: block; border-radius: 10px; box-shadow: 0 12px 34px rgba(0,0,0,0.5); }
   footer .founder figcaption { margin-top: 0.75rem; font-family: var(--serif); font-size: 0.78rem; line-height: 1.45; color: var(--deep-dim); letter-spacing: 0.02em; }
@@ -467,8 +476,8 @@
     <a href="#demo">Пример</a>
     <a href="#proof">Что сделано</a>
     <a href="#help">Помочь</a>
-    <a href="#contact" class="nav-mob">Контакты</a>
-    <a href="#" id="navAsk" class="nav-mob">Спросить о проекте</a>
+    <a href="#contact">Контакты</a>
+    <a href="#" id="navAsk">Спросить</a>
   </nav>
   <a class="nav-cta" href="#help">Поддержать</a>
   <button class="nav-burger" id="navBurger" type="button" aria-label="Открыть меню" aria-expanded="false" aria-controls="navLinks"><span></span><span></span><span></span></button>
@@ -655,6 +664,26 @@
 </section>
 
 <div class="thread-div on-paper"><span></span></div>
+
+<!-- ============ ПРИНЦИПЫ АГЕНТА (конституция) ============ -->
+<section class="band deep" id="principles" aria-label="Принципы агента">
+  <div class="inner">
+    <p class="eyebrow reveal">Закон, по которому работает агент</p>
+    <h2 class="kicker reveal">Шесть принципов защиты — из писаной конституции.</h2>
+    <p class="lead reveal" style="color:var(--deep-dim)">Агент — не «свободный интеллект». Он подчинён основному закону, укоренённому в шастре, парампаре и методе самого Шрилы&nbsp;Прабхупады. Вот его суть.</p>
+    <div class="laws reveal">
+      <div class="law-item"><div class="n">01</div><h3>Дословность или молчание</h3><p>Каждое утверждение — проверяемая цитата первоисточника. Нет опоры — нет утверждения: вместо выдумки честное «в моих источниках нет основания».</p></div>
+      <div class="law-item"><div class="n">02</div><h3>Шабда — верховный арбитр</h3><p>Решает шастра в парампаре с комментариями Прабхупады. Логика и опыт помогают аргументировать, но не пересматривают шастру. Прямой смысл — прежде толкований.</p></div>
+      <div class="law-item"><div class="n">03</div><h3>Холодный ум</h3><p>Отвечаем спокойно, от авторитета книг, без сарказма и превосходства. «Если человек в споре гневается — он побеждён».</p></div>
+      <div class="law-item"><div class="n">04</div><h3>Сначала — верное зерно</h3><p>В честной критике первым признаём то, что в ней верно, и лишь затем отвечаем от источников. Отделяем рациональное зерно от инсинуаций.</p></div>
+      <div class="law-item"><div class="n">05</div><h3>Стил-меннинг</h3><p>Прежде опровержения излагаем позицию оппонента в её сильнейшей форме — до его «да, это моя позиция». Порядок: пурвапакша&nbsp;→ кхандана&nbsp;→ сиддханта.</p></div>
+      <div class="law-item"><div class="n">06</div><h3>Аудитория, а не оппонент</h3><p>Цель — не «победить» автора искажения, а защитить и просветить читающих. Мера успеха — понимание сиддханты, а не «нокаут».</p></div>
+    </div>
+    <p class="laws-note reveal">Сверх этого — <b>право молчать</b> (на троллинг, на «личное мнение ИИ» о сиддханте, на темы, требующие санкции ИСККОН) и жёсткие <b>табу</b>: никогда не говорить от лица Кришны или Прабхупады, никогда не высмеивать чужие святыни. Полный текст — <a href="https://dgdbvgm-tech.github.io/kavacham/constitution.md" target="_blank" rel="noopener">Конституция КАВАЧАМ&nbsp;→</a></p>
+  </div>
+</section>
+
+<div class="thread-div on-deep"><span></span></div>
 
 <!-- ============ ЧТО УЖЕ СДЕЛАНО ============ -->
 <section class="band deep" id="proof" aria-label="Что уже сделано">
