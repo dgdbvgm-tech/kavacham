@@ -919,7 +919,10 @@
     closeBtn.onclick = function () { panel.classList.remove('open'); };
     form.onsubmit = function (e) { e.preventDefault(); var q = text.value.trim(); if (!q) return; answer(q); text.value = ''; };
 
-    /* ——— голосовой ввод: видимая запись + живая расшифровка, без преждевременного обрыва ——— */
+    /* ——— голосовой ввод: видимая запись (цвет + волна), без обрыва на паузе ——— */
+    var STT_URL = 'https://kavacham-stt-928986955802.us-central1.run.app/api/stt';   // Deepgram-прокси (ключ на сервере)
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    var canRecord = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
     var recActive = false;
     function showRec(on, label) {
       recActive = on;
@@ -927,10 +930,41 @@
       mic.setAttribute('aria-label', on ? 'Остановить запись' : 'Голосовой ввод');
       statusEl.classList.toggle('on', on);
       if (statusText && label) statusText.textContent = label;
-      text.placeholder = on ? 'слушаю… говорите' : 'Спросите о проекте…';
+      text.placeholder = on ? 'идёт запись…' : 'Спросите о проекте…';
     }
-    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SR) {
+
+    if (STT_URL && canRecord) {
+      /* Deepgram: точное распознавание русской речи. Пишем до повторного тапа — пауза в речи не обрывает запись. */
+      var media = null, stream = null, chunks = [];
+      function stopStream() { if (stream) { stream.getTracks().forEach(function (t) { t.stop(); }); stream = null; } }
+      mic.onclick = function () {
+        if (recActive) { if (media && media.state !== 'inactive') media.stop(); return; }
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(function (s) {
+          stream = s; chunks = [];
+          try { media = new MediaRecorder(s); } catch (e) { stopStream(); text.placeholder = 'запись недоступна — введите текстом'; return; }
+          media.ondataavailable = function (e) { if (e.data && e.data.size) chunks.push(e.data); };
+          media.onstop = function () {
+            stopStream();
+            if (!chunks.length) { showRec(false); return; }
+            var blob = new Blob(chunks, { type: chunks[0].type || 'audio/webm' });
+            showRec(true, 'расшифровываю…'); mic.classList.remove('rec');
+            fetch(STT_URL, { method: 'POST', headers: { 'Content-Type': blob.type }, body: blob })
+              .then(function (r) { return r.ok ? r.json() : null; })
+              .then(function (d) {
+                showRec(false);
+                var tr = (d && d.transcript || '').trim();
+                if (tr) { text.value = tr; answer(tr); text.value = ''; }
+                else { text.placeholder = 'не расслышал — повторите или текстом'; }
+              })
+              .catch(function () { showRec(false); text.placeholder = 'ошибка сети — попробуйте текстом'; });
+          };
+          media.start();
+          showRec(true, 'запись… нажмите ещё раз, чтобы остановить');
+          text.focus();
+        }).catch(function () { showRec(false); text.placeholder = 'нет доступа к микрофону'; });
+      };
+    } else if (SR) {
+      /* Фолбэк: браузерный Web Speech API с живой расшифровкой (без ключа) */
       var rec = new SR(); rec.lang = 'ru-RU'; rec.interimResults = true; rec.continuous = true; rec.maxAlternatives = 1;
       var finalT = '', silence = null;
       function stopVoice(submit) {
@@ -953,7 +987,7 @@
           if (e.results[i].isFinal) finalT += tr + ' '; else interim += tr;
         }
         text.value = (finalT + interim).replace(/\s+/g, ' ').trim();
-        clearTimeout(silence); silence = setTimeout(function () { stopVoice(true); }, 2400);
+        clearTimeout(silence); silence = setTimeout(function () { stopVoice(true); }, 2600);
       };
       rec.onerror = function () { stopVoice(false); };
       rec.onend = function () { if (recActive) { try { rec.start(); } catch (e) { stopVoice(true); } } };
