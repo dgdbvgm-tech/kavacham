@@ -146,6 +146,7 @@
   .nav .links { display: flex; gap: 1.4rem; align-items: center; }
   .nav .links a { font-family: var(--sans); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--deep-dim); text-decoration: none; transition: color .2s; }
   .nav .links a:hover { color: var(--gold-hi); }
+  .nav .links a.nav-mob { display: none; } /* Контакты и «Спросить» — только в мобильном гамбургере */
   .nav .nav-cta {
     font-family: var(--sans); font-weight: 600; font-size: 0.86rem;
     padding: 0.5rem 1rem; border-radius: 3px; text-decoration: none; white-space: nowrap;
@@ -173,6 +174,7 @@
     }
     .nav .links.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
     .nav .links a { padding: 0.9rem 0.2rem; font-size: 0.82rem; border-bottom: 1px solid var(--deep-rule); }
+    .nav .links a.nav-mob { display: block; }
     .nav .links a:last-child { border-bottom: none; }
   }
   @media (prefers-reduced-motion: reduce) { .nav .links { transition: opacity .2s ease; } .nav-burger span { transition: none; } }
@@ -326,6 +328,10 @@
   .paper .contact .note { color: var(--text-dim); }
 
   footer { background: var(--deep-2); color: var(--deep-ink); padding: clamp(2.6rem,7vw,3.4rem) var(--pad-x); text-align: center; padding-bottom: calc(clamp(2.6rem,7vw,3.4rem) + env(safe-area-inset-bottom)); }
+  footer .founder { margin: 0 auto 1.9rem; max-width: 232px; }
+  footer .founder img { width: 100%; height: auto; display: block; border-radius: 10px; box-shadow: 0 12px 34px rgba(0,0,0,0.5); }
+  footer .founder figcaption { margin-top: 0.75rem; font-family: var(--serif); font-size: 0.78rem; line-height: 1.45; color: var(--deep-dim); letter-spacing: 0.02em; }
+  footer .founder figcaption b { display: block; color: var(--gold-hi); font-weight: 600; margin-top: 0.18rem; font-size: 0.86rem; }
   footer .om { font-family: var(--serif); font-size: 1.4rem; color: var(--gold-hi); margin-bottom: 0.7rem; }
   footer .closing { max-width: 44rem; margin: 0 auto 1.3rem; font-family: var(--serif); font-size: clamp(1.1rem,3.4vw,1.45rem); font-style: italic; color: var(--deep-ink); }
   footer .sig { color: var(--deep-dim); font-size: 0.88rem; }
@@ -461,6 +467,8 @@
     <a href="#demo">Пример</a>
     <a href="#proof">Что сделано</a>
     <a href="#help">Помочь</a>
+    <a href="#contact" class="nav-mob">Контакты</a>
+    <a href="#" id="navAsk" class="nav-mob">Спросить о проекте</a>
   </nav>
   <a class="nav-cta" href="#help">Поддержать</a>
   <button class="nav-burger" id="navBurger" type="button" aria-label="Открыть меню" aria-expanded="false" aria-controls="navLinks"><span></span><span></span><span></span></button>
@@ -477,7 +485,7 @@
     <h1 class="wordmark reveal">KAVACHAM</h1>
     <p class="decode reveal"><b>K</b>nowledge-<b>A</b>nchored <b>V</b>aishnava <b>A</b>pologetics &amp; <b>C</b>itation <b>H</b>ub with <b>A</b>uthoritative <b>M</b>antras</p>
     <p class="hero-kicker reveal" style="margin-bottom:1.6rem">КАВАЧАМ · kavacham.ai · цифровая броня учения</p>
-    <h1 class="thesis reveal">Искусственный интеллект, который отвечает <b>только словами Шрилы&nbsp;Прабхупады и ачарьев парампары</b> — и всегда приводит ссылку на источник.</h1>
+    <h1 class="thesis reveal">ИИ, который отвечает <b>только словами Шрилы&nbsp;Прабхупады и ачарьев парампары</b> — всегда со&nbsp;ссылкой на источник.</h1>
     <p class="lede reveal">Не «умная нейросеть», а <span class="term">цифровой библиотекарь</span>: находит то, что уже сказано в первоисточниках, приводит дословно — и молчит там, где опоры нет.</p>
     <div class="cta-row reveal">
       <a class="btn btn-primary" href="#help">Поддержать проект →</a>
@@ -522,7 +530,7 @@
 <section class="band deep narrow" aria-label="Принцип проекта">
   <div class="inner">
     <div class="law reveal">
-      <q>Нужна чистота парампары — это золотая нить всего. База должна быть фундаментально чистой. Это закон.</q>
+      <q>Чистота парампары — золотая нить, что держит всё. Основа должна быть чиста у самого истока — иначе рассыплется остальное. Это не пожелание, а закон.</q>
       <div class="who">— принцип проекта</div>
     </div>
   </div>
@@ -781,7 +789,7 @@
         <p class="muted">Если откликается — давайте сложим усилия: это соборное служение, а не работа одиночки.</p>
       </div>
     </div>
-    <div class="contact reveal">
+    <div class="contact reveal" id="contact">
       <a class="btn btn-primary" href="https://t.me/dgdbvgm" target="_blank" rel="noopener">Написать в Telegram&nbsp;· @dgdbvgm</a>
       <a class="btn" href="mailto:dgdbvgm@gmail.com" style="border-color:var(--rule);color:var(--text);background:var(--panel)">Почта&nbsp;· dgdbvgm@gmail.com</a>
       <span class="note">напишу лично — отвечу на вопросы и покажу систему в работе</span>
@@ -810,6 +818,10 @@
 </div>
 
 <footer>
+  <figure class="founder">
+    <img src="prabhupada.jpeg" width="232" height="173" alt="Основатель-Ачарья Его Божественная Милость А.Ч. Бхактиведанта Свами Прабхупада" loading="lazy" decoding="async">
+    <figcaption>Основатель-Ачарья<b>Его Божественная Милость А.&#8202;Ч.&nbsp;Бхактиведанта&nbsp;Свами&nbsp;Прабхупада</b></figcaption>
+  </figure>
   <div class="om">✦</div>
   <p class="closing">Защита учения начинается с точных, найденных в контексте слов Прабхупады, и подкрепляется глубоким пониманием их сути.</p>
   <p class="sig"><b>KAVACHAM</b> · Gaudiya Jnana Kosh</p>
@@ -1025,6 +1037,8 @@
       setTimeout(function () { text.focus(); }, 60);
     }
     fab.onclick = function () { panel.classList.contains('open') ? panel.classList.remove('open') : openPanel(); };
+    var navAsk = document.getElementById('navAsk');
+    if (navAsk) navAsk.onclick = function (e) { e.preventDefault(); openPanel(); };
     closeBtn.onclick = function () { panel.classList.remove('open'); };
     form.onsubmit = function (e) { e.preventDefault(); var q = text.value.trim(); if (!q) return; answer(q); text.value = ''; };
 
