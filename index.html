@@ -331,11 +331,20 @@
   /* санскрит строгой транслитерацией (IAST) — всегда serif Noto для корректной диакритики */
   .skt { font-family: var(--serif); font-style: italic; }
   /* раскрываемый разбор по ньяе */
-  .demo details { border-left: 2px solid var(--gold-lo); padding-left: 0.9rem; margin-top: 0.1rem; }
-  .demo details > summary { cursor: pointer; list-style: none; font-family: var(--sans); font-size: 0.76rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold-hi); display: inline-flex; align-items: center; gap: 0.45em; padding: 0.25rem 0; }
+  .demo details { border-left: 2px solid var(--gold-lo); padding-left: 0.9rem; margin-top: 0.3rem; }
+  .demo details > summary { cursor: pointer; list-style: none; font-family: var(--sans); font-size: 0.76rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold-hi);
+    display: inline-flex; align-items: center; gap: 0.45em; padding: 0.5rem 0.85rem; border: 1px solid var(--gold-lo); border-radius: 8px; background: rgba(201,162,75,0.10); transition: background .2s, box-shadow .2s; }
+  .demo details > summary:hover { background: rgba(201,162,75,0.20); }
+  .demo details:not([open]) > summary { animation: nyanudge 2.2s ease-in-out infinite; }
   .demo details > summary::-webkit-details-marker { display: none; }
   .demo details > summary::before { content: "▸"; display: inline-block; transition: transform .2s; }
+  .demo details:not([open]) > summary::before { animation: nyabob 1.3s ease-in-out infinite; }
   .demo details[open] > summary::before { transform: rotate(90deg); }
+  .demo details:not([open]) > summary::after { content: "нажмите ↓"; margin-left: 0.35em; font-size: 0.6rem; letter-spacing: 0.06em; color: var(--deep); background: var(--gold-hi); border-radius: 999px; padding: 0.1rem 0.55rem; font-weight: 700; }
+  .demo details[open] > summary::after { content: ""; }
+  @keyframes nyanudge { 0%, 100% { box-shadow: 0 0 0 0 rgba(201,162,75,0); } 50% { box-shadow: 0 0 0 5px rgba(201,162,75,0.22); } }
+  @keyframes nyabob { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(3px); } }
+  @media (prefers-reduced-motion: reduce) { .demo details:not([open]) > summary, .demo details:not([open]) > summary::before { animation: none; } }
   .demo details .body { padding: 0.7rem 0 0.2rem; display: flex; flex-direction: column; gap: 0.7rem; }
   .demo details .body > p { color: var(--deep-dim); font-size: 0.92rem; }
   .demo details .body blockquote { font-size: 0.98rem; }
@@ -691,7 +700,7 @@
         <ul>
           <li><b>Базовый доступ — бесплатно.</b> Поиск и дословные цитаты со ссылками почти без затрат. Разовое — домен <b>kavacham.ai</b> (~$70–110/год).</li>
           <li><b>Глубокий ИИ-слой — под бюджет.</b> Чтобы ответ был по-настоящему глубоким (разбор по ньяе, синтез цитат), поверх поиска работает мощная нейросеть: центы за ответ, на объёме — от ~$70–165/мес. Бесплатная модель отвечает поверхностнее. Ищем покровителя, готового послужить всемирному сообществу.</li>
-          <li><b>Прозрачность.</b> Расходы публичны: сколько собрано и на что идёт. Ключи — только на сервере, никогда в браузере.</li>
+          <li><b>Прозрачность.</b> Расходы публичны: сколько собрано и на что идёт.</li>
         </ul>
       </div>
     </div>
@@ -891,12 +900,21 @@
       return score >= 6 ? best : null;
     }
     function add(cls, html) { var d = document.createElement('div'); d.className = 'ask-msg ' + cls; d.innerHTML = html; log.appendChild(d); log.scrollTop = log.scrollHeight; return d; }
+    function addAnswer(s) { add('a', '<span class="t">' + esc(s.title) + '</span>' + esc(s.body) + '<div class="src">✦ из базы знаний проекта — без домыслов</div>'); }
+    function addNotFound() { add('a', '<span class="t">Не нашёл точного ответа</span>Чтобы не выдумывать — лучше спросите основателя напрямую: ' + TG + ' · ' + MAIL + '. Это тот же принцип, что и у KAVACHAM: право молчать вместо фабрикации.'); }
     function answer(q) {
       add('u', esc(q));
       if (!loaded) { add('a', '<span class="t">База знаний недоступна</span>Напишите основателю: ' + TG + ' · ' + MAIL); return; }
+      /* несколько вопросов сразу («Чем помочь? Какие планы?») → отвечаем на каждый */
+      var parts = (q.indexOf('?') >= 0 ? q.split('?') : [q]).map(function (x) { return x.trim(); }).filter(function (x) { return x.length > 2; });
+      if (parts.length > 1) {
+        var seen = {}, found = 0;
+        parts.forEach(function (p) { var s = search(p); if (s && !seen[s.title]) { seen[s.title] = 1; found++; addAnswer(s); } });
+        if (!found) addNotFound();
+        return;
+      }
       var s = search(q);
-      if (s) { add('a', '<span class="t">' + esc(s.title) + '</span>' + esc(s.body) + '<div class="src">✦ из базы знаний проекта — без домыслов</div>'); }
-      else { add('a', '<span class="t">Не нашёл точного ответа</span>Чтобы не выдумывать — лучше спросите основателя напрямую: ' + TG + ' · ' + MAIL + '. Это тот же принцип, что и у KAVACHAM: право молчать вместо фабрикации.'); }
+      if (s) addAnswer(s); else addNotFound();
     }
     var CHIPS = ['Что такое KAVACHAM?', 'Что уже сделано?', 'Как это работает?', 'Какие планы?', 'Чем помочь?', 'Кто оплачивает?'];
     function greet() {
