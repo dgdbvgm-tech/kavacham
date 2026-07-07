@@ -1142,6 +1142,19 @@
       }
       setTimeout(function () { text.focus(); }, 40);
     }
+    /* фолбэк: если /api/contact ещё не задеплоен (или ошибка) — шлём тот же текст через живой /api/ask */
+    function contactFallback(el, q) {
+      return fetch(ASK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: q, meta: 'виджет · связь(fallback) · ' + (navigator.language || '') }) })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) {
+          el.innerHTML = (d && d.ok)
+            ? '<span class="t">✉ Отправлено основателю</span>Сообщение доставлено. Ответ придёт в Telegram: ' + TG + ' или на почту: ' + MAIL + '.'
+            : '<span class="t">Не удалось отправить</span>Напишите напрямую: ' + TG + ' · ' + MAIL + '.';
+          log.scrollTop = log.scrollHeight;
+        })
+        .catch(function () { el.innerHTML = '<span class="t">Сеть недоступна</span>Напишите напрямую: ' + TG + ' · ' + MAIL + '.'; });
+    }
     function sendToOperator(q) {
       add('u', esc(q));
       var el = add('a', '<span class="t">✉ Оператору</span>отправляю…');
@@ -1153,10 +1166,10 @@
             el.innerHTML = '<span class="t">✉ Отправлено оператору</span>' + (d.twoway
               ? 'Сообщение доставлено. Ответ появится здесь, как только оператор ответит.'
               : 'Сообщение доставлено основателю. Он ответит здесь или напишет в Telegram: ' + TG + '.');
-          } else { el.innerHTML = '<span class="t">Не удалось отправить</span>Напишите напрямую: ' + TG + ' · ' + MAIL + '.'; }
-          log.scrollTop = log.scrollHeight;
+            log.scrollTop = log.scrollHeight;
+          } else { contactFallback(el, q); } /* эндпоинт связи ещё не задеплоен → живой /api/ask */
         })
-        .catch(function () { el.innerHTML = '<span class="t">Сеть недоступна</span>Напишите напрямую: ' + TG + ' · ' + MAIL + '.'; });
+        .catch(function () { contactFallback(el, q); });
     }
     if (opBtn) opBtn.onclick = function () { setContactMode(!contactMode); };
     /* сетевой сбой ассистента → тихо шлём вопрос основателю (копилка); токен — на сервере */
