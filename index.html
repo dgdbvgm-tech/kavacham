@@ -446,6 +446,7 @@
   .ask-msg.a { align-self: flex-start; color: var(--deep-ink); }
   .ask-msg.a .t { font-family: var(--serif); color: var(--gold-hi); font-size: 0.96rem; display: block; margin-bottom: 0.25rem; }
   .ask-msg.a .src { font-size: 0.64rem; color: var(--deep-dim); margin-top: 0.45rem; }
+  .ask-msg.ack { align-self: flex-end; color: var(--deep-dim); font-size: 0.72rem; opacity: 0.65; padding: 0.05rem 0.3rem; }
   .ask-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
   .ask-chip { font-family: var(--sans); font-size: 0.75rem; color: var(--deep-ink); background: rgba(255,255,255,0.05); border: 1px solid var(--deep-rule); border-radius: 999px; padding: 0.35rem 0.7rem; cursor: pointer; }
   .ask-chip:hover { border-color: var(--gold); color: var(--gold-hi); }
@@ -1030,7 +1031,7 @@
     }
     function stemAll(a) { var o = []; for (var i = 0; i < a.length; i++) o.push(stem(a[i])); return o; }
     function setOf(a) { var o = {}; for (var i = 0; i < a.length; i++) o[a[i]] = 1; return o; }
-    function esc(s) { return String(s).replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }); }
+    function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
     function loadKB() {
       return fetch('knowledge_base.md', { cache: 'no-store' }).then(function (r) { return r.text(); }).then(function (t) {
         var parts = t.split(/\n##\s+/).slice(1);
@@ -1078,7 +1079,7 @@
     function addNotFound() { add('a', notFoundHtml()); }
     /* авто-кликабельность (на уже esc-тексте): URL, email, @telegram-хендлы */
     function autolink(s) {
-      s = s.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1<\/a>');
+      s = s.replace(/(https?:\/\/[^\s<"']+)/g, '<a href="$1" target="_blank" rel="noopener">$1<\/a>');
       s = s.replace(/([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})/g, function (m, e, off, str) {
         if (/(mailto:|href=")[^\s<]*$/.test(str.slice(0, off))) return m; /* уже внутри ссылки */
         return '<a href="mailto:' + e + '">' + e + '<\/a>';
@@ -1104,14 +1105,14 @@
 
     /* ——— ТЗ-3: прямая связь с оператором (виджет → бот → тема → ответ обратно по SSE) ——— */
     var opBtn = document.getElementById('askOp');
-    var sid = '', contactMode = false, es = null;
+    var sid = '', contactMode = false, es = null, contactAckShown = false;
     function sessionId() {
       if (sid) return sid;
-      try { sid = sessionStorage.getItem('kv_sid') || ''; } catch (e) {}
+      try { sid = localStorage.getItem('kv_sid') || ''; } catch (e) {}   /* localStorage: диалог переживает закрытие вкладки */
       if (!sid) {
         sid = (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
           : 'kv-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
-        try { sessionStorage.setItem('kv_sid', sid); } catch (e) {}
+        try { localStorage.setItem('kv_sid', sid); } catch (e) {}
       }
       return sid;
     }
@@ -1138,6 +1139,7 @@
         openOperatorStream();
         add('a', '<span class="t">✉ Связь с оператором</span>Пишите — сообщение уйдёт основателю проекта, ответ появится прямо здесь. Если он офлайн, ответит позже здесь или в Telegram: ' + TG + '.');
       } else {
+        if (es) { try { es.close(); } catch (e) {} es = null; }
         add('a', '<span class="t">Снова о проекте</span>Отвечаю по базе знаний. Кнопка ✉ вернёт вас к оператору в любой момент.');
       }
       setTimeout(function () { text.focus(); }, 40);
@@ -1163,11 +1165,16 @@
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (d) {
           if (d && d.ok) {
-            el.innerHTML = '<span class="t">✉ Отправлено оператору</span>' + (d.twoway
-              ? 'Сообщение доставлено. Ответ появится здесь, как только оператор ответит.'
-              : 'Сообщение доставлено основателю. Он ответит в Telegram: ' + TG + ' или на почту: ' + MAIL + '.');
+            /* ожидание уже задано входной подсказкой → без повтора: тихий тик «доставлено».
+               Для одностороннего режима (группа не настроена) один раз поясняем канал ответа. */
+            if (d.twoway || contactAckShown) {
+              el.className = 'ask-msg ack'; el.innerHTML = '✓ доставлено';
+            } else {
+              contactAckShown = true;
+              el.innerHTML = '<span class="t">✉ Отправлено основателю</span>Он ответит в Telegram: ' + TG + ' или на почту: ' + MAIL + '.';
+            }
             log.scrollTop = log.scrollHeight;
-          } else { contactFallback(el, q); } /* эндпоинт связи ещё не задеплоен → живой /api/ask */
+          } else { contactFallback(el, q); } /* эндпоинт связи недоступен → живой /api/ask */
         })
         .catch(function () { contactFallback(el, q); });
     }
