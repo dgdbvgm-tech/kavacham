@@ -680,7 +680,7 @@
   <div class="inner">
     <p class="eyebrow reveal">Почему KAVACHAM не спешит</p>
     <h2 class="kicker reveal">Лучше подождать и получить верное, чем быстро — и&nbsp;неверное.</h2>
-    <p class="lead reveal" style="color:var(--deep-dim)">Обычный ИИ оптимизируют на скорость. KAVACHAM — на истину. Быстрый неверный ответ хуже медленного верного: он крадёт то, что дороже всего, — мгновение человеческой жизни, время, отпущенное на постижение Абсолютной Истины. Каждый миг бесценен (<a class="cite" href="https://vedabase.io/ru/library/sb/7/6/1/" target="_blank" rel="noopener">ШБ&nbsp;7.6.1</a>). Поэтому агент готов думать секунды и минуты над сложным вопросом — но не выдаёт догадку.</p>
+    <p class="lead reveal" style="color:var(--deep-dim)">Обычный ИИ оптимизируют на скорость. KAVACHAM — на истину. Быстрый неверный ответ хуже медленного верного: он крадёт то, что дороже всего, — мгновение человеческой жизни, время, отпущенное на постижение Абсолютной Истины. Каждый миг бесценен (<a class="cite" href="https://vedabase.io/ru/library/sb/7/6/1/" target="_blank" rel="noopener">ШБ&nbsp;7.6.1</a>). Поэтому агент готов думать минуты над сложным вопросом — но не выдаёт догадку.</p>
     <div class="grid g-3">
       <div class="card reveal">
         <span class="mono-tag">01 · опора</span>
@@ -729,12 +729,12 @@
   <div class="inner">
     <p class="eyebrow reveal">Это не идея — это работающий фундамент</p>
     <h2 class="kicker reveal">Уже собрано и проверено.</h2>
-    <p class="lead reveal" style="color:var(--deep-dim)">Всё это собрано стремительно — за считанные дни, а не годы: чистая библиотека построена, её векторизация завершена (508&nbsp;309 смысловых фрагментов). Это сердце будущих мгновенных и точных ответов.</p>
+    <p class="lead reveal" style="color:var(--deep-dim)">Всё это собрано стремительно — за считанные дни, а не годы: чистая библиотека построена, идёт её векторизация в смысловой индекс (цель — 508&nbsp;309 фрагментов; сейчас пересобирается, живой счётчик — ниже). Это сердце будущих мгновенных и точных ответов.</p>
     <div class="facts reveal">
       <div class="fact"><div class="big">38&nbsp;000+</div><div class="lbl">OKF-документов, 0 ошибок валидации</div><div class="sub">Единый формат, ~24 источника собраны «в одну кнопку»</div></div>
       <div class="fact"><div class="big">7&nbsp;100+</div><div class="lbl">писем, лекций и бесед Шрилы Прабхупады</div><div class="sub">Полный корпус вани с проверяемыми ссылками</div></div>
       <div class="fact"><div class="big" id="m-chunks">330&nbsp;000+</div><div class="lbl">смысловых фрагментов в индексе</div><div class="sub" id="m-chunks-sub">Векторный поиск строится прямо сейчас — русский вопрос находит английский стих</div></div>
-      <div class="fact"><div class="big">v1.2</div><div class="lbl">Конституция агента</div><div class="sub">Свод законов ответа и логики защиты по ньяе; §0 — кредо «Ноль энтропии»</div></div>
+      <a class="fact" href="./constitution.html" style="text-decoration:none;color:inherit;display:block"><div class="big">v1.2</div><div class="lbl">Конституция агента</div><div class="sub">Свод законов ответа и логики защиты по ньяе; §0 — кредо «Ноль энтропии» · <span style="color:var(--gold-hi)">читать →</span></div></a>
       <div class="fact wide"><div class="lbl">В корпусе уже: книги Бхактивиноды Тхакура · лекции Е.С. Бхакти Вигьяна Госвами · резолюции и протоколы GBC (1975–2025) · труды ачарьев · официальные издания BBT</div><div class="sub">Библиотека переносима и не привязана ни к одной нейросети — фундамент, который переживёт любую технологию.</div></div>
     </div>
   </div>
@@ -1072,11 +1072,30 @@
       return score >= 6 ? best : null;
     }
     function add(cls, html) { var d = document.createElement('div'); d.className = 'ask-msg ' + cls; d.innerHTML = html; log.appendChild(d); log.scrollTop = log.scrollHeight; return d; }
-    function addAnswer(s) { add('a', '<span class="t">' + esc(s.title) + '</span>' + esc(s.body) + '<div class="src">✦ из базы знаний проекта — без домыслов</div>'); }
+    function addAnswer(s) { add('a', '<span class="t">' + esc(s.title) + '</span>' + richFmt(s.body) + '<div class="src">✦ из базы знаний проекта — без домыслов</div>'); }
     function notFoundHtml() { return '<span class="t">Не нашёл точного ответа</span>Чтобы не выдумывать — лучше спросите основателя напрямую: ' + TG + ' · ' + MAIL + '. Это тот же принцип, что и у KAVACHAM: право молчать вместо фабрикации.'; }
     function addNotFound() { add('a', notFoundHtml()); }
-    /* лёгкое форматирование ответа ассистента (**жирный**, переводы строк) */
-    function fmtLLM(t) { return esc(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/^\s*[*-]\s+/gm, '• ').replace(/\n{2,}/g, '<br><br>').replace(/\n/g, '<br>'); }
+    /* авто-кликабельность (на уже esc-тексте): URL, email, @telegram-хендлы */
+    function autolink(s) {
+      s = s.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1<\/a>');
+      s = s.replace(/([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})/g, function (m, e, off, str) {
+        if (/(mailto:|href=")[^\s<]*$/.test(str.slice(0, off))) return m; /* уже внутри ссылки */
+        return '<a href="mailto:' + e + '">' + e + '<\/a>';
+      });
+      s = s.replace(/(^|[\s(])@([A-Za-z0-9_]{4,})\b/g, '$1<a href="https:\/\/t.me\/$2" target="_blank" rel="noopener">@$2<\/a>');
+      return s;
+    }
+    /* единый рендеринг-стандарт ответов виджета: **жирный**, списки с новой строки, автоссылки */
+    function richFmt(t) {
+      var s = esc(t);
+      s = s.replace(/\*\*(.+?)\*\*/g, '<b>$1<\/b>');
+      s = autolink(s);
+      s = s.replace(/ (\(\d+\))\s+/g, '<br>$1 ');        /* перечисления «(1) … (2) …» → каждый с новой строки */
+      s = s.replace(/^\s*[*-]\s+/gm, '• ');               /* маркеры списка */
+      s = s.replace(/\n{2,}/g, '<br><br>').replace(/\n/g, '<br>');
+      return s;
+    }
+    function fmtLLM(t) { return richFmt(t); }
     var CHAT_URL = 'https://kavacham-stt-928986955802.us-central1.run.app/api/chat';
     var ASK_URL = 'https://kavacham-stt-928986955802.us-central1.run.app/api/ask';
     /* сетевой сбой ассистента → тихо шлём вопрос основателю (копилка); токен — на сервере */
