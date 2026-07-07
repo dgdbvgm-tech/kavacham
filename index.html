@@ -881,6 +881,7 @@
   <div class="ask-status" id="askStatus" aria-live="polite"><span class="dot"></span><span id="askStatusText">слушаю… говорите</span><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></div>
   <form class="ask-input" id="askForm">
     <input id="askText" type="text" placeholder="Спросите о проекте…" autocomplete="off" aria-label="Ваш вопрос">
+    <button type="button" id="askOp" aria-label="Написать оператору" title="Написать живому оператору">✉</button>
     <button type="button" id="askMic" aria-label="Голосовой ввод" title="Спросить голосом">🎙</button>
     <button type="submit" aria-label="Отправить" title="Отправить">→</button>
   </form>
@@ -1073,7 +1074,7 @@
     }
     function add(cls, html) { var d = document.createElement('div'); d.className = 'ask-msg ' + cls; d.innerHTML = html; log.appendChild(d); log.scrollTop = log.scrollHeight; return d; }
     function addAnswer(s) { add('a', '<span class="t">' + esc(s.title) + '</span>' + richFmt(s.body) + '<div class="src">✦ из базы знаний проекта — без домыслов</div>'); }
-    function notFoundHtml() { return '<span class="t">Не нашёл точного ответа</span>Чтобы не выдумывать — лучше спросите основателя напрямую: ' + TG + ' · ' + MAIL + '. Это тот же принцип, что и у KAVACHAM: право молчать вместо фабрикации.'; }
+    function notFoundHtml() { return '<span class="t">Не нашёл точного ответа</span>Чтобы не выдумывать — напишите оператору прямо здесь (кнопка ✉ внизу) или основателю напрямую: ' + TG + ' · ' + MAIL + '. Это тот же принцип, что и у KAVACHAM: право молчать вместо фабрикации.'; }
     function addNotFound() { add('a', notFoundHtml()); }
     /* авто-кликабельность (на уже esc-тексте): URL, email, @telegram-хендлы */
     function autolink(s) {
@@ -1098,6 +1099,66 @@
     function fmtLLM(t) { return richFmt(t); }
     var CHAT_URL = 'https://kavacham-stt-928986955802.us-central1.run.app/api/chat';
     var ASK_URL = 'https://kavacham-stt-928986955802.us-central1.run.app/api/ask';
+    var CONTACT_URL = 'https://kavacham-stt-928986955802.us-central1.run.app/api/contact';
+    var STREAM_URL = 'https://kavacham-stt-928986955802.us-central1.run.app/api/contact/stream';
+
+    /* ——— ТЗ-3: прямая связь с оператором (виджет → бот → тема → ответ обратно по SSE) ——— */
+    var opBtn = document.getElementById('askOp');
+    var sid = '', contactMode = false, es = null;
+    function sessionId() {
+      if (sid) return sid;
+      try { sid = sessionStorage.getItem('kv_sid') || ''; } catch (e) {}
+      if (!sid) {
+        sid = (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
+          : 'kv-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+        try { sessionStorage.setItem('kv_sid', sid); } catch (e) {}
+      }
+      return sid;
+    }
+    function openOperatorStream() {
+      if (es || !window.EventSource) return;
+      try {
+        es = new EventSource(STREAM_URL + '?session_id=' + encodeURIComponent(sessionId()));
+        es.onmessage = function (ev) {
+          try {
+            var d = JSON.parse(ev.data);
+            if (d && d.from === 'operator' && d.text) {
+              add('a', '<span class="t">✦ Ответ оператора</span>' + richFmt(d.text) + '<div class="src">оператор проекта · DGD</div>');
+            }
+          } catch (e) {}
+        };
+        es.onerror = function () { /* EventSource переподключится сам (retry) */ };
+      } catch (e) {}
+    }
+    function setContactMode(on) {
+      contactMode = on;
+      if (opBtn) { opBtn.style.color = on ? 'var(--gold-hi)' : ''; opBtn.title = on ? 'Вы пишете оператору — нажмите, чтобы вернуться к вопросам о проекте' : 'Написать живому оператору'; }
+      text.placeholder = on ? 'Сообщение оператору…' : 'Спросите о проекте…';
+      if (on) {
+        openOperatorStream();
+        add('a', '<span class="t">✉ Связь с оператором</span>Пишите — сообщение уйдёт основателю проекта, ответ появится прямо здесь. Если он офлайн, ответит позже здесь или в Telegram: ' + TG + '.');
+      } else {
+        add('a', '<span class="t">Снова о проекте</span>Отвечаю по базе знаний. Кнопка ✉ вернёт вас к оператору в любой момент.');
+      }
+      setTimeout(function () { text.focus(); }, 40);
+    }
+    function sendToOperator(q) {
+      add('u', esc(q));
+      var el = add('a', '<span class="t">✉ Оператору</span>отправляю…');
+      fetch(CONTACT_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: sessionId(), text: q, meta: 'виджет · связь · ' + (navigator.language || '') }) })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) {
+          if (d && d.ok) {
+            el.innerHTML = '<span class="t">✉ Отправлено оператору</span>' + (d.twoway
+              ? 'Сообщение доставлено. Ответ появится здесь, как только оператор ответит.'
+              : 'Сообщение доставлено основателю. Он ответит здесь или напишет в Telegram: ' + TG + '.');
+          } else { el.innerHTML = '<span class="t">Не удалось отправить</span>Напишите напрямую: ' + TG + ' · ' + MAIL + '.'; }
+          log.scrollTop = log.scrollHeight;
+        })
+        .catch(function () { el.innerHTML = '<span class="t">Сеть недоступна</span>Напишите напрямую: ' + TG + ' · ' + MAIL + '.'; });
+    }
+    if (opBtn) opBtn.onclick = function () { setContactMode(!contactMode); };
     /* сетевой сбой ассистента → тихо шлём вопрос основателю (копилка); токен — на сервере */
     function notifyMiss(q) {
       try { fetch(ASK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question: q, meta: 'виджет о проекте · ' + (navigator.language || '') }) }).catch(function () {}); } catch (e) {}
@@ -1150,7 +1211,7 @@
     var navAsk = document.getElementById('navAsk');
     if (navAsk) navAsk.onclick = function (e) { e.preventDefault(); openPanel(); };
     closeBtn.onclick = function () { panel.classList.remove('open'); };
-    form.onsubmit = function (e) { e.preventDefault(); var q = text.value.trim(); if (!q) return; answer(q); text.value = ''; };
+    form.onsubmit = function (e) { e.preventDefault(); var q = text.value.trim(); if (!q) return; (contactMode ? sendToOperator : answer)(q); text.value = ''; };
 
     /* ——— голосовой ввод: живой стриминг Deepgram (слова в реальном времени), фолбэки — батч и Web Speech ——— */
     var STT_HTTP = 'https://kavacham-stt-928986955802.us-central1.run.app/api/stt';
