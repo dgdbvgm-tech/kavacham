@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Словарь терминов — KAVACHAM</title>
+<meta name="description" content="Короткие пояснения понятий проекта KAVACHAM: парампара, сиддханта, апасиддханта, ньяя, прамана, RAG и другие термины из ответов помощника.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Словарь терминов KAVACHAM">
+<meta property="og:description" content="Понятия проекта и ответов помощника — с краткими пояснениями.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://dgdbvgm-tech.github.io/kavacham/glossary.html">
+<meta property="og:image" content="https://dgdbvgm-tech.github.io/kavacham/og.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230C1030'/%3E%3Cpath d='M50 16 78 27v22c0 18-12 30-28 35C34 79 22 67 22 49V27z' fill='none' stroke='%23C9A24B' stroke-width='4'/%3E%3Ccircle cx='50' cy='47' r='6' fill='%23E7CE8C'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<style>
+  :root{
+    --deep:#0C1030; --deep-2:#131A44; --ink:#ECE6D4; --dim:#A2A6C8;
+    --rule:rgba(201,162,75,0.22); --gold:#C9A24B; --gold-lo:#A9863A; --gold-hi:#E7CE8C;
+    --serif:"Noto Serif","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --pad:clamp(1.1rem,5vw,2.2rem);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+  body{
+    background:
+      radial-gradient(1200px 500px at 50% -10%, rgba(201,162,75,0.08), transparent 60%),
+      var(--deep);
+    color:var(--ink); font-family:var(--serif); line-height:1.7;
+    padding:0 var(--pad) calc(3rem + env(safe-area-inset-bottom));
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:52rem;margin:0 auto}
+
+  /* верхняя навигация */
+  .topbar{position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center;gap:1rem;
+    padding:0.9rem 0;margin-bottom:1.4rem;border-bottom:1px solid var(--rule);
+    background:linear-gradient(180deg,var(--deep) 70%,rgba(12,16,48,0.6));backdrop-filter:blur(6px)}
+  .topbar a{font-family:var(--sans);font-size:0.74rem;letter-spacing:0.14em;text-transform:uppercase;
+    color:var(--dim);text-decoration:none;transition:color .2s}
+  .topbar a:hover{color:var(--gold-hi)}
+  .topbar .brand{color:var(--gold-hi);font-weight:600}
+
+  /* шапка документа */
+  header.doc{padding:1.6rem 0 1.2rem;text-align:center}
+  .eyebrow{font-family:var(--sans);font-size:0.72rem;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold);opacity:0.9}
+  h1.title{font-family:var(--serif);font-weight:700;font-size:clamp(1.8rem,6vw,2.7rem);letter-spacing:0.02em;
+    margin:0.5rem 0 0.4rem;color:var(--ink);text-wrap:balance}
+  .badge{display:inline-block;font-family:var(--sans);font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;
+    color:var(--gold-hi);border:1px solid var(--rule);border-radius:999px;padding:0.28rem 0.8rem;margin-top:0.3rem}
+  .intro{max-width:44rem;margin:1.3rem auto 0;font-style:italic;color:var(--dim);font-size:0.98rem;
+    border-left:2px solid var(--gold-lo);padding-left:1.1rem;text-align:left}
+  .status{margin-top:0.9rem;font-family:var(--sans);font-size:0.78rem;color:var(--dim)}
+  .status b{color:var(--gold-hi);font-weight:600}
+
+  hr.thread{border:0;height:1px;background:linear-gradient(90deg,transparent,var(--rule),transparent);margin:2.2rem 0}
+
+  section{margin:2.2rem 0}
+  h2{font-family:var(--serif);font-weight:700;font-size:clamp(1.25rem,4vw,1.6rem);color:var(--gold-hi);
+    margin:0 0 0.5rem;line-height:1.25;text-wrap:balance}
+  h2 .num{font-family:var(--sans);font-size:0.8em;color:var(--gold);opacity:0.7;margin-right:0.5rem}
+  h3{font-family:var(--serif);font-weight:600;font-size:1.08rem;color:var(--ink);margin:1.6rem 0 0.4rem}
+  p{margin:0.7rem 0;color:var(--ink)}
+  p.sub,.dim{color:var(--dim)}
+  strong,b{color:var(--gold-hi);font-weight:600}
+  em{color:var(--ink)}
+  a.ref{color:var(--gold-hi);text-decoration:none;border-bottom:1px solid var(--rule)}
+  a.ref:hover{border-bottom-color:var(--gold-hi)}
+
+  ol,ul{margin:0.7rem 0 0.7rem 1.3rem}
+  li{margin:0.5rem 0}
+  li::marker{color:var(--gold)}
+
+  blockquote{margin:1.1rem 0;padding:0.5rem 0 0.5rem 1.1rem;border-left:2px solid var(--gold-lo);
+    color:var(--dim);font-style:italic}
+
+  .note{font-family:var(--sans);font-size:0.82rem;color:var(--dim);opacity:0.85}
+
+  /* таблица классов */
+  .tablewrap{overflow-x:auto;margin:1.1rem 0;border:1px solid var(--rule);border-radius:12px}
+  table{border-collapse:collapse;width:100%;min-width:640px;font-size:0.92rem}
+  thead th{font-family:var(--sans);font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);
+    text-align:left;padding:0.8rem 1rem;background:rgba(201,162,75,0.06);border-bottom:1px solid var(--rule)}
+  tbody td{padding:0.85rem 1rem;border-bottom:1px solid rgba(201,162,75,0.12);vertical-align:top;color:var(--ink)}
+  tbody tr:last-child td{border-bottom:0}
+  tbody td:first-child{color:var(--gold-hi);font-weight:600;white-space:nowrap}
+  tbody td .act{color:var(--dim);font-size:0.9rem}
+
+  .callout{border:1px solid var(--rule);border-radius:12px;padding:1.1rem 1.25rem;background:rgba(255,255,255,0.02);margin:1.3rem 0}
+  .callout h3{margin-top:0;color:var(--gold-hi)}
+
+  footer.doc{margin-top:2.6rem;padding-top:1.6rem;border-top:1px solid var(--rule);text-align:center;color:var(--dim)}
+  footer.doc .om{color:var(--gold-hi);font-size:1.3rem;margin-bottom:0.6rem}
+  footer.doc a{color:var(--gold-hi);text-decoration:none}
+  footer.doc .sign{margin-top:1.2rem;font-family:var(--sans);font-size:0.62rem;letter-spacing:0.3em;text-transform:uppercase;opacity:0.5}
+
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="topbar">
+    <a href="./"><span aria-hidden="true">←</span>&nbsp; <span class="brand">KAVACHAM</span></a>
+    <a href="./corpus.html">Каталог корпуса</a>
+  </nav>
+
+    <header class="doc">
+    <p class="eyebrow">Справочник проекта</p>
+    <h1 class="title">Словарь терминов</h1>
+    <p class="intro">Короткие пояснения понятий, которые встречаются в проекте и в ответах помощника. Нажмите на термин, чтобы раскрыть.</p>
+  </header>
+
+  <hr class="thread">
+
+<section id="faq">
+  <style>
+    #faq .faq-intro{text-align:center;max-width:640px;margin:.4rem auto 1.4rem;opacity:.8}
+    #faq .faq-list{display:grid;gap:.55rem;max-width:760px;margin:0 auto}
+    #faq details{border:1px solid var(--gold-lo,rgba(176,141,74,.3));border-radius:10px;background:rgba(176,141,74,.04);overflow:hidden}
+    #faq summary{cursor:pointer;padding:.75rem 1.05rem;font-weight:600;list-style:none;display:flex;align-items:baseline;gap:.55rem}
+    #faq summary::-webkit-details-marker{display:none}
+    #faq summary::before{content:"+";color:var(--gold,#b08d4a);font-weight:700;font-size:1.1em;line-height:1}
+    #faq details[open] summary::before{content:"–"}
+    #faq details[open] summary{color:var(--gold-hi,#c9a35a)}
+    #faq .faq-a{margin:0;padding:0 1.05rem 1rem 2.3rem;line-height:1.6;opacity:.9}
+  </style>
+    <div class="faq-list">
+    <details><summary>Парампара</summary><p class="faq-a">Цепь ученической преемственности, по которой знание передаётся от учителя к ученику без искажений (Б.-г. 4.2). KAVACHAM берёт источники только внутри парампары.</p></details>
+    <details><summary>Сиддханта</summary><p class="faq-a">Выверенный философский вывод, заключение писаний. Противоположность — апасиддханта.</p></details>
+    <details><summary>Апасиддханта</summary><p class="faq-a">Учение, расходящееся с выводом шастр и парампары. KAVACHAM создан, чтобы распознавать и разбирать её (ритвик-вада, майявада, атеизм) методом Прабхупады.</p></details>
+    <details><summary>Ньяя</summary><p class="faq-a">Санскритская логика и искусство корректного рассуждения, методология доказательного разбора (одна из шести даршан).</p></details>
+    <details><summary>Прамана</summary><p class="faq-a">Источник достоверного познания. Высшая прамана здесь — шабда (свидетельство шастр), выше чувственного восприятия (пратьякша) и умозаключения (анумана).</p></details>
+    <details><summary>Пурвапакша</summary><p class="faq-a">Позиция оппонента, которую честно и в самой сильной форме излагают перед разбором (близко к принципу «steelman»).</p></details>
+    <details><summary>Апологетика</summary><p class="faq-a">Обоснованная защита учения средствами логики и первоисточников; профиль KAVACHAM.</p></details>
+    <details><summary>Чатур-доша</summary><p class="faq-a">«Четыре изъяна» обусловленного познания: бхрама (ошибка), прамада (невнимательность), випралипса (склонность обманывать), каранапатава (несовершенство чувств). В проекте — прообраз «галлюцинации» ИИ, снимаемой опорой на шабда-праману.</p></details>
+    <details><summary>Юкта-вайрагья</summary><p class="faq-a">«Уместное отречение»: занимать любые средства, включая технологии, в служении, не привязываясь к ним (принцип Рупы Госвами).</p></details>
+    <details><summary>Брихат-мриданга</summary><p class="faq-a">«Большая мриданга» Бхактисиддханты Сарасвати: печатный станок и, шире, самый мощный канал эпохи как инструмент проповеди.</p></details>
+    <details><summary>Ритвик-вада</summary><p class="faq-a">Отклонение, по которому после ухода Шрилы Прабхупады посвящение якобы даётся лишь формально «от его имени», без живого учителя; ИСККОН и GBC отвергают его как апасиддханту.</p></details>
+    <details><summary>Майявада</summary><p class="faq-a">Имперсоналистская философия (Абсолют в конечном счёте безличен), которую вайшнавская веданта опровергает.</p></details>
+    <details><summary>RAG (Retrieval-Augmented Generation)</summary><p class="faq-a">«Поиск + генерация»: сначала находят точные фрагменты в корпусе, затем LLM отвечает строго по ним со ссылками. Так устроено ядро KAVACHAM.</p></details>
+    <details><summary>RLM (рекурсивные языковые модели)</summary><p class="faq-a">Следующий горизонт: агент с рекурсивными подагентами для многошагового разбора, где поиск и Конституция становятся его инструментами.</p></details>
+    <details><summary>Эмбеддинги и векторизация</summary><p class="faq-a">Перевод текста в числовые векторы смысла, чтобы искать по смыслу, а не по словам (модель multilingual-e5: русский вопрос находит английский стих).</p></details>
+    <details><summary>OKF (Open Knowledge Format)</summary><p class="faq-a">Открытый формат знания: markdown плюс структурированные метаданные; на нём построена библиотека GJK.</p></details>
+    <details><summary>GJK (Gaudiya Jnana Kosh)</summary><p class="faq-a">«Сокровищница знания гаудия»: локальная библиотека первоисточников, фундамент проекта.</p></details>
+    <details><summary>Ноль энтропии</summary><p class="faq-a">Кредо проекта: точность важнее скорости; честное молчание лучше правдоподобной ошибки.</p></details>
+    <details><summary>KAVACHAM</summary><p class="faq-a">Санскр. «броня» (кавача, отсылка к Нараяна-кавачам, ШБ 6.8) и акроним: Knowledge-Anchored Vaishnava Apologetics &amp; Citation Hub with Authoritative Mantras.</p></details>
+  </div>
+</section>
+
+<footer class="doc">
+    <div class="om" aria-hidden="true">✦</div>
+    <p>Термины пополняются вместе с проектом. <a href="./">На главную →</a></p>
+    <p class="note" style="margin-top:0.6rem">Не нашли термин? Спросите помощника на главной — он объяснит с опорой на источники.</p>
+    <p class="sign">KAVACHAM · DGD · ZERO ENTROPY</p>
+  </footer>
+
+</div>
+</body>
+</html>
