@@ -546,7 +546,7 @@
   </div>
 </section>
 
-<!-- ============ ЗАКОН ОСНОВАТЕЛЯ ============ -->
+<!-- ============ ЗАКОН АВТОРА ПРОЕКТА ============ -->
 <section class="band deep narrow" aria-label="Принцип проекта">
   <div class="inner">
     <div class="law reveal">
@@ -902,7 +902,7 @@
   <div class="om">✦</div>
   <p class="closing">Защита учения начинается с точных, найденных в контексте слов Прабхупады, и подкрепляется глубоким пониманием их сути.</p>
   <p class="sig"><b>KAVACHAM</b> · Gaudiya Jnana Kosh</p>
-  <p class="sig" style="max-width:46rem;margin:0.55rem auto 0;line-height:1.5">Инициатива продолжает по парампаре видение Е.С. Бхакти Вигьяны Госвами — систематизировать знание вани и защищать чистоту учения Шрилы&nbsp;Прабхупады. Основатель и служитель проекта — Даял-Говинда&nbsp;дас.</p>
+  <p class="sig" style="max-width:46rem;margin:0.55rem auto 0;line-height:1.5">Инициатива продолжает по парампаре видение Е.С. Бхакти Вигьяны Госвами — систематизировать знание вани и защищать чистоту учения Шрилы&nbsp;Прабхупады. Автор и служитель проекта — Даял-Говинда&nbsp;дас.</p>
   <p class="sign">KAVACHAM&nbsp;·&nbsp;DGD&nbsp;·&nbsp;ZERO ENTROPY</p>
 </footer>
 
@@ -1081,7 +1081,7 @@
     }
     function add(cls, html) { var d = document.createElement('div'); d.className = 'ask-msg ' + cls; d.innerHTML = html; log.appendChild(d); log.scrollTop = log.scrollHeight; return d; }
     function addAnswer(s) { add('a', '<span class="t">' + esc(s.title) + '</span>' + richFmt(s.body) + '<div class="src">✦ из базы знаний проекта — без домыслов</div>'); }
-    function notFoundHtml() { return '<span class="t">Не нашёл точного ответа</span>Чтобы не выдумывать — напишите оператору прямо здесь (кнопка ✉ внизу) или основателю напрямую: ' + TG + ' · ' + MAIL + '. Это тот же принцип, что и у KAVACHAM: право молчать вместо фабрикации.'; }
+    function notFoundHtml() { return '<span class="t">Не нашёл точного ответа</span>Чтобы не выдумывать — напишите оператору прямо здесь (кнопка ✉ внизу) или автору проекта напрямую: ' + TG + ' · ' + MAIL + '. Это тот же принцип, что и у KAVACHAM: право молчать вместо фабрикации.'; }
     function addNotFound() { add('a', notFoundHtml()); }
     /* авто-кликабельность (на уже esc-тексте): URL, email, @telegram-хендлы */
     function autolink(s) {
@@ -1143,7 +1143,7 @@
       text.placeholder = on ? 'Сообщение оператору…' : 'Спросите о проекте…';
       if (on) {
         openOperatorStream();
-        add('a', '<span class="t">✉ Связь с оператором</span>Пишите — сообщение уйдёт основателю проекта, ответ появится прямо здесь. Если он офлайн, ответит позже здесь или в Telegram: ' + TG + '.');
+        add('a', '<span class="t">✉ Связь с оператором</span>Пишите — сообщение уйдёт автору проекта проекта, ответ появится прямо здесь. Если он офлайн, ответит позже здесь или в Telegram: ' + TG + '.');
       } else {
         if (es) { try { es.close(); } catch (e) {} es = null; }
         add('a', '<span class="t">Снова о проекте</span>Отвечаю по базе знаний. Кнопка ✉ вернёт вас к оператору в любой момент.');
@@ -1157,7 +1157,7 @@
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (d) {
           el.innerHTML = (d && d.ok)
-            ? '<span class="t">✉ Отправлено основателю</span>Сообщение доставлено. Ответ придёт в Telegram: ' + TG + ' или на почту: ' + MAIL + '.'
+            ? '<span class="t">✉ Отправлено автору проекта</span>Сообщение доставлено. Ответ придёт в Telegram: ' + TG + ' или на почту: ' + MAIL + '.'
             : '<span class="t">Не удалось отправить</span>Напишите напрямую: ' + TG + ' · ' + MAIL + '.';
           log.scrollTop = log.scrollHeight;
         })
@@ -1177,7 +1177,7 @@
               el.className = 'ask-msg ack'; el.innerHTML = '✓ доставлено';
             } else {
               contactAckShown = true;
-              el.innerHTML = '<span class="t">✉ Отправлено основателю</span>Он ответит в Telegram: ' + TG + ' или на почту: ' + MAIL + '.';
+              el.innerHTML = '<span class="t">✉ Отправлено автору проекта</span>Он ответит в Telegram: ' + TG + ' или на почту: ' + MAIL + '.';
             }
             log.scrollTop = log.scrollHeight;
           } else { contactFallback(el, q); } /* эндпоинт связи недоступен → живой /api/ask */
@@ -1185,11 +1185,11 @@
         .catch(function () { contactFallback(el, q); });
     }
     if (opBtn) opBtn.onclick = function () { setContactMode(!contactMode); };
-    /* сетевой сбой ассистента → тихо шлём вопрос основателю (копилка); токен — на сервере */
+    /* сетевой сбой ассистента → тихо шлём вопрос автору проекта (копилка); токен — на сервере */
     function notifyMiss(q) {
       try { fetch(ASK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question: q, meta: 'виджет о проекте · ' + (navigator.language || '') }) }).catch(function () {}); } catch (e) {}
     }
-    /* локальный поиск не нашёл → ИИ-ассистент (Gemini, строго по базе); при промахе сервер сам уведомит основателя */
+    /* локальный поиск не нашёл → ИИ-ассистент (Gemini, строго по базе); при промахе сервер сам уведомит автора проекта */
     function askLLM(q) {
       var el = add('a', '<span class="t">Ассистент думает…</span>ищу ответ строго по базе знаний');
       fetch(CHAT_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question: q, meta: 'виджет о проекте · ' + (navigator.language || '') }) })
@@ -1218,7 +1218,7 @@
     var CHIPS = ['Что такое KAVACHAM?', 'Что уже сделано?', 'Как это работает?', 'Почему не спешит?', 'Что такое ноль энтропии?', 'Какие планы?', 'Чем помочь?', 'Кто оплачивает?'];
     function greet() {
       if (greeted) return; greeted = true;
-      add('a', '<span class="t">Спросите что угодно о проекте</span>Отвечаю строго по базе знаний — что сделано, планы, устройство, термины. Сложные вопросы разбирает ИИ-ассистент. Чего нет в базе — честно скажу и передам вопрос основателю.');
+      add('a', '<span class="t">Спросите что угодно о проекте</span>Отвечаю строго по базе знаний — что сделано, планы, устройство, термины. Сложные вопросы разбирает ИИ-ассистент. Чего нет в базе — честно скажу и передам вопрос автору проекта.');
       var c = document.createElement('div'); c.className = 'ask-msg a';
       var wrap = document.createElement('div'); wrap.className = 'ask-chips';
       CHIPS.forEach(function (q) {
