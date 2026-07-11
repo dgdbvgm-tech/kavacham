@@ -305,6 +305,25 @@
   .fact .lbl { color: var(--deep-ink); font-weight: 600; }
   .fact .sub { color: var(--deep-dim); font-size: 0.9rem; }
   .fact.wide { grid-column: 1 / -1; }
+  /* Витрина «Что сделано»: раскрывающиеся карточки (клик — детализация) */
+  details.fact { cursor: pointer; transition: background .25s ease; }
+  details.fact:hover { background: rgba(255,255,255,.045); }
+  details.fact summary { list-style: none; display: flex; flex-direction: column; gap: 0.45rem; outline: none; }
+  details.fact summary::-webkit-details-marker { display: none; }
+  details.fact .hint { margin-top: .55rem; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--gold-hi); opacity: .8; }
+  details.fact[open] .hint .t-close { display: none; }
+  details.fact:not([open]) .hint .t-open { display: none; }
+  details.fact .more { margin-top: .95rem; padding-top: .95rem; border-top: 1px solid rgba(255,255,255,.14); color: var(--deep-dim); font-size: .9rem; line-height: 1.6; cursor: auto; }
+  details.fact .more a { color: var(--gold-hi); }
+  details.fact .more b { color: var(--deep-ink); }
+  .fact .roadmap { list-style: none; margin: .6rem 0 0; padding: 0; display: grid; gap: .4rem; }
+  .fact .roadmap li { padding-left: 1.5rem; position: relative; }
+  .fact .roadmap .st { position: absolute; left: 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .fact .roadmap li.done .st { color: #7fc99a; }
+  .fact .roadmap li.now .st { color: var(--gold-hi); }
+  .fact .roadmap li.now { color: var(--deep-ink); }
+  .fact .roadmap li.next { opacity: .62; }
+  .proof-updated { margin-top: 1.1rem; font-size: .82rem; color: var(--deep-dim); text-align: right; font-variant-numeric: tabular-nums; }
 
   .versus { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: 1.1rem; margin-top: 2.2rem; }
   .vs-col { border-radius: 6px; padding: 1.4rem 1.4rem; border: 1px solid var(--rule); background: var(--panel); }
@@ -735,16 +754,76 @@
   <div class="inner">
     <p class="eyebrow reveal">Это не идея — это работающий фундамент</p>
     <h2 class="kicker reveal">Уже собрано и проверено.</h2>
-    <p class="lead reveal" style="color:var(--deep-dim)">Всё это собрано стремительно — за считанные дни, а не годы: чистая библиотека построена и превращена в смысловой индекс: в живой базе — 396&nbsp;000+ фрагментов из 37&nbsp;000+ документов (живой счётчик — ниже). Это сердце будущих точных, проверяемых ответов.</p>
+    <p class="lead reveal" style="color:var(--deep-dim)">Живая витрина проекта: чистая библиотека превращена в смысловой индекс — 396&nbsp;000+ фрагментов из 38&nbsp;000+ документов, поверх идут открытые испытания в Telegram-лаборатории. Карточки раскрываются по клику — внутри детали и пруфы. Витрина обновляется с каждым релизом.</p>
     <div class="facts reveal">
-      <div class="fact"><div class="big">38&nbsp;000+</div><div class="lbl">OKF-документов, 0 ошибок валидации</div><div class="sub">Единый формат, ~24 источника собраны «в одну кнопку»</div></div>
-      <div class="fact"><div class="big">7&nbsp;100+</div><div class="lbl">писем, лекций и бесед Шрилы Прабхупады</div><div class="sub">Полный корпус вани с проверяемыми ссылками</div></div>
-      <div class="fact"><div class="big" id="m-chunks">396&nbsp;000+</div><div class="lbl">смысловых фрагментов в индексе</div><div class="sub" id="m-chunks-sub">Русский вопрос находит английский стих — семантический поиск по всему корпусу</div></div>
-      <a class="fact" href="./constitution.html" style="text-decoration:none;color:inherit;display:block"><div class="big">v1.2</div><div class="lbl">Конституция агента</div><div class="sub">Свод законов ответа и логики защиты по ньяе; §0 — кредо «Ноль энтропии» · <span style="color:var(--gold-hi)">читать →</span></div></a>
-      <div class="fact"><div class="big">v1</div><div class="lbl">Апологетический протокол</div><div class="sub">Формализованный разбор искажений: пурвапакша → кхандана → сиддханта, только проверяемые цитаты</div></div>
-      <div class="fact"><div class="big">Lab</div><div class="lbl">Открытые испытания в Telegram</div><div class="sub">Канал KAVACHAM Lab: опубликованы разборы №1–№3 по живым заявкам (130+ проверенных цитат)</div></div>
-      <div class="fact wide"><div class="lbl">В корпусе уже: полный «Шримад-Бхагаватам» (Песни 1–12) · книги Бхактивиноды Тхакура · лекции Е.С. Бхакти Вигьяна Госвами · резолюции и протоколы GBC (1975–2025) · труды ачарьев · официальные издания BBT</div><div class="sub">Библиотека переносима и не привязана ни к одной нейросети — фундамент, который переживёт любую технологию.</div></div>
+      <details class="fact">
+        <summary>
+          <div class="big" id="m-docs" data-count="38392" data-suffix="">38&nbsp;390+</div>
+          <div class="lbl">документов в библиотеке · 0 ошибок валидации</div>
+          <div class="sub">Единый открытый формат (OKF): ~24 источника собраны «в одну кнопку»</div>
+          <div class="hint"><span class="t-close">подробнее +</span><span class="t-open">свернуть −</span></div>
+        </summary>
+        <div class="more">Каждый документ — текст с «паспортом»: откуда взят, каким скриптом получен, каков статус проверки. Формат переносим: библиотека не привязана ни к одной нейросети. Среди источников — Vanisource (вани Шрилы Прабхупады), структура Vedabase (ШБ · БГ · ЧЧ), резолюции GBC, труды ачарьев парампары, лекции Е.С. Бхакти Вигьяна Госвами, книги учеников Прабхупады. Полный перечень — в <a href="./corpus.html">каталоге корпуса</a>.</div>
+      </details>
+      <details class="fact">
+        <summary>
+          <div class="big">7&nbsp;100+</div>
+          <div class="lbl">писем, лекций и бесед Шрилы Прабхупады</div>
+          <div class="sub">Полный корпус вани с проверяемыми ссылками</div>
+          <div class="hint"><span class="t-close">подробнее +</span><span class="t-open">свернуть −</span></div>
+        </summary>
+        <div class="more">Каждая единица корпуса ведёт на постоянный первоисточник — ссылку можно проверить в один клик. Письма в ответах подаются с адресатом и годом: личное наставление конкретному ученику не выдаётся за универсальный закон. Это не деталь, а правило конституции проекта (пометка ситуативности).</div>
+      </details>
+      <details class="fact">
+        <summary>
+          <div class="big" id="m-chunks" data-count="396566" data-suffix="">396&nbsp;000+</div>
+          <div class="lbl">смысловых фрагментов в гибридном индексе</div>
+          <div class="sub" id="m-chunks-sub">Смысл + дословная лексика: русский вопрос находит английский стих</div>
+          <div class="hint"><span class="t-close">подробнее +</span><span class="t-open">свернуть −</span></div>
+        </summary>
+        <div class="more">Поиск двухканальный: семантический (по смыслу) и точный лексический (дословные формулы, санскрит, диакритика — «Vaikuntha» находит «Vaikuṇṭha»). На эталонных кейсах точность выросла <b>в 4 раза за одну итерацию</b> (hit@8: 17% → 67%): санскритская строка стиха теперь находит все места, где Прабхупада его цитирует. Список «красных» кейсов открыт — движок дотачивается на каждом разборе.</div>
+      </details>
+      <a class="fact" href="./constitution.html" style="text-decoration:none;color:inherit;display:block"><div class="big">v1.3</div><div class="lbl">Конституция агента</div><div class="sub">Свод законов ответа и логики защиты по ньяе; §0 — кредо «Ноль энтропии»; новое: карта сложных узлов (SRI) и прозрачность тиров источников · <span style="color:var(--gold-hi)">читать →</span></div></a>
+      <details class="fact">
+        <summary>
+          <div class="big">v1</div>
+          <div class="lbl">Апологетический протокол</div>
+          <div class="sub">Формализованный разбор искажений: пурвапакша → кхандана → сиддханта</div>
+          <div class="hint"><span class="t-close">подробнее +</span><span class="t-open">свернуть −</span></div>
+        </summary>
+        <div class="more">Разбор идёт по дисциплине ньяи: сначала позиция оппонента в её сильнейшей форме (пурвапакша), затем разбор от первоисточников (кхандана), затем вывод традиции (сиддханта). Три рубежа чистоты: источник → документ → ответ. Спорное и чувствительное уходит на ревью человеку; публикация — всегда с одобрения человека.</div>
+      </details>
+      <details class="fact">
+        <summary>
+          <div class="big">Lab</div>
+          <div class="lbl">Открытые испытания в Telegram</div>
+          <div class="sub">Разборы №1–№3 по живым заявкам · 130+ проверенных цитат · идёт выбор темы мега-разбора</div>
+          <div class="hint"><span class="t-close">подробнее +</span><span class="t-open">свернуть −</span></div>
+        </summary>
+        <div class="more">Опубликовано по живым заявкам: <a href="https://telegra.ph/Razbor-2-CHitat-acharev--ehto-v-obhod-Prabhupady-Kak-ustroena-prizma-07-10" target="_blank" rel="noopener">№1 — «Читать ачарьев — в обход Прабхупады?»</a> · <a href="https://telegra.ph/Otchet-po-Testu-1-Transgumanizm-i-priroda-soznaniya-07-09-2" target="_blank" rel="noopener">№2 — трансгуманизм и природа сознания</a> · <a href="https://telegra.ph/Razbor-3-Pyat-voprosov-po-Nektaru-predannosti--ehkzamen-dlya-dvizhka-07-10" target="_blank" rel="noopener">№3 — пять вопросов по «Нектару преданности»</a>. Прямо сейчас канал голосованием выбирает тему <b>мега-разбора</b> (~200 цитат). <a href="https://t.me/+8zzg7sB9VHcxZWNi" target="_blank" rel="noopener">Войти в канал →</a> (канал частный, вход одобряет админ) · прислать свой вызов: <a href="https://t.me/kavacham_lab_bot" target="_blank" rel="noopener">@kavacham_lab_bot</a></div>
+      </details>
+      <details class="fact">
+        <summary>
+          <div class="big">RLM</div>
+          <div class="lbl">Под капотом: технология и дорожная карта</div>
+          <div class="sub">Гибридный поиск уже в прототипе; впереди — слой глубокого разбора</div>
+          <div class="hint"><span class="t-close">подробнее +</span><span class="t-open">свернуть −</span></div>
+        </summary>
+        <div class="more">Ядро — собственный поисковый движок по выверенной библиотеке (RAG). Он LLM-agnostic: рассуждающую нейросеть можно заменить в любой момент — библиотека, индекс и ссылки остаются.
+          <ul class="roadmap">
+            <li class="done"><span class="st">✓</span>Библиотека 38&nbsp;000+ документов в едином формате</li>
+            <li class="done"><span class="st">✓</span>Смысловой индекс 396&nbsp;000+ фрагментов</li>
+            <li class="done"><span class="st">✓</span>Гибридный ретривер: точность ×4 на эталонных кейсах</li>
+            <li class="done"><span class="st">✓</span>Lab-полигон: 3 публичных разбора, бот-приёмная 24/7</li>
+            <li class="now"><span class="st">▶</span>Мега-разбор ~200 цитат — тему выбирает канал</li>
+            <li class="next"><span class="st">○</span>Публичный интерфейс поиска (веб + Telegram)</li>
+            <li class="next"><span class="st">○</span>RLM-слой: глубокий разбор по ньяе поверх дословных цитат</li>
+          </ul>
+        </div>
+      </details>
+      <div class="fact wide"><div class="lbl">В корпусе уже: полный «Шримад-Бхагаватам» (Песни 1–12) · «Бхагавад-гита как она есть» · «Чайтанья-чаритамрита» · 7&nbsp;100+ писем, лекций и бесед Шрилы Прабхупады · труды Бхактивиноды Тхакура и ачарьев парампары · Госвами Вриндавана · резолюции GBC (1975–2025) · 230&nbsp;000+ фрагментов лекций и семинаров Е.С. Бхакти Вигьяна Госвами · первые книги современных учителей ИСККОН (Е.С. Шиварама Свами)</div><div class="sub">Библиотека переносима и не привязана ни к одной нейросети — фундамент, который переживёт любую технологию.</div></div>
     </div>
+    <p class="proof-updated reveal" id="m-updated">обновлено: 11 июля 2026</p>
   </div>
 </section>
 
@@ -834,7 +913,7 @@
 <section class="band paper" id="help" aria-label="Как вы можете помочь">
   <div class="inner">
     <p class="eyebrow reveal">Как вы можете помочь</p>
-    <h2 class="kicker reveal">Проекту нужны три вещи — и все три в ваших руках.</h2>
+    <h2 class="kicker reveal">Проекту нужны четыре вещи — и все четыре в ваших руках.</h2>
     <div class="grid g-3">
       <div class="ask-card reveal">
         <span class="idx">A · КНИГИ</span>
@@ -868,6 +947,12 @@
         </ul>
         <p class="muted">Если откликается — давайте сложим усилия: это соборное служение, а не работа одиночки.</p>
       </div>
+    </div>
+    <div class="ask-card reveal" style="margin-top:1.2rem">
+      <span class="idx">D · ЭКСПЕРИМЕНТЫ</span>
+      <h3>Стать испытателем Лаборатории — самый быстрый способ помочь</h3>
+      <p class="muted">Пришлите вызов: сложный вопрос, софизм, критику, «ИИ такое точно не разберёт». Заявка получит номер, разбор выйдет в канале Lab — с полным «капотом» и проверяемыми ссылками. Так машина защиты сиддханты оттачивается на живых задачах — вместе с вами.</p>
+      <p style="margin-top:.6rem"><a class="btn btn-primary" href="https://t.me/kavacham_lab_bot" target="_blank" rel="noopener">Прислать вызов · @kavacham_lab_bot</a></p>
     </div>
     <h3 class="contact-title reveal" id="contact">Контакты</h3>
     <div class="contact reveal">
@@ -1344,18 +1429,43 @@
 </script>
 
 <script>
-  /* Живые метрики: тянем metrics.json (пишется скриптом мониторинга); нет файла — остаются статичные значения */
+  /* Витрина: живые метрики (metrics.json) + count-up чисел при появлении в кадре */
   (function () {
+    function fmt(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '\u202f'); }
+    function animate(el) {
+      var target = parseInt(el.getAttribute('data-count'), 10);
+      if (!target) return;
+      var suffix = el.getAttribute('data-suffix') || '';
+      var t0 = null, dur = 1400;
+      function step(ts) {
+        if (!t0) t0 = ts;
+        var p = Math.min((ts - t0) / dur, 1);
+        var eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = fmt(Math.round(target * eased)) + suffix;
+        if (p < 1) { requestAnimationFrame(step); } else { el.setAttribute('data-done', '1'); }
+      }
+      requestAnimationFrame(step);
+    }
+    var counters = Array.prototype.slice.call(document.querySelectorAll('#proof .big[data-count]'));
+    if ('IntersectionObserver' in window && counters.length) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          io.unobserve(e.target);
+          animate(e.target);
+        });
+      }, { threshold: 0.4 });
+      counters.forEach(function (c) { io.observe(c); });
+    }
+    /* живые значения: если файл есть — обновляем данные счётчиков и штамп свежести */
     fetch('metrics.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (m) {
       if (!m) return;
-      function fmt(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
-      var el = document.getElementById('m-chunks');
-      if (el && m.chunks) el.innerHTML = fmt(m.chunks);
-      var sub = document.getElementById('m-chunks-sub');
-      if (sub && m.updated) {
-        var extra = m.docs_indexed ? (fmt(m.docs_indexed) + ' док. · ') : '';
-        sub.textContent = extra + 'обновлено ' + m.updated;
-      }
+      var ch = document.getElementById('m-chunks');
+      if (ch && m.chunks) { ch.setAttribute('data-count', m.chunks); if (ch.getAttribute('data-done')) ch.textContent = fmt(m.chunks); }
+      var dc = document.getElementById('m-docs');
+      if (dc && m.docs_total) { dc.setAttribute('data-count', m.docs_total); if (dc.getAttribute('data-done')) dc.textContent = fmt(m.docs_total); }
+      var up = document.getElementById('m-updated');
+      if (up && m.updated) up.textContent = 'живые данные индекса: ' + m.updated;
     }).catch(function () {});
   })();
 </script>
