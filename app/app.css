@@ -1,0 +1,662 @@
+/* ============================================================
+   Читальня КАВАЧАМ — TMA-специфика поверх site/styles.css.
+   Палитра/типографика НЕ дублируются: берём токены оттуда
+   (--ground/--panel/--text/--rule/--accent/--gold*/--serif/--sans).
+   Здесь только то, чего нет на сайте: таб-бар, лента, оглавление,
+   тир-бейджи, ⚖️ SRI, safe-area, деградация вне Telegram.
+   ============================================================ */
+
+:root {
+  /* высота вьюпорта Telegram (viewportStableHeight); вне TG — обычные 100dvh */
+  --tma-vh: 100dvh;
+  /* safe-area: Telegram отдаёт свои инсеты, браузер — env() */
+  --sa-top: env(safe-area-inset-top, 0px);
+  --sa-bottom: env(safe-area-inset-bottom, 0px);
+  --sa-left: env(safe-area-inset-left, 0px);
+  --sa-right: env(safe-area-inset-right, 0px);
+
+  --tma-top-h: 3.25rem;
+  --tma-tab-h: 3.6rem;
+  --tma-pad: clamp(1rem, 4.5vw, 1.6rem);
+  /* длина строки в читальне: 65–75 символов */
+  --tma-measure: 68ch;
+}
+
+/* тело TMA: не ездит вбок, дышит под шапкой и таб-баром */
+body.tma {
+  min-height: var(--tma-vh);
+  background: var(--ground);
+  color: var(--text);
+  overflow-x: hidden;
+  overscroll-behavior-y: none;
+  padding-left: var(--sa-left);
+  padding-right: var(--sa-right);
+}
+
+/* ——— Шапка ——— */
+.tma-top {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--tma-top-h);
+  padding: 0.4rem var(--tma-pad);
+  padding-top: calc(0.4rem + var(--sa-top));
+  background: var(--deep);
+  border-bottom: 1px solid var(--deep-rule);
+  color: var(--deep-ink);
+}
+.tma-brand {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: 0.14em;
+  color: var(--gold-hi);
+  text-decoration: none;
+  margin-right: auto;
+  padding: 0.35rem 0.1rem;
+}
+.tma-back,
+.tma-theme {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: none;
+  color: var(--gold-hi);
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.tma-back:hover,
+.tma-theme:hover { border-color: var(--gold); }
+.tma-back[hidden] { display: none; }
+
+/* ——— Честная плашка «песочница» ——— */
+.tma-sandbox {
+  padding: 0.6rem var(--tma-pad);
+  background: var(--deep-2);
+  border-bottom: 1px solid var(--deep-rule);
+  color: var(--deep-dim);
+  font-family: var(--sans);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+.tma-sandbox strong { color: var(--gold-hi); font-weight: 600; }
+
+/* ——— Каркас экранов ——— */
+.tma-main {
+  display: block;
+  padding: 1.6rem var(--tma-pad) 2.4rem;
+  /* запас под фиксированный таб-бар + safe-area */
+  padding-bottom: calc(var(--tma-tab-h) + var(--sa-bottom) + 2.4rem);
+  max-width: 46rem;
+  margin: 0 auto;
+  outline: none;
+}
+.screen[hidden] { display: none; }
+.screen-h {
+  font-size: clamp(1.55rem, 6vw, 2.05rem);
+  line-height: 1.18;
+  margin: 0 0 0.7rem;
+}
+.screen-sub {
+  color: var(--text-2);
+  font-size: 1rem;
+  max-width: var(--tma-measure);
+  margin: 0 0 1.6rem;
+}
+.about-h {
+  font-size: 1.2rem;
+  margin: 2rem 0 0.8rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--rule);
+}
+
+/* состояние загрузки / ошибки / пустоты — честное, не тишина */
+.state {
+  padding: 1.1rem 1.2rem;
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent-2);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--text-2);
+  font-size: 0.97rem;
+}
+.state[hidden] { display: none; }
+.state.err { border-left-color: #C0705B; }
+.state .state-h {
+  display: block;
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  color: var(--text);
+  margin-bottom: 0.35rem;
+}
+.state .btn { margin-top: 0.9rem; }
+
+/* ——— Лента читальни ——— */
+.feed {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.9rem;
+}
+.feed[hidden] { display: none; }
+.feed-card {
+  display: block;
+  padding: 1.25rem 1.25rem;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  box-shadow: var(--shadow);
+  color: inherit;
+  text-decoration: none;
+  transition: transform .18s ease, border-color .18s ease;
+}
+.feed-card:hover { transform: translateY(-2px); border-color: var(--accent-2); }
+@media (prefers-reduced-motion: reduce) {
+  .feed-card, .feed-card:hover { transform: none; transition: none; }
+}
+.feed-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+.feed-card h2 {
+  font-size: 1.22rem;
+  line-height: 1.25;
+  margin: 0 0 0.35rem;
+}
+.feed-sub {
+  color: var(--text-2);
+  font-size: 0.97rem;
+  margin: 0 0 0.7rem;
+}
+.feed-ex {
+  color: var(--text-dim);
+  font-size: 0.92rem;
+  margin: 0 0 0.8rem;
+}
+.feed-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+.feed-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.7rem;
+}
+.tag {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  color: var(--text-dim);
+}
+
+/* бейдж вида: mega / razbor / map */
+.kind {
+  font-family: var(--sans);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.28rem 0.6rem;
+  border-radius: 3px;
+  border: 1px solid var(--accent-2);
+  color: var(--accent);
+  white-space: nowrap;
+}
+.kind.k-mega {
+  background: linear-gradient(180deg, var(--gold-hi), var(--gold));
+  border-color: var(--gold);
+  color: #241a05;
+}
+.kind.k-map { border-style: dashed; }
+
+/* ——— Экран разбора ——— */
+.reading[hidden] { display: none; }
+.reading-head { margin-bottom: 1.4rem; }
+.reading-kind {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 0.7rem;
+}
+.reading-title {
+  font-size: clamp(1.6rem, 6.4vw, 2.3rem);
+  line-height: 1.16;
+  margin: 0 0 0.6rem;
+}
+.reading-sub {
+  font-family: var(--serif);
+  font-size: 1.08rem;
+  color: var(--text-2);
+  margin: 0 0 0.9rem;
+  max-width: var(--tma-measure);
+}
+.reading-meta {
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+  margin: 0;
+}
+
+/* оглавление — липкое и сворачиваемое */
+.toc {
+  position: sticky;
+  top: calc(var(--tma-top-h) + var(--sa-top));
+  z-index: 40;
+  margin: 0 0 1.8rem;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  box-shadow: var(--shadow);
+}
+.toc[hidden] { display: none; }
+.toc-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.toc-chev { color: var(--accent); transition: transform .2s ease; }
+@media (prefers-reduced-motion: reduce) { .toc-chev { transition: none; } }
+.toc-toggle[aria-expanded="true"] .toc-chev { transform: rotate(180deg); }
+.toc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 1rem 0.9rem;
+  max-height: 46vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-top: 1px solid var(--rule);
+}
+.toc-list[hidden] { display: none; }
+.toc-list li { margin: 0; }
+.toc-list a {
+  display: block;
+  padding: 0.62rem 0.2rem;
+  min-height: 44px;
+  color: var(--text-2);
+  text-decoration: none;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  border-bottom: 1px solid var(--rule);
+}
+.toc-list li:last-child a { border-bottom: none; }
+.toc-list a:hover { color: var(--accent); }
+.toc-list .lv-3 { padding-left: 1.1rem; font-size: 0.9rem; color: var(--text-dim); }
+
+/* тело разбора: длинная страница, комфортная мера строки */
+.reading-body {
+  font-size: 1.05rem;
+  line-height: 1.72;
+  max-width: var(--tma-measure);
+}
+.reading-body > * { margin: 0 0 1.05rem; }
+.reading-body h2 {
+  font-size: clamp(1.3rem, 5vw, 1.65rem);
+  line-height: 1.25;
+  margin: 2.4rem 0 0.9rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--rule);
+  scroll-margin-top: calc(var(--tma-top-h) + var(--sa-top) + 4rem);
+}
+.reading-body h3 {
+  font-size: 1.18rem;
+  margin: 1.8rem 0 0.7rem;
+  scroll-margin-top: calc(var(--tma-top-h) + var(--sa-top) + 4rem);
+}
+.reading-body p { color: var(--text); }
+.reading-body ul,
+.reading-body ol { padding-left: 1.3rem; }
+.reading-body li { margin: 0.45rem 0; }
+.reading-body strong { font-weight: 600; }
+.reading-body em { font-style: italic; }
+.reading-body hr { border: none; border-top: 1px solid var(--rule); margin: 2rem 0; }
+
+/* цитата-прамана */
+.reading-body blockquote {
+  margin: 1.4rem 0;
+  padding: 0.2rem 0 0.2rem 1.1rem;
+  border-left: 2px solid var(--rule);
+  color: var(--text-2);
+}
+.reading-body blockquote p { color: inherit; margin: 0; }
+
+/* ссылки в теле — переносимые (на сайте .cite nowrap, здесь это ломало бы вёрстку) */
+.reading-body a,
+.reading-body a.cite {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid var(--accent-2);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.reading-body a:hover { color: var(--accent-2); }
+
+/* широкое содержимое скроллится ВНУТРИ себя — тело страницы не ездит вбок */
+.reading-body pre,
+.reading-body .table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.reading-body pre {
+  padding: 0.9rem 1rem;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  font-size: 0.88rem;
+}
+.reading-body table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.92rem;
+}
+.reading-body th,
+.reading-body td {
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: top;
+}
+.reading-body th { color: var(--text); font-weight: 600; }
+.reading-body img { max-width: 100%; height: auto; border-radius: 6px; }
+
+/* ——— Разметка генератора (.rd-*) ————————————————————————————
+   ВАЖНО: имена классов — не наш выбор, а КОНТРАКТ генератора читальни.
+   Он отдаёт один и тот же HTML в TMA (data/reading/<slug>.json → .reading-body)
+   и на страницу Pages (site/reading/<slug>.html). Фактическая разметка праманы:
+
+     <blockquote class="rd-pramana">
+       <p class="rd-quote">«…дословная цитата…»</p>
+       <p class="rd-src">
+         <a class="cite" href="…">Источник</a>
+         <span class="rd-badge rd-tier rd-tier-t1">Прабхупада / первоисточник</span>
+         <span class="rd-badge rd-sri">⚖️ SRI — обе линии, движок не арбитрирует</span>
+       </p>
+     </blockquote>
+
+   Стили ниже ЗЕРКАЛЯТ блок .rd-* со страницы Pages (тот же вид тир-бейджа, SRI и
+   пометки «пробел корпуса») — обе поверхности должны читаться одинаково.
+   Чинить руками в двух местах — плохо; правильное место для .rd-* — общий
+   site/styles.css (тогда один источник правды на обе поверхности), но это чужая
+   зона: см. open_issues. Пока — точная копия контракта, а не свои имена классов.
+   ——————————————————————————————————————————————————————————— */
+
+/* цитата с проверяемым источником */
+.reading-body .rd-pramana { border-left-color: var(--accent-2); }
+/* прамана без ссылки — честный пунктир: это пробел корпуса, а не «додумали» */
+.reading-body .rd-pramana-nolink { border-left-style: dotted; }
+.reading-body .rd-quote {
+  font-family: var(--serif);
+  line-height: 1.64;
+}
+.reading-body .rd-src {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  line-height: 1.65;
+  color: var(--text-dim);
+}
+/* .cite общей системы — nowrap (короткие сноски); у праманы источник длинный:
+   разрешаем перенос, иначе тело поедет вбок */
+.reading-body .rd-src .cite {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* бейдж (тир / SRI) — пилюля */
+.reading-body .rd-badge {
+  display: inline-block;
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  line-height: 1.5;
+  padding: 0.05rem 0.55rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+/* тир: Прабхупада / ачарьи линии / справочный-серый */
+.reading-body .rd-tier-t1 { color: var(--accent); border-color: var(--accent-2); }
+.reading-body .rd-tier-t2 { color: var(--text-2); }
+.reading-body .rd-tier-grey { border-style: dashed; opacity: 0.85; }
+/* ⚖️ SRI: узел, где движок не выносит вердикт (§4.8).
+   Рамку НЕ выделяем золотом: на странице Pages этот бейдж живёт на --rule, и
+   расхождение вида между двумя поверхностями — та же энтропия. Знак ⚖️ и текст
+   бейджа уже несут сигнал. */
+.reading-body .rd-sri {
+  white-space: normal;
+  color: var(--text-2);
+}
+/* пробел корпуса: ссылки нет — говорим об этом прямо */
+.reading-body .rd-gap {
+  font-family: var(--sans);
+  font-size: 0.76rem;
+  color: var(--text-dim);
+  border-bottom: 1px dotted currentColor;
+}
+
+/* таблица генератора уже приходит в своей обёртке-скроллере */
+.reading-body .rd-tablewrap {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 0 1.3rem;
+}
+.reading-body .rd-tablewrap table { min-width: 100%; }
+
+/* действия под разбором */
+.reading-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin: 2.6rem 0 1.2rem;
+  padding-top: 1.6rem;
+  border-top: 1px solid var(--rule);
+}
+.reading-foot { font-size: 0.9rem; max-width: var(--tma-measure); }
+
+/* ——— Заглушки Ф1: честно, без фейковых форм ——— */
+.stub {
+  padding: 1.5rem 1.4rem;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  max-width: var(--tma-measure);
+}
+.stub p { color: var(--text-2); }
+.stub-badge {
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.stub .btn { align-self: flex-start; }
+.stub code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9em;
+  padding: 0.1rem 0.35rem;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  color: var(--text);
+}
+
+/* ——— О проекте ——— */
+.principles,
+.links-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.9rem;
+  max-width: var(--tma-measure);
+}
+.principles li {
+  padding-left: 1rem;
+  border-left: 2px solid var(--gold);
+  color: var(--text-2);
+}
+.principles strong { color: var(--text); }
+.links-list li {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--rule);
+  color: var(--text-dim);
+  font-size: 0.95rem;
+}
+.about-note {
+  margin-top: 2rem;
+  padding: 1rem 1.1rem;
+  border: 1px dashed var(--rule);
+  border-radius: 6px;
+  color: var(--text-dim);
+  font-size: 0.92rem;
+  max-width: var(--tma-measure);
+}
+
+/* ——— Подвал: единая подпись ——— */
+.tma-footer {
+  padding: 1.8rem var(--tma-pad);
+  padding-bottom: calc(var(--tma-tab-h) + var(--sa-bottom) + 1.8rem);
+  border-top: 1px solid var(--rule);
+  text-align: center;
+}
+.tma-footer .sig {
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  color: var(--text-dim);
+}
+
+/* ——— Таб-бар ——— */
+.tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 70;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  background: var(--deep);
+  border-top: 1px solid var(--deep-rule);
+  padding-bottom: var(--sa-bottom);
+  padding-left: var(--sa-left);
+  padding-right: var(--sa-right);
+}
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  min-height: var(--tma-tab-h);
+  padding: 0.4rem 0.2rem;
+  text-decoration: none;
+  color: var(--deep-dim);
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  border-top: 2px solid transparent;
+}
+.tab-i { font-size: 1.05rem; line-height: 1; }
+.tab:hover { color: var(--deep-ink); }
+.tab[aria-current="page"] {
+  color: var(--gold-hi);
+  border-top-color: var(--gold);
+}
+
+/* ——— Кнопки: ghost на светлом фоне читальни (на сайте он рассчитан на тёмную полосу) ——— */
+body.tma .btn { font-size: 0.95rem; min-height: 44px; cursor: pointer; }
+body.tma .btn-ghost {
+  color: var(--text);
+  border-color: var(--rule);
+  background: transparent;
+}
+body.tma .btn-ghost:hover { border-color: var(--gold); }
+@media (prefers-reduced-motion: reduce) {
+  body.tma .btn:hover { transform: none; }
+}
+
+/* ——— Тост (короткое подтверждение действия) ——— */
+.tma-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--tma-tab-h) + var(--sa-bottom) + 1rem);
+  z-index: 90;
+  transform: translate(-50%, 0.6rem);
+  max-width: min(92vw, 24rem);
+  padding: 0.7rem 1.1rem;
+  border-radius: 6px;
+  background: var(--deep-2);
+  border: 1px solid var(--deep-rule);
+  color: var(--deep-ink);
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease;
+}
+.tma-toast.on { opacity: 1; transform: translate(-50%, 0); }
+@media (prefers-reduced-motion: reduce) {
+  .tma-toast { transition: opacity .2s ease; transform: translate(-50%, 0); }
+}
+
+/* когда Telegram сам рисует MainButton — наш дубль на экране разбора не нужен */
+body.tma-has-mainbutton .reading-actions .btn-primary { display: none; }
+
+/* ——— Мягкая синхронизация фона с клиентом Telegram (ведущая — наша палитра) ——— */
+body.tma-in-telegram .tma-top,
+body.tma-in-telegram .tabbar {
+  /* оставляем брендовый navy: интеграция — по теме (dark/light), не по чужому цвету */
+  background: var(--deep);
+}

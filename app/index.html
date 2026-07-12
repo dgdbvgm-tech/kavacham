@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark light">
+  <meta name="robots" content="noindex">
+  <title>Читальня КАВАЧАМ</title>
+  <meta name="description" content="Читальня лаборатории КАВАЧАМ: разборы и мега-разборы одной страницей. Дословная цитата + проверяемая ссылка.">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="app.css">
+
+  <!-- SDK Telegram — self-hosted копия, никаких CDN в рантайме.
+       В <head> (как рекомендует Telegram): тогда colorScheme известен ДО первой отрисовки. -->
+  <script src="vendor/telegram-web-app.js"></script>
+
+  <!-- Тема — до первой отрисовки: иначе светлой теме достаётся тёмная вспышка.
+       Тот же порядок источников, что в app.js: ручной выбор → Telegram → система. -->
+  <script>
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem('kavacham.theme'); } catch (e) {}
+      if (t !== 'light' && t !== 'dark') {
+        var tg = window.Telegram && window.Telegram.WebApp;
+        if (tg && tg.platform && tg.platform !== 'unknown' && tg.colorScheme) {
+          t = tg.colorScheme === 'light' ? 'light' : 'dark';
+        } else {
+          t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+        }
+      }
+      document.documentElement.setAttribute('data-theme', t);
+      document.documentElement.style.colorScheme = t;
+    })();
+  </script>
+</head>
+<body class="tma">
+
+  <a class="skip" href="#main">К содержанию</a>
+
+  <!-- ——— Шапка ——— -->
+  <header class="tma-top" id="top">
+    <button class="tma-back" id="btnBack" type="button" aria-label="Назад" hidden>
+      <span aria-hidden="true">←</span>
+    </button>
+    <a class="tma-brand" href="#/reader">КАВАЧАМ</a>
+    <button class="tma-theme" id="btnTheme" type="button" aria-label="Переключить тему" title="Переключить тему">
+      <span aria-hidden="true" id="themeGlyph">◐</span>
+    </button>
+  </header>
+
+  <!-- ——— Плашка «песочница» ——— -->
+  <div class="tma-sandbox" role="note">
+    <strong>Песочница.</strong> Лаборатория, а не готовый продукт: интерфейс и движок в работе.
+  </div>
+
+  <!-- ——— Экраны ——— -->
+  <main id="main" class="tma-main" tabindex="-1">
+
+    <!-- Читальня -->
+    <section class="screen" id="screen-reader" hidden>
+      <h1 class="screen-h">Читальня</h1>
+      <p class="screen-sub">Разборы и мега-разборы — одной страницей, с оглавлением. Каждая цитата — дословно и со ссылкой.</p>
+      <div id="feedState" class="state" role="status" aria-live="polite">Загружаю ленту…</div>
+      <ul class="feed" id="feedList" hidden></ul>
+    </section>
+
+    <!-- Разбор -->
+    <section class="screen" id="screen-reading" hidden>
+      <div id="readingState" class="state" role="status" aria-live="polite">Загружаю разбор…</div>
+      <article class="reading" id="readingRoot" hidden>
+        <header class="reading-head">
+          <p class="reading-kind" id="readingKind"></p>
+          <h1 class="reading-title" id="readingTitle"></h1>
+          <p class="reading-sub" id="readingSub"></p>
+          <p class="reading-meta" id="readingMeta"></p>
+        </header>
+
+        <nav class="toc" id="toc" aria-label="Оглавление" hidden>
+          <button class="toc-toggle" id="tocToggle" type="button" aria-expanded="false" aria-controls="tocList">
+            <span>Оглавление</span><span class="toc-chev" aria-hidden="true">▾</span>
+          </button>
+          <ol class="toc-list" id="tocList" hidden></ol>
+        </nav>
+
+        <div class="reading-body" id="readingBody"></div>
+
+        <div class="reading-actions">
+          <button class="btn btn-primary" id="btnShare" type="button">Поделиться</button>
+          <a class="btn btn-ghost" id="btnPage" href="#" target="_blank" rel="noopener">Открыть как страницу</a>
+          <button class="btn btn-ghost" id="btnFix" type="button">Нашёл неточность</button>
+        </div>
+        <p class="reading-foot muted">
+          Нашли расхождение с источником — это ценно. Пришлите его в бота: назовите разбор и цитату,
+          в которой расхождение. Мы правим и отмечаем правку.
+        </p>
+      </article>
+    </section>
+
+    <!-- Приёмная (Ф1 — заглушка) -->
+    <section class="screen" id="screen-submit" hidden>
+      <h1 class="screen-h">Приёмная</h1>
+      <div class="stub">
+        <p class="stub-badge">Фаза 1 · в разработке</p>
+        <p>Экран-форма появится в следующей фазе. Он ничего не изобретает заново — это будет зеркало того, что уже работает в боте.</p>
+        <p><strong>Пока — присылайте вызов прямо в боте.</strong> Там же выбор корпусов и анонимность (по умолчанию — «участник Лаборатории»).</p>
+        <button class="btn btn-primary" data-open-bot type="button">Открыть бота</button>
+      </div>
+    </section>
+
+    <!-- Кабинет (Ф1 — заглушка) -->
+    <section class="screen" id="screen-profile" hidden>
+      <h1 class="screen-h">Кабинет</h1>
+      <div class="stub">
+        <p class="stub-badge">Фаза 1 · в разработке</p>
+        <p>«Мои заявки», статус и честное место в очереди появятся здесь в следующей фазе.</p>
+        <p><strong>Пока о готовности разбора вы узнаёте из бота:</strong> когда разбор выходит, бот присылает вам ссылку на него в ответ на вашу заявку. Отдельного экрана статуса ещё нет — обещать его сейчас было бы неправдой.</p>
+        <button class="btn btn-primary" data-open-bot type="button">Открыть бота</button>
+      </div>
+    </section>
+
+    <!-- О проекте -->
+    <section class="screen" id="screen-about" hidden>
+      <h1 class="screen-h">О проекте</h1>
+      <p class="screen-sub">КАВАЧАМ (kavacham — «доспех, защита») — лаборатория проверяемого знания. Читальня — её карманная часть: разбор открывается целиком, а не «частью 1 из 2».</p>
+
+      <h2 class="about-h">Принципы</h2>
+      <ul class="principles">
+        <li><strong>Ноль энтропии.</strong> Ни одной цитаты без дословности и без проверяемой ссылки. Нет ссылки — это пробел, а не повод додумать.</li>
+        <li><strong>Право молчать.</strong> Там, где линия не выносит единого вердикта, мы показываем обе стороны и границы — и не арбитрируем. Спорное и сокровенное — к наставнику.</li>
+        <li><strong>Точность важнее скорости.</strong> Быстрый неверный ответ хуже медленного верного.</li>
+      </ul>
+
+      <h2 class="about-h">Чем это не является</h2>
+      <p class="muted">Не чат-«гуру» (движок не говорит голосом ачарьи), не соцсеть, не замена живому наставнику.</p>
+
+      <h2 class="about-h">Куда идти дальше</h2>
+      <ul class="links-list">
+        <li><a class="cite" href="https://dgdbvgm-tech.github.io/kavacham/" target="_blank" rel="noopener">Лендинг проекта</a> — зачем это всё, полностью</li>
+        <li><a class="cite" href="https://t.me/+8zzg7sB9VHcxZWNi" data-tg-link target="_blank" rel="noopener">Канал Лаборатории</a> — публикации и обсуждение</li>
+        <li><a class="cite" href="https://t.me/kavacham_lab_bot" data-tg-link target="_blank" rel="noopener">Бот-приёмная</a> — прислать вызов, узнать статус</li>
+      </ul>
+
+      <p class="about-note">Читальня работает и вне Telegram — как обычная страница. Если приложение не открывается в вашем регионе, всё то же самое доступно в боте и на сайте.</p>
+    </section>
+
+  </main>
+
+  <!-- ——— Подвал ——— -->
+  <footer class="tma-footer">
+    <p class="sig">KAVACHAM · DGD · ZERO ENTROPY</p>
+  </footer>
+
+  <!-- ——— Таб-бар ——— -->
+  <nav class="tabbar" id="tabbar" aria-label="Разделы">
+    <a class="tab" href="#/reader" data-tab="reader">
+      <span class="tab-i" aria-hidden="true">◈</span><span class="tab-t">Читальня</span>
+    </a>
+    <a class="tab" href="#/submit" data-tab="submit">
+      <span class="tab-i" aria-hidden="true">✎</span><span class="tab-t">Приёмная</span>
+    </a>
+    <a class="tab" href="#/profile" data-tab="profile">
+      <span class="tab-i" aria-hidden="true">◎</span><span class="tab-t">Кабинет</span>
+    </a>
+    <a class="tab" href="#/about" data-tab="about">
+      <span class="tab-i" aria-hidden="true">◇</span><span class="tab-t">О проекте</span>
+    </a>
+  </nav>
+
+  <script src="app.js"></script>
+</body>
+</html>
