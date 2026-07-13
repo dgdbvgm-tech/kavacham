@@ -811,9 +811,22 @@ body.tma-has-mainbutton .form .btn-primary { display: none; }
   color: var(--text-dim);
   white-space: nowrap;
 }
-.req-st.st-queued { color: var(--accent); border-color: var(--accent-2); }
-.req-st.st-done { color: var(--gold-hi); border-color: var(--gold); }
+/* Стадии (Этап 2). Смысл цвета: ждёт — приглушённо, в работе — акцент,
+   опубликовано — залитое золото (тот же жест, что у главной кнопки сайта),
+   отклонено — пунктир. --accent/--accent-2 переопределяются темой, --gold-hi нет:
+   бледное золото текстом по светлой бумаге не читается, поэтому «Опубликовано»
+   берёт золото ФОНОМ, а текст — тёмный. */
+.req-st.st-queued { color: var(--text-dim); border-color: var(--rule); }
+.req-st.st-scouting,
+.req-st.st-verifying { color: var(--accent); border-color: var(--accent-2); }
+.req-st.st-done {
+  color: #241a05;
+  border-color: var(--gold-lo);
+  background: linear-gradient(180deg, var(--gold-hi), var(--gold));
+}
 .req-st.st-rejected { border-style: dashed; }
+/* заявка в руках движка или человека — видно по карточке, не только по бейджу */
+.req.is-work { border-left: 2px solid var(--accent-2); }
 .req-t {
   margin: 0 0 0.6rem;
   color: var(--text-2);
@@ -822,13 +835,60 @@ body.tma-has-mainbutton .form .btn-primary { display: none; }
   overflow-wrap: anywhere;
 }
 .req-f {
-  margin: 0;
+  margin: 0.5rem 0 0;
   font-family: var(--sans);
   font-size: 0.8rem;
+  line-height: 1.5;
   color: var(--text-dim);
   font-variant-numeric: tabular-nums;
 }
 .req .btn { margin-top: 0.9rem; }
+
+/* ——— Конвейер стадий: пройдено · сейчас · предстоит ———
+   Компактная вертикальная лента (экран 390×600): маркер | стадия | дата.
+   Дата — моноширинно и tabular-nums, чтобы столбец не «плясал». */
+.pipe {
+  list-style: none;
+  margin: 0.9rem 0 0.2rem;
+  padding: 0.7rem 0 0.1rem;
+  border-top: 1px solid var(--rule);
+}
+.pipe-s {
+  display: grid;
+  grid-template-columns: 1.05rem minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.16rem 0;
+}
+.pipe-m {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  line-height: 1.4;
+  text-align: center;
+  color: var(--text-dim);
+}
+.pipe-l {
+  font-family: var(--sans);
+  font-size: 0.84rem;
+  line-height: 1.4;
+  color: var(--text-dim);
+  overflow-wrap: anywhere;
+}
+.pipe-d {
+  font-size: 0.74rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+/* пройдено — факт, спокойный тон */
+.pipe-s.is-past .pipe-m { color: var(--accent-2); }
+.pipe-s.is-past .pipe-l { color: var(--text-2); }
+/* сейчас — единственная выделенная строка */
+.pipe-s.is-now .pipe-m { color: var(--accent); }
+.pipe-s.is-now .pipe-l { color: var(--text); font-weight: 600; }
+.pipe-s.is-now .pipe-d { color: var(--accent); }
+/* предстоит — маршрут, а не обещание: тускло и без даты */
+.pipe-s.is-next .pipe-m,
+.pipe-s.is-next .pipe-l { opacity: 0.62; }
 
 /* ——— О проекте ——— */
 .about-p {

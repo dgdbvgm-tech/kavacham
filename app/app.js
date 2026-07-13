@@ -108,12 +108,23 @@
     return /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,120}$/.test(s || '') ? s : null;
   }
 
+  var MONTHS = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+
   function fmtDate(iso) {
     if (!iso) return '';
     var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
     if (!m) return iso;
-    var months = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
-    return parseInt(m[3], 10) + ' ' + months[parseInt(m[2], 10) - 1] + ' ' + m[1];
+    return parseInt(m[3], 10) + ' ' + MONTHS[parseInt(m[2], 10) - 1] + ' ' + m[1];
+  }
+
+  // Дата стадии в конвейере — без года: очередь живёт днями, а ширина 390 px конечна.
+  // Нет метки времени (у заявки старого формата так бывает) — возвращаем пусто,
+  // и в строке стадии просто не будет даты. Подставлять «сегодня» нельзя: это враньё.
+  function fmtDay(iso) {
+    if (!iso) return '';
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+    if (!m) return '';
+    return parseInt(m[3], 10) + ' ' + MONTHS[parseInt(m[2], 10) - 1];
   }
 
   function plural(n, one, few, many) {
@@ -1330,18 +1341,38 @@
   });
 
   /* ══════════════════════════════════════════════════════════════════
-     МОИ ИСПЫТАНИЯ (бывший «Кабинет») — тот же запрос, тот же рендер.
-     Статусы: показываем РОВНО то, что отдаёт сервер. Промежуточных стадий
-     («разведка ядром», «сверка праман») в данных НЕТ — и в интерфейсе их нет.
+     МОИ ИСПЫТАНИЯ (бывший «Кабинет») — конвейер стадий, честный.
+
+     Сервер отдаёт три вещи:
+       pipeline — общий маршрут: В очереди → Разведка ядром → Сверка праман (HITL)
+                  → Опубликовано (плюс «Отклонена» — выход в сторону);
+       stage    — где заявка СЕЙЧАС (ключ, метка, подсказка, дата входа);
+       timeline — какие стадии уже БЫЛИ, с датами.
+     Рисуем ровно это и ничего сверх:
+       • пройденное берём ТОЛЬКО из timeline — это факты;
+       • предстоящее — из pipeline и БЕЗ дат: маршрут не обещает дату;
+       • стадию, которой у заявки не было, «пройденной» не рисуем НИКОГДА.
+         У заявки, заведённой до появления конвейера, timeline честно короткий
+         («В очереди 12 июля» → «Опубликовано 13 июля») — так и покажем.
+     Если бэкенд ещё не обновлён (страницы и API выкатываются раздельно), stage и
+     timeline не придут — тогда работает прежний вид: один бейдж статуса.
      ══════════════════════════════════════════════════════════════════ */
+
+  // Фолбэк на случай ответа без stage (старый бэкенд): метка и цвет бейджа.
   var STATUS = {
-    queued:   { label: 'В очереди',    cls: 'st-queued' },
-    done:     { label: 'Опубликовано', cls: 'st-done' },
-    rejected: { label: 'Отклонена',    cls: 'st-rejected' }
+    queued:    { label: 'В очереди',     cls: 'st-queued' },
+    scouting:  { label: 'Разведка',      cls: 'st-scouting' },
+    verifying: { label: 'Сверка праман', cls: 'st-verifying' },
+    done:      { label: 'Опубликовано',  cls: 'st-done' },
+    rejected:  { label: 'Отклонена',     cls: 'st-rejected' }
   };
+  var IN_WORK = { scouting: 1, verifying: 1 };   // заявка в руках движка/человека
+  var PIPE_MARK = { past: '✓', now: '◉', next: '○' };
+  var PIPE_SR = { past: ' — пройдено', now: ' — сейчас', next: ' — предстоит' };
 
   var mineDirty = true;    // список заявок устарел (первый вход / после отправки)
   var mineAt = 0;          // когда загружали в последний раз
+  var minePipe = null;     // маршрут стадий с последнего ответа сервера
   var MINE_TTL = 30000;
 
   function mountProfile() {
@@ -1368,6 +1399,7 @@
 
     api('/api/requests/mine').then(function (d) {
       var items = (d && Array.isArray(d.items)) ? d.items : [];
+      minePipe = (d && Array.isArray(d.pipeline)) ? d.pipeline : null;
       mineDirty = false;
       mineAt = Date.now();
 
@@ -1378,7 +1410,7 @@
           '<br><button class="btn btn-ghost" type="button" data-go-form>Инициировать разбор</button>', false);
         return;
       }
-      renderMine(items);
+      renderMine(items, minePipe);
       stateEl.hidden = true;
       listEl.hidden = false;
     }).catch(function (err) {
@@ -1389,16 +1421,114 @@
     });
   }
 
-  function renderMine(items) {
+  // Строки конвейера одной заявки. null → рисовать нечестно нечего (нет данных):
+  // тогда карточка остаётся с одним бейджем, как до Этапа 2.
+  function stageRows(it, pipeline) {
+    var tl = (it && Array.isArray(it.timeline))
+      ? it.timeline.filter(function (e) { return e && e.key; }) : [];
+    var pipe = Array.isArray(pipeline) ? pipeline : [];
+    if (!tl.length || !pipe.length) return null;
+
+    var stage = it.stage || null;
+    var curKey = (stage && stage.key) || it.status;
+    var final = stage ? !!stage.final : (curKey === 'done' || curKey === 'rejected');
+
+    var curIdx = (stage && typeof stage.index === 'number') ? stage.index : -1;
+    if (curIdx < 0 && !final) {
+      pipe.forEach(function (s, i) { if (s.key === curKey) curIdx = i; });
+    }
+    // финал закрывает маршрут: всё, что было ДО него, — позади. «Отклонена» вне
+    // линейного маршрута (index -1), поэтому граница считается отдельно.
+    var edge = final ? pipe.length + 1 : curIdx;
+
+    // стадия могла повториться (человек вернул черновик из сверки в разведку) —
+    // в строке маршрута показываем последнюю дату, полная история есть в боте (/status)
+    var last = {};
+    tl.forEach(function (e) { last[e.key] = e; });
+
+    var rows = [];
+    pipe.forEach(function (s, i) {
+      var idx = (typeof s.index === 'number') ? s.index : i;
+      var e = last[s.key];
+      if (e && idx <= edge) {
+        rows.push({ label: s.label, at: e.at, state: (s.key === curKey ? 'now' : 'past') });
+      } else if (!final && idx > edge) {
+        // предстоит; если стадия уже была — это возврат на доработку, не прячем
+        rows.push({ label: s.label, at: null, state: 'next', again: !!e });
+      }
+      // иначе стадию ПРОПУСТИЛИ (записи нет, а заявка уже дальше) — не рисуем её
+      // вовсе: «пройденной» она не была, врать о ней нельзя
+    });
+
+    if (final && curIdx < 0 && last[curKey]) {      // «Отклонена» — только фактом
+      rows.push({ label: (stage && stage.label) || String(curKey), at: last[curKey].at, state: 'now' });
+    }
+    return rows.length ? rows : null;
+  }
+
+  function renderPipe(rows) {
+    var ol = document.createElement('ol');
+    ol.className = 'pipe';
+    ol.setAttribute('aria-label', 'Стадии разбора');
+    rows.forEach(function (r) {
+      var li = document.createElement('li');
+      li.className = 'pipe-s is-' + r.state;
+
+      var mark = document.createElement('span');
+      mark.className = 'pipe-m';
+      mark.setAttribute('aria-hidden', 'true');
+      mark.textContent = PIPE_MARK[r.state] || '·';
+      li.appendChild(mark);
+
+      var label = document.createElement('span');
+      label.className = 'pipe-l';
+      label.textContent = r.label;
+      var sr = document.createElement('span');
+      sr.className = 'sr-only';
+      sr.textContent = PIPE_SR[r.state] || '';
+      label.appendChild(sr);
+      li.appendChild(label);
+
+      var when = document.createElement('span');
+      when.className = 'pipe-d mono';
+      when.textContent = r.at ? fmtDay(r.at) : (r.again ? 'повторно' : '');
+      li.appendChild(when);
+
+      ol.appendChild(li);
+    });
+    return ol;
+  }
+
+  // Подпись под конвейером, когда сервер стадий не прислал (старый бэкенд).
+  function legacyFoot(it) {
+    if (it.status === 'queued') return 'В очереди. Порядок — по времени поступления.';
+    if (it.status === 'rejected') return 'Заявка не пошла в разбор. Причину можно спросить в боте.';
+    if (it.status === 'done') return it.post_url ? 'Разбор опубликован.' : 'Разбор готов. Ссылку пришлёт бот.';
+    return 'Состояние заявки — как его вернул сервер.';
+  }
+
+  function addFoot(li, text) {
+    if (!text) return;
+    var p = document.createElement('p');
+    p.className = 'req-f';
+    p.textContent = text;
+    li.appendChild(p);
+  }
+
+  function renderMine(items, pipeline) {
     var listEl = $('profileList');
     listEl.textContent = '';
 
     items.forEach(function (it) {
-      // неизвестный статус не переводим и не выдумываем — показываем как есть
-      var st = STATUS[it.status] || { label: String(it.status || '—'), cls: 'st-unknown' };
+      var stage = it.stage || null;
+      var key = (stage && stage.key) || it.status;
+      var fb = STATUS[key];
+      // метку берём у сервера; неизвестный ключ не переводим и не выдумываем
+      var label = (stage && (stage.short || stage.label)) || (fb ? fb.label : String(key || '—'));
+      var cls = fb ? fb.cls : 'st-unknown';
 
       var li = document.createElement('li');
-      li.className = 'req';
+      li.className = 'req' + (IN_WORK[key] ? ' is-work' : '');
 
       var head = document.createElement('div');
       head.className = 'req-head';
@@ -1409,8 +1539,8 @@
       head.appendChild(num);
 
       var badge = document.createElement('span');
-      badge.className = 'req-st ' + st.cls;
-      badge.textContent = st.label;
+      badge.className = 'req-st ' + cls;
+      badge.textContent = label;
       head.appendChild(badge);
 
       if (it.created_at) {
@@ -1427,22 +1557,24 @@
       p.textContent = txt.length > 180 ? txt.slice(0, 180).trim() + '…' : txt;
       li.appendChild(p);
 
-      var foot = document.createElement('p');
-      foot.className = 'req-f';
-      if (it.status === 'queued') {
-        foot.textContent = (typeof it.position === 'number' && it.position > 0)
-          ? 'Место в очереди: ' + it.position + '. Очередь идёт по порядку поступления.'
-          : 'В очереди. Порядок — по времени поступления.';
-      } else if (it.status === 'rejected') {
-        foot.textContent = 'Заявка не пошла в разбор. Причину можно спросить в боте.';
-      } else if (it.status === 'done' && !it.post_url) {
-        foot.textContent = 'Разбор готов. Ссылку пришлёт бот.';
-      } else if (it.status === 'done') {
-        foot.textContent = 'Разбор опубликован.';
-      } else {
-        foot.textContent = 'Состояние заявки — как его вернул сервер.';
+      var rows = stageRows(it, pipeline);
+      if (rows) li.appendChild(renderPipe(rows));
+
+      // Что происходит сейчас — фразой сервера (на «Сверке праман» это и есть
+      // главное: цитаты проверяет человек, а не движок сам себя).
+      addFoot(li, (stage && stage.hint) ? stage.hint : legacyFoot(it));
+      if (key === 'done' && !it.post_url) addFoot(li, 'Ссылку на публикацию пришлёт бот.');
+
+      if (key === 'queued' && typeof it.position === 'number' && it.position > 0) {
+        var q = document.createElement('p');
+        q.className = 'req-f';
+        q.appendChild(document.createTextNode('Место в очереди: '));
+        var b = document.createElement('b');
+        b.className = 'mono';
+        b.textContent = String(it.position);
+        q.appendChild(b);
+        li.appendChild(q);
       }
-      li.appendChild(foot);
 
       if (it.post_url && /^https?:\/\//i.test(it.post_url)) {
         var a = document.createElement('a');
