@@ -1,12 +1,17 @@
 /* ============================================================
-   Читальня КАВАЧАМ — TMA-каркас (Фаза 0).
+   KAVACHAM Lab — TMA (Этап 1: 4 вкладки).
    Ваниль, без сборки, без внешних зависимостей.
 
    Инварианты:
    - Работает БЕЗ Telegram: в обычном браузере это обычная веб-страница
-     (лента и чтение работают; MainButton/BackButton/Haptic просто отсутствуют).
-   - Никакого auth: user.id с клиента не используется вообще (Ф0).
-   - Читает только data/feed.json и data/reading/<slug>.json (зона генератора).
+     (Полигон читается; формы НЕ изображают отправку, а уводят в бота).
+   - Подпись заявки — только непустая initData (HMAC проверяет сервер).
+     user.id из initDataUnsafe для авторизации не используется НИКОГДА;
+     имя оттуда — только чтобы показать человеку его же имя в строке статуса.
+   - Читает data/feed.json и data/reading/<slug>.json (зона генератора)
+     и REST API бота (заявки, корпуса).
+   - Ничего не выдумывает: статусы, корпуса и материалы — только то, что
+     реально приходит с сервера или из ленты.
    ============================================================ */
 (function () {
   'use strict';
@@ -19,7 +24,8 @@
 
   var BOT_URL = 'https://t.me/kavacham_lab_bot';
   var LANDING = 'https://dgdbvgm-tech.github.io/kavacham/';
-  // REST API Ф1 («Приёмная»/«Кабинет») — та же очередь, что у бота.
+  var CATALOG = LANDING + 'corpus.html';
+  // REST API («Терминал»/«Мои испытания»/корпуса) — та же очередь, что у бота.
   var API_BASE = 'https://kavacham-bot-928986955802.us-central1.run.app';
   // База, относительно которой раскрываются относительные пути ленты (pages_url)
   // в АБСОЛЮТНЫЕ — для шаринга. location.href тут не годится: с localhost
@@ -28,9 +34,8 @@
 
   // Прямая ссылка-приложение t.me/kavacham_lab_bot/reader ЕЩЁ НЕ ЖИВАЯ:
   // short_name «reader» регистрируется в BotFather (/newapp) — это шаг человека
-  // после деплоя (§8, §12/Р6 ТЗ: «фабриковать „живую“ ссылку до деплоя не будем»).
-  // Пока её нет — делимся тем, что ТОЧНО открывается у получателя: статической
-  // страницей разбора на Pages (она же — путь при блокировке TMA, §3).
+  // после деплоя. Пока её нет — делимся тем, что ТОЧНО откроется у получателя:
+  // статической страницей разбора на Pages (она же — путь при блокировке TMA).
   // ПОСЛЕ регистрации short_name достаточно вписать сюда строку — шаринг
   // и deep-link переключатся сами:
   //   var APP_DIRECT_LINK = 'https://t.me/kavacham_lab_bot/reader';
@@ -50,7 +55,7 @@
     } catch (e) { /* тактильная отдача — украшение, не функция */ }
   }
 
-  // ——— Аутентификация Ф1 ————————————————————————————————————
+  // ——— Аутентификация ——————————————————————————————————————
   // Единственный признак «я правда в Telegram и меня можно подписать» — непустая
   // initData. user.id из initDataUnsafe НЕ используется: подписи в нём нет,
   // доверять ему нельзя (и бэкенд его не принимает — он проверяет HMAC).
@@ -98,7 +103,7 @@
     else window.open(url, '_blank', 'noopener');
   }
 
-  // slug из хэша не доверяем: только [a-z0-9-], иначе не строим путь к JSON
+  // slug из хэша не доверяем: только безопасный набор, иначе не строим путь к JSON
   function safeSlug(s) {
     return /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,120}$/.test(s || '') ? s : null;
   }
@@ -125,6 +130,21 @@
     el.innerHTML = html;
     el.classList.toggle('err', !!isErr);
     el.hidden = false;
+  }
+
+  function prefersReduced() {
+    return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  }
+
+  // Прокрутка к блоку экрана. Идёт ПОСЛЕ route()-ного scrollTo(0,0), поэтому
+  // откладываем на следующий кадр — иначе роутер сбросит нашу прокрутку.
+  function scrollToEl(el) {
+    if (!el) return;
+    setTimeout(function () {
+      try {
+        el.scrollIntoView({ behavior: prefersReduced() ? 'auto' : 'smooth', block: 'start' });
+      } catch (e) { el.scrollIntoView(); }
+    }, 0);
   }
 
   // ——— Тема ————————————————————————————————————————————————
@@ -196,38 +216,78 @@
   }
 
   // ——— Роутер ——————————————————————————————————————————————
+  // 4 вкладки + экран разбора (вкладки не имеет, подсвечивает «Полигон»).
   var SCREENS = {
-    reader:  { el: 'screen-reader',  tab: 'reader',  back: false },
-    reading: { el: 'screen-reading', tab: 'reader',  back: true  },
-    submit:  { el: 'screen-submit',  tab: 'submit',  back: false },
-    profile: { el: 'screen-profile', tab: 'profile', back: false },
-    about:   { el: 'screen-about',   tab: 'about',   back: false }
+    terminal: { el: 'screen-terminal', tab: 'terminal', back: false },
+    polygon:  { el: 'screen-polygon',  tab: 'polygon',  back: false },
+    reading:  { el: 'screen-reading',  tab: 'polygon',  back: true  },
+    enrich:   { el: 'screen-enrich',   tab: 'enrich',   back: false },
+    about:    { el: 'screen-about',    tab: 'about',    back: false }
   };
 
-  var current = { name: 'reader', slug: null, rubric: null };
+  var SEGS = { razbory: 'pane-razbory', sri: 'pane-sri', corpus: 'pane-corpus' };
 
+  var current = { name: 'terminal', slug: null, seg: 'razbory', rubric: null };
+
+  // Ссылка на срез Полигона — единственное место, где собирается маршрут ленты.
+  function polygonHash(seg, rubric) {
+    var h = '#/polygon?seg=' + (seg || 'razbory');
+    if (rubric) h += '&rubric=' + encodeURIComponent(rubric);
+    return h;
+  }
+
+  // Разбор хэша + СОВМЕСТИМОСТЬ со старыми маршрутами.
+  // На #/reading/<slug> ведут ссылки из бота и со статических страниц, а #/reader,
+  // #/submit, #/profile могли остаться у людей в истории и закладках. Они обязаны
+  // приводить туда же, куда раньше, — иначе ссылка «протухла» молча.
   function parseHash() {
     var raw = (location.hash || '').replace(/^#\/?/, '');
-    // хвост-запрос: #/reader?rubric=razbor — выбранная рубрика живёт в маршруте,
-    // иначе «назад» Telegram не возвращает в тот же срез ленты
+
     var q = '';
     var qi = raw.indexOf('?');
     if (qi >= 0) { q = raw.slice(qi + 1); raw = raw.slice(0, qi); }
 
-    var rubric = null;
+    var p = Object.create(null);
     q.split('&').forEach(function (kv) {
-      var p = kv.split('=');
-      if (p[0] === 'rubric' && p[1]) {
-        var v = decodeURIComponent(p[1]);
-        if (/^[a-z0-9_-]{1,40}$/i.test(v)) rubric = v;
-      }
+      var i = kv.indexOf('=');
+      if (i < 0) return;
+      var k = kv.slice(0, i);
+      var v = decodeURIComponent(kv.slice(i + 1) || '');
+      if (k) p[k] = v;
     });
 
+    var rubric = (/^[a-z0-9_-]{1,40}$/i.test(p.rubric || '')) ? p.rubric : null;
+    var seg = SEGS[p.seg] ? p.seg : 'razbory';
+
     var parts = raw.split('/').filter(Boolean);
-    if (!parts.length) return { name: 'reader', slug: null, rubric: rubric };
-    if (parts[0] === 'reading' && parts[1]) return { name: 'reading', slug: parts[1], rubric: null };
-    if (SCREENS[parts[0]] && parts[0] !== 'reading') return { name: parts[0], slug: null, rubric: rubric };
-    return { name: 'reader', slug: null, rubric: rubric };
+    var head = parts[0] || '';
+
+    // — старые маршруты → новые экраны (редирект, а не 404) —
+    if (head === 'reader') {
+      return { redirect: polygonHash('razbory', rubric) };
+    }
+    if (head === 'submit') {
+      return { redirect: '#/terminal?form=1' };
+    }
+    if (head === 'profile') {
+      return { redirect: '#/terminal?focus=mine' };
+    }
+
+    if (head === 'reading' && parts[1]) {
+      return { name: 'reading', slug: parts[1], seg: 'razbory', rubric: null };
+    }
+    if (SCREENS[head] && head !== 'reading') {
+      return {
+        name: head,
+        slug: null,
+        seg: seg,
+        rubric: rubric,
+        form: p.form === '1',
+        focus: p.focus || null
+      };
+    }
+    // пустой/неизвестный хэш — стартовый экран
+    return { name: 'terminal', slug: null, seg: 'razbory', rubric: null };
   }
 
   function setBackButton(show) {
@@ -240,6 +300,9 @@
       btn.hidden = !show;
     }
   }
+
+  var mainHandler = null;
+  var mainIsSend = false;   // MainButton сейчас = «Отправить вызов» (только тогда его валидируем)
 
   function setMainButton(text, handler) {
     if (!inTelegram || !tg.MainButton) return;
@@ -254,17 +317,20 @@
       mainHandler = handler;
       tg.MainButton.setText(text);
       tg.MainButton.onClick(mainHandler);
+      tg.MainButton.enable();
       tg.MainButton.show();
       document.body.classList.add('tma-has-mainbutton');
     } catch (e) { /* старый клиент — экранных кнопок достаточно */ }
   }
-  var mainHandler = null;
 
   // куда возвращает «назад» из разбора: в тот же срез ленты, из которого ушли
-  var lastReaderHash = '#/reader';
+  var lastFeedHash = polygonHash('razbory', null);
 
   function route() {
     var r = parseHash();
+
+    if (r.redirect) { location.replace(r.redirect); return; }
+
     var prev = current;
     current = r;
 
@@ -280,30 +346,148 @@
 
     setBackButton(SCREENS[r.name].back);
     setMainButton(null);
+    mainIsSend = false;
 
-    if (r.name === 'reading') loadReading(r.slug);
-    if (r.name === 'reader') {
-      lastReaderHash = '#/reader' + (r.rubric ? '?rubric=' + encodeURIComponent(r.rubric) : '');
-      loadFeed(r.rubric);
-    }
-    if (r.name === 'submit') enterSubmit();
-    if (r.name === 'profile') enterProfile();
-
-    // смена рубрики — не «новый экран»: не дёргаем скролл и фокус на каждый чип
-    var sameSlice = (prev.name === r.name && r.name === 'reader');
+    // смена рубрики внутри одного среза — не «новый экран»: не дёргаем скролл и фокус
+    var sameSlice = (prev.name === r.name && r.name === 'polygon' && prev.seg === r.seg);
     if (!sameSlice) {
       window.scrollTo(0, 0);
       $('main').focus({ preventScroll: true });
     }
+
+    if (r.name === 'reading') loadReading(r.slug);
+    else if (r.name === 'polygon') enterPolygon(r);
+    else if (r.name === 'terminal') enterTerminal(r);
   }
 
   function goBack() {
-    if (current.name === 'reading') location.hash = lastReaderHash;
+    if (current.name === 'reading') location.hash = lastFeedHash;
     else if (history.length > 1) history.back();
-    else location.hash = '#/reader';
+    else location.hash = '#/terminal';
   }
 
   $('btnBack').addEventListener('click', function () { haptic('light'); goBack(); });
+
+  /* ══════════════════════════════════════════════════════════════════
+     ТЕРМИНАЛ (вкладка 1) — строка статуса, заявка, «Мои испытания».
+     Форма и список заявок — ТОТ ЖЕ код, что был в «Приёмной»/«Кабинете»:
+     те же id, те же функции, тот же API. Изменилась только оболочка
+     (раскрывающаяся панель) и владелец MainButton — теперь он один
+     на экран, а не по одному на каждый бывший экран.
+     ══════════════════════════════════════════════════════════════════ */
+
+  var formOpen = false;   // панель заявки раскрыта
+  var doneShown = false;  // заявка отправлена, показан итог
+
+  // Строка статуса. Имя берём из initDataUnsafe — это НЕподписанные данные,
+  // и годятся они ровно на одно: показать человеку его же имя в его же клиенте.
+  // Ни в один запрос к серверу оно не уходит (там подпись initData).
+  function renderOps() {
+    var el = $('opsLine');
+    el.textContent = '';
+
+    var u = (inTelegram && tg.initDataUnsafe && tg.initDataUnsafe.user) || null;
+    var name = u ? String(u.first_name || u.username || '').trim() : '';
+    var known = authed() && !!name;
+
+    function cell(k, v, cls) {
+      var w = document.createElement('span');
+      w.className = 'ops-c' + (cls ? ' ' + cls : '');
+      var kk = document.createElement('span');
+      kk.className = 'ops-k';
+      kk.textContent = k;
+      var vv = document.createElement('span');
+      vv.className = 'ops-v';
+      vv.textContent = v;
+      w.appendChild(kk);
+      w.appendChild(vv);
+      return w;
+    }
+
+    el.appendChild(cell('Оператор', known ? name : 'гость'));
+    el.appendChild(cell('Статус', 'тестировщик'));
+    // вне Telegram подписи нет — говорим об этом прямо, а не делаем вид, что всё как обычно
+    if (!authed()) el.appendChild(cell('Режим', 'чтение', 'ops-warn'));
+  }
+
+  function openForm() {
+    formOpen = true;
+    doneShown = false;
+    syncInit();
+    syncTerminalMain();
+    scrollToEl($('initPanel'));
+  }
+
+  // Раскрытие/сворачивание панели заявки. Хэш при этом НЕ трогаем: иначе
+  // route() перезапустится и «Мои испытания» полезут в сеть на каждый клик.
+  function syncInit() {
+    var btn = $('btnInit'), panel = $('initPanel');
+    btn.setAttribute('aria-expanded', formOpen ? 'true' : 'false');
+    btn.classList.toggle('on', formOpen);
+    panel.hidden = !formOpen;
+    if (formOpen) mountSubmit();
+  }
+
+  $('btnInit').addEventListener('click', function () {
+    haptic('medium');
+    formOpen = !formOpen;
+    if (formOpen) doneShown = false;
+    syncInit();
+    syncTerminalMain();
+    if (formOpen) scrollToEl($('initPanel'));
+  });
+
+  // MainButton у экрана один — и на Терминале он занят ровно одним делом:
+  // «Отправить вызов». Дублировать им экранные кнопки («Инициировать разбор»,
+  // «Мои испытания») нельзя: на 390×600 два одинаковых золотых действия —
+  // это шум, а не навигация. Все прочие действия живут на экране.
+  function syncTerminalMain() {
+    mainIsSend = false;
+
+    if (authed() && formOpen && !doneShown) {
+      mainIsSend = true;
+      setMainButton('Отправить вызов', trySend);
+      syncMain();          // пустой/короткий текст — кнопка выключена
+      return;
+    }
+    setMainButton(null);
+  }
+
+  function enterTerminal(r) {
+    renderOps();
+
+    if (r.form) { formOpen = true; doneShown = false; }
+    syncInit();
+    mountProfile();
+    syncTerminalMain();
+
+    if (r.focus === 'mine') scrollToEl($('mineBlock'));
+    else if (r.form) scrollToEl($('initPanel'));
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     ПОЛИГОН (вкладка 2) — Разборы / Индекс SRI / Доверенный контур.
+     Раздел А — та же лента, что была в «Читальне» (тот же код и те же id).
+     ══════════════════════════════════════════════════════════════════ */
+
+  function enterPolygon(r) {
+    Object.keys(SEGS).forEach(function (k) {
+      $(SEGS[k]).hidden = (k !== r.seg);
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('.seg-b'), function (a) {
+      if (a.dataset.seg === r.seg) a.setAttribute('aria-current', 'true');
+      else a.removeAttribute('aria-current');
+    });
+
+    if (r.seg === 'razbory') {
+      lastFeedHash = polygonHash('razbory', r.rubric);
+      loadFeed(r.rubric);
+    } else if (r.seg === 'sri') {
+      loadSri();
+    } else if (r.seg === 'corpus') {
+      loadCorpus();
+    }
+  }
 
   // ——— Лента ————————————————————————————————————————————————
   // Лента — единственный источник правды по адресам разбора: в feed.json есть
@@ -408,7 +592,7 @@
           ? items.filter(function (it) { return itemRubric(it) === active; })
           : items;
 
-        renderFeed(slice);
+        renderFeed(slice, listEl);
         stateEl.hidden = true;
         listEl.hidden = false;
       })
@@ -416,7 +600,6 @@
         // упавший промис нельзя кэшировать: иначе «Повторить» переиспользует ту же
         // ошибку и повтора не произойдёт вовсе
         feedPromise = null;
-        // честное сообщение, а не тишина
         showState(stateEl,
           '<span class="state-h">Не удалось загрузить ленту</span>' +
           'Похоже, нет связи. Разборы всегда доступны в боте и на сайте — это и есть запасной путь.' +
@@ -445,7 +628,7 @@
     function chip(key, title, count) {
       var a = document.createElement('a');
       a.className = 'chip' + (key === active ? ' on' : '');
-      a.href = '#/reader' + (key ? '?rubric=' + encodeURIComponent(key) : '');
+      a.href = polygonHash('razbory', key);
       if (key === active) a.setAttribute('aria-current', 'true');
       var t = document.createElement('span');
       t.textContent = title;
@@ -461,10 +644,23 @@
     navEl.appendChild(chip(null, 'Все', feedItems.length));
     shown.forEach(function (r) { navEl.appendChild(chip(r.key, r.title, counts[r.key])); });
     navEl.hidden = false;
+
+    // Растушёвка правого края держится, пока строка рубрик не докручена до конца.
+    var syncFade = function () {
+      var atEnd = navEl.scrollLeft + navEl.clientWidth >= navEl.scrollWidth - 2;
+      navEl.classList.toggle('at-end', atEnd);
+    };
+    navEl.addEventListener('scroll', syncFade, { passive: true });
+    syncFade();
+
+    // Активная рубрика — в поле зрения, даже если уехала за правый край.
+    var on = navEl.querySelector('.chip.on');
+    if (on && on.scrollIntoView) on.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   }
 
-  function renderFeed(items) {
-    var listEl = $('feedList');
+  // Карточка ленты. listEl — параметр: тем же кодом рисуем и ленту разборов,
+  // и подборку SRI (одна карточка на две поверхности, а не две реализации).
+  function renderFeed(items, listEl) {
     listEl.textContent = '';
 
     items.forEach(function (it) {
@@ -493,17 +689,15 @@
       h.textContent = it.title || 'Без заголовка';
       a.appendChild(h);
 
-      if (it.subtitle) {
+      // Карточка — витрина: один тизер, а не два. Подзаголовок и выжимка почти
+      // всегда пересказывают одно и то же, вдвоём они раздували карточку так,
+      // что на экран помещался один материал. Подзаголовок точнее — он авторский.
+      var teaser = it.subtitle || it.excerpt;
+      if (teaser) {
         var sub = document.createElement('p');
-        sub.className = 'feed-sub';
-        sub.textContent = it.subtitle;
+        sub.className = it.subtitle ? 'feed-sub' : 'feed-ex';
+        sub.textContent = teaser;
         a.appendChild(sub);
-      }
-      if (it.excerpt) {
-        var ex = document.createElement('p');
-        ex.className = 'feed-ex';
-        ex.textContent = it.excerpt;
-        a.appendChild(ex);
       }
 
       var meta = document.createElement('div');
@@ -523,7 +717,7 @@
       if (Array.isArray(it.tags) && it.tags.length) {
         var tags = document.createElement('div');
         tags.className = 'feed-tags';
-        it.tags.slice(0, 4).forEach(function (t) {
+        it.tags.slice(0, 3).forEach(function (t) {
           var s = document.createElement('span');
           s.className = 'tag';
           s.textContent = t;
@@ -538,7 +732,128 @@
     });
   }
 
-  // ——— Разбор ——————————————————————————————————————————————
+  // ——— Раздел Б: Индекс SRI ————————————————————————————————
+  // Узлов SRI в данных НЕТ: ни в ленте, ни в API нет коллекции «узел SRI-NNN».
+  // Есть материалы про SRI (карта парадоксов). Их и показываем — как вход в тему.
+  // Признак материала SRI берём из данных (слаг/заголовок), а не из списка в коде:
+  // появится в ленте новый материал SRI — он подтянется сам, без правки кода.
+  function isSriItem(it) {
+    var s = String((it && it.slug) || '');
+    var t = String((it && it.title) || '');
+    return /(^|[-_])sri([-_]|$)/i.test(s) || /\bSRI\b/.test(t);
+  }
+
+  function loadSri() {
+    var stateEl = $('sriState'), listEl = $('sriList');
+
+    fetchFeed()
+      .then(function (items) {
+        var list = items.filter(isSriItem);
+        if (!list.length) {
+          showState(stateEl,
+            '<span class="state-h">Материалов SRI пока нет</span>' +
+            'Первые узлы появятся здесь после ратификации автором проекта.', false);
+          listEl.hidden = true;
+          return;
+        }
+        renderFeed(list, listEl);
+        stateEl.hidden = true;
+        listEl.hidden = false;
+      })
+      .catch(function (err) {
+        feedPromise = null;
+        showState(stateEl,
+          '<span class="state-h">Не удалось загрузить материалы</span>' +
+          'Похоже, нет связи.' +
+          '<br><button class="btn btn-ghost" type="button" data-retry-sri>Повторить</button>', true);
+        listEl.hidden = true;
+        if (window.console) console.warn('[kavacham] sri:', err && err.message);
+      });
+  }
+
+  // ——— Раздел В: Доверенный контур ————————————————————————
+  // Состав корпусов — РЕАЛЬНЫЙ ответ сервера (GET /api/scopes; эндпоинт публичный,
+  // подписи не требует, поэтому каталог виден и вне Telegram). Тот же список
+  // питает чипы в форме заявки: один запрос, две поверхности.
+  var scopesReq = null;
+
+  function fetchScopes() {
+    if (!scopesReq) {
+      scopesReq = api('/api/scopes').then(function (d) { return d || {}; });
+    }
+    return scopesReq;
+  }
+
+  function loadCorpus() {
+    var stateEl = $('corpState'), listEl = $('corpList');
+    listEl.hidden = true;
+    showState(stateEl, 'Загружаю корпуса…', false);
+
+    fetchScopes().then(function (d) {
+      var scopes = (d && Array.isArray(d.scopes)) ? d.scopes : [];
+
+      // адрес каталога тоже приходит с сервера — в коде он лишь запасной
+      var cat = (d && typeof d.catalog_url === 'string' && /^https?:\/\//i.test(d.catalog_url))
+        ? d.catalog_url : CATALOG;
+      $('corpCatalog').href = cat;
+
+      if (!scopes.length) {
+        showState(stateEl, 'Сервер вернул пустой список корпусов. Разбор идёт по основе — Шрила Прабхупада.', false);
+        return;
+      }
+
+      listEl.textContent = '';
+      scopes.forEach(function (s) {
+        if (!s || !s.key) return;
+        var li = document.createElement('li');
+        li.className = 'corp-i';
+
+        var top = document.createElement('div');
+        top.className = 'corp-top';
+
+        var t = document.createElement('span');
+        t.className = 'corp-t';
+        t.textContent = s.title || s.key;
+        top.appendChild(t);
+
+        var b = document.createElement('span');
+        b.className = 'corp-b';
+        if (s.base) {
+          b.textContent = 'основа';
+          b.classList.add('b-base');
+        } else if (s.disabled) {
+          b.textContent = 'пока не подключён';
+          b.classList.add('b-off');
+        } else {
+          b.textContent = 'по выбору';
+        }
+        top.appendChild(b);
+        li.appendChild(top);
+
+        if (s.hint) {
+          var h = document.createElement('p');
+          h.className = 'corp-h';
+          h.textContent = s.hint;
+          li.appendChild(h);
+        }
+        listEl.appendChild(li);
+      });
+
+      stateEl.hidden = true;
+      listEl.hidden = false;
+    }).catch(function (err) {
+      scopesReq = null;
+      showState(stateEl,
+        '<span class="state-h">Не удалось загрузить корпуса</span>' +
+        (err && err.message ? err.message : '') +
+        '<br><button class="btn btn-ghost" type="button" data-retry-corp>Повторить</button>', true);
+    });
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     РАЗБОР (экран чтения) — без изменений: те же адреса, тот же контракт.
+     ══════════════════════════════════════════════════════════════════ */
+
   // Кэш БЕЗ прототипа. С обычным {} слаг «constructor»/«toString» проходил бы
   // проверку `if (readingCache[slug])` как «уже загружено» (это свойство
   // Object.prototype) — и вместо честной ошибки рисовался бы пустой разбор.
@@ -556,7 +871,7 @@
     if (!slug) {
       showState(stateEl,
         '<span class="state-h">Разбор не найден</span>Ссылка выглядит повреждённой. Вернитесь в ленту и откройте разбор оттуда.' +
-        '<br><a class="btn btn-ghost" href="#/reader">В читальню</a>', true);
+        '<br><a class="btn btn-ghost" href="' + polygonHash('razbory', null) + '">В Полигон</a>', true);
       return;
     }
 
@@ -589,7 +904,7 @@
               '<br><a class="btn btn-ghost" href="' + pagesUrlFor(slug).replace(/"/g, '%22') +
               '" target="_blank" rel="noopener">Открыть как страницу</a>'
             : 'Такого разбора в читальне нет — возможно, ссылка устарела или в ней опечатка.' +
-              '<br><a class="btn btn-ghost" href="#/reader">В читальню</a>'), true);
+              '<br><a class="btn btn-ghost" href="' + polygonHash('razbory', null) + '">В Полигон</a>'), true);
         if (window.console) console.warn('[kavacham] reading:', err && err.message);
       });
   }
@@ -637,7 +952,7 @@
     // Делимся только тем, что у получателя ТОЧНО откроется (см. APP_DIRECT_LINK):
     // пока short_name в BotFather не зарегистрирован — это страница на Pages.
     var shareUrl = shareUrlFor(slug);
-    var shareText = (data.title || 'Разбор КАВАЧАМ') + ' — читальня КАВАЧАМ';
+    var shareText = (data.title || 'Разбор КАВАЧАМ') + ' — Лаборатория КАВАЧАМ';
 
     function share() {
       haptic('medium');
@@ -660,9 +975,7 @@
     // Полезной нагрузки (?start=fix_<slug>) здесь НЕТ намеренно: бот её сейчас не
     // разбирает (/start отвечает общим приветствием), и передавать контекст, который
     // на том конце молча теряется, — это обещание, которого интерфейс не держит.
-    // Правило зеркала (§3): фича выпускается на обоих фронтах или не выпускается.
     // Появится разбор payload в боте — вернуть сюда '?start=fix_' + slug.
-    // Контекст разбора человек называет сам — об этом прямо просит текст под кнопками.
     $('btnFix').onclick = function () {
       haptic('medium');
       openTelegram(BOT_URL);
@@ -724,7 +1037,7 @@
         if (target) {
           haptic('select');
           target.scrollIntoView({
-            behavior: window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+            behavior: prefersReduced() ? 'auto' : 'smooth',
             block: 'start'
           });
           collapseToc();
@@ -751,17 +1064,18 @@
     $('tocList').hidden = true;
   }
 
-  // ——— Приёмная (Ф1) ————————————————————————————————————————
-  // Зеркало черновика бота: тот же текст, те же корпуса, та же анонимность,
-  // та же очередь. Вне Telegram форма НЕ показывается: подписать заявку нечем,
-  // а рисовать кнопку, которая ничего не отправит, — обман.
+  /* ══════════════════════════════════════════════════════════════════
+     ЗАЯВКА (бывшая «Приёмная») — код без изменений, кроме владельца MainButton.
+     Зеркало черновика бота: тот же текст, те же корпуса, та же анонимность,
+     та же очередь. Вне Telegram форма НЕ показывается: подписать заявку нечем,
+     а рисовать кнопку, которая ничего не отправит, — обман.
+     ══════════════════════════════════════════════════════════════════ */
 
   var DRAFT_TEXT = 'tma.draft.text';
   var DRAFT_SCOPES = 'tma.draft.scopes';
   var DRAFT_SHOW = 'tma.draft.show';
 
   var scopeSel = [];          // выбранные ключи корпусов
-  var scopesReq = null;       // промис GET /api/scopes — один на сессию
   var sending = false;
 
   function cloud() {
@@ -808,18 +1122,26 @@
 
   var draftRestored = false;
 
-  function enterSubmit() {
+  // Раньше это была enterSubmit() экрана «Приёмная». Тело то же; MainButton
+  // отсюда убран — им владеет syncTerminalMain() (один экран — одна кнопка).
+  function mountSubmit() {
     var gate = $('submitGate'), form = $('submitForm'), done = $('submitDone');
 
     if (!authed()) {
       gate.hidden = false;
       form.hidden = true;
       done.hidden = true;
-      setMainButton('Прислать вызов в боте', function () { haptic('medium'); openTelegram(BOT_URL); });
       return;
     }
 
     gate.hidden = true;
+
+    if (doneShown) {          // заявка уже отправлена — держим итог, а не пустую форму
+      form.hidden = true;
+      done.hidden = false;
+      return;
+    }
+
     done.hidden = true;
     form.hidden = false;
 
@@ -839,18 +1161,13 @@
     }
 
     syncCount();
-    setMainButton('Отправить вызов', trySend);
-    syncMain();
   }
 
   function loadScopes() {
     var listEl = $('scopeList'), stateEl = $('scopeState');
-    if (!scopesReq) {
-      scopesReq = api('/api/scopes').then(function (d) {
-        return (d && Array.isArray(d.scopes)) ? d.scopes : [];
-      });
-    }
-    scopesReq.then(function (scopes) {
+
+    fetchScopes().then(function (d) {
+      var scopes = (d && Array.isArray(d.scopes)) ? d.scopes : [];
       listEl.textContent = '';
       if (!scopes.length) {
         showState(stateEl, 'Список корпусов пуст — разбор пойдёт по основе (Шрила Прабхупада).', false);
@@ -917,8 +1234,10 @@
     syncMain();
   }
 
+  // Валидируем MainButton ТОЛЬКО когда он и есть «Отправить вызов».
+  // Иначе бы гасили чужую кнопку («Инициировать разбор», «Мои испытания»).
   function syncMain() {
-    if (!inTelegram || !tg.MainButton) return;
+    if (!mainIsSend || !inTelegram || !tg.MainButton) return;
     try {
       if (textValid() && !sending) tg.MainButton.enable();
       else tg.MainButton.disable();
@@ -978,17 +1297,22 @@
     var id = (res && typeof res.id === 'number') ? res.id : null;
     var pos = (res && typeof res.position === 'number') ? res.position : null;
 
-    var html = '<span class="state-h">Заявка' + (id ? ' №' + id : '') + ' принята</span>';
+    var html = '<span class="state-h">Заявка' + (id ? ' <b class="mono">№' + id + '</b>' : '') + ' принята</span>';
     html += pos
       ? 'Перед вами в очереди ' + (pos - 1) + ' ' + plural(pos - 1, 'заявка', 'заявки', 'заявок') +
         ' — вы ' + pos + '-й по счёту. Очередь идёт по порядку поступления, без «пропустить вперёд».'
       : 'Заявка встала в общую очередь. Она идёт по порядку поступления.';
     html += ' Когда разбор выйдет, бот пришлёт вам ссылку.';
-    html += '<br><button class="btn btn-ghost" type="button" data-go-profile>Мои заявки</button>';
+    html += '<br><button class="btn btn-ghost" type="button" data-go-mine>Мои испытания</button>' +
+            '<button class="btn btn-ghost" type="button" data-again>Прислать ещё вызов</button>';
 
+    doneShown = true;
     showState($('submitDone'), html, false);
     $('submitForm').hidden = true;
-    setMainButton('Мои заявки', function () { haptic('medium'); location.hash = '#/profile'; });
+
+    mineDirty = true;
+    mountProfile();          // новая заявка должна появиться в списке сразу
+    syncTerminalMain();
   }
 
   $('reqText').addEventListener('input', function () {
@@ -1005,25 +1329,36 @@
     trySend();
   });
 
-  // ——— Кабинет (Ф1) ————————————————————————————————————————
+  /* ══════════════════════════════════════════════════════════════════
+     МОИ ИСПЫТАНИЯ (бывший «Кабинет») — тот же запрос, тот же рендер.
+     Статусы: показываем РОВНО то, что отдаёт сервер. Промежуточных стадий
+     («разведка ядром», «сверка праман») в данных НЕТ — и в интерфейсе их нет.
+     ══════════════════════════════════════════════════════════════════ */
   var STATUS = {
-    queued: { label: 'В очереди', cls: 'st-queued' },
-    done: { label: 'Готово', cls: 'st-done' },
-    rejected: { label: 'Отклонена', cls: 'st-rejected' }
+    queued:   { label: 'В очереди',    cls: 'st-queued' },
+    done:     { label: 'Опубликовано', cls: 'st-done' },
+    rejected: { label: 'Отклонена',    cls: 'st-rejected' }
   };
 
-  function enterProfile() {
+  var mineDirty = true;    // список заявок устарел (первый вход / после отправки)
+  var mineAt = 0;          // когда загружали в последний раз
+  var MINE_TTL = 30000;
+
+  function mountProfile() {
     var gate = $('profileGate');
+
     if (!authed()) {
       gate.hidden = false;
       $('profileState').hidden = true;
       $('profileList').hidden = true;
-      setMainButton('Открыть бота', function () { haptic('medium'); openTelegram(BOT_URL); });
+      $('mineRefresh').hidden = true;
       return;
     }
     gate.hidden = true;
-    setMainButton('Прислать вызов', function () { haptic('medium'); location.hash = '#/submit'; });
-    loadMine();
+    $('mineRefresh').hidden = false;
+
+    // не долбим сервер на каждый вход во вкладку, но и не показываем вчерашний список
+    if (mineDirty || (Date.now() - mineAt) > MINE_TTL) loadMine();
   }
 
   function loadMine() {
@@ -1033,11 +1368,14 @@
 
     api('/api/requests/mine').then(function (d) {
       var items = (d && Array.isArray(d.items)) ? d.items : [];
+      mineDirty = false;
+      mineAt = Date.now();
+
       if (!items.length) {
         showState(stateEl,
-          '<span class="state-h">Заявок пока нет</span>' +
+          '<span class="state-h">Испытаний пока нет</span>' +
           'Пришлите вызов — софизм, мем, искажение или сложный вопрос. Разбор придёт сюда и в бота.' +
-          '<br><button class="btn btn-ghost" type="button" data-go-submit>В приёмную</button>', false);
+          '<br><button class="btn btn-ghost" type="button" data-go-form>Инициировать разбор</button>', false);
         return;
       }
       renderMine(items);
@@ -1056,7 +1394,8 @@
     listEl.textContent = '';
 
     items.forEach(function (it) {
-      var st = STATUS[it.status] || { label: it.status || 'В работе', cls: 'st-queued' };
+      // неизвестный статус не переводим и не выдумываем — показываем как есть
+      var st = STATUS[it.status] || { label: String(it.status || '—'), cls: 'st-unknown' };
 
       var li = document.createElement('li');
       li.className = 'req';
@@ -1065,7 +1404,7 @@
       head.className = 'req-head';
 
       var num = document.createElement('span');
-      num.className = 'req-n';
+      num.className = 'req-n mono';
       num.textContent = '№' + (it.id != null ? it.id : '—');
       head.appendChild(num);
 
@@ -1098,8 +1437,10 @@
         foot.textContent = 'Заявка не пошла в разбор. Причину можно спросить в боте.';
       } else if (it.status === 'done' && !it.post_url) {
         foot.textContent = 'Разбор готов. Ссылку пришлёт бот.';
-      } else {
+      } else if (it.status === 'done') {
         foot.textContent = 'Разбор опубликован.';
+      } else {
+        foot.textContent = 'Состояние заявки — как его вернул сервер.';
       }
       li.appendChild(foot);
 
@@ -1116,6 +1457,12 @@
       listEl.appendChild(li);
     });
   }
+
+  $('mineRefresh').addEventListener('click', function () {
+    haptic('light');
+    mineDirty = true;
+    loadMine();
+  });
 
   // ——— Тост (без самописных модалок: для да/нет есть tg.showConfirm) ————
   var toastTimer = null;
@@ -1135,23 +1482,31 @@
 
   // ——— Общие обработчики ————————————————————————————————————
   document.addEventListener('click', function (e) {
-    var botBtn = e.target.closest && e.target.closest('[data-open-bot]');
-    if (botBtn) { haptic('medium'); openTelegram(BOT_URL); return; }
+    var t = e.target;
+    if (!t || !t.closest) return;
 
-    var retry = e.target.closest && e.target.closest('[data-retry-feed]');
-    if (retry) { loadFeed(current.rubric); return; }
+    // Все кнопки «Обогащения» ведут в бота — эндпоинтов для этих форм ещё НЕТ,
+    // и рисовать отправку в никуда мы не будем.
+    if (t.closest('[data-open-bot]')) { haptic('medium'); openTelegram(BOT_URL); return; }
 
-    var retryMine = e.target.closest && e.target.closest('[data-retry-mine]');
-    if (retryMine) { loadMine(); return; }
+    // «Инициировать разбор» из другого экрана: если мы уже на терминале —
+    // просто раскрываем панель (хэш тот же, hashchange бы не выстрелил).
+    if (t.closest('[data-go-form]')) {
+      haptic('light');
+      if (current.name === 'terminal') openForm();
+      else location.hash = '#/terminal?form=1';
+      return;
+    }
+    if (t.closest('[data-go-mine]')) { haptic('light'); scrollToEl($('mineBlock')); return; }
+    if (t.closest('[data-again]')) { haptic('light'); openForm(); return; }
 
-    var toSubmit = e.target.closest && e.target.closest('[data-go-submit]');
-    if (toSubmit) { haptic('light'); location.hash = '#/submit'; return; }
-
-    var toProfile = e.target.closest && e.target.closest('[data-go-profile]');
-    if (toProfile) { haptic('light'); location.hash = '#/profile'; return; }
+    if (t.closest('[data-retry-feed]')) { loadFeed(current.rubric); return; }
+    if (t.closest('[data-retry-sri]')) { loadSri(); return; }
+    if (t.closest('[data-retry-corp]')) { loadCorpus(); return; }
+    if (t.closest('[data-retry-mine]')) { mineDirty = true; loadMine(); return; }
 
     // ссылки на Telegram и лендинг — через нативные открывалки клиента
-    var link = e.target.closest && e.target.closest('a[href^="http"]');
+    var link = t.closest('a[href^="http"]');
     if (link && inTelegram && !link.closest('.reading-body')) {
       e.preventDefault();
       var href = link.href;
@@ -1161,7 +1516,7 @@
     }
   });
 
-  Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (a) {
+  Array.prototype.forEach.call(document.querySelectorAll('.tab, .seg-b'), function (a) {
     a.addEventListener('click', function () { haptic('select'); });
   });
 

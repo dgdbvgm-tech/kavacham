@@ -1,9 +1,22 @@
 /* ============================================================
-   Читальня КАВАЧАМ — TMA-специфика поверх site/styles.css.
+   KAVACHAM Lab — TMA-специфика поверх site/styles.css.
    Палитра/типографика НЕ дублируются: берём токены оттуда
-   (--ground/--panel/--text/--rule/--accent/--gold*/--serif/--sans).
+   (--ground, --panel, --text, --rule, --accent, --gold, --serif, --sans).
+
+   ⚠️ НЕ ПИСАТЬ здесь звёздочку перед слэшем: последовательность «звезда+слэш»
+   ЗАКРЫВАЕТ комментарий. Так и было: строка со списком токенов содержала
+   «--gold» со звёздочкой и слэшем, комментарий обрывался на 4-й строке,
+   а весь блок :root ниже парсер выбрасывал как мусор. Итог: с самого Ф0 в
+   проде не работали --tma-pad, --tma-tab-h, --tma-measure, --tma-vh и все
+   четыре safe-area — экран жил без полей, таб-бар без min-height 3.6rem.
+
    Здесь только то, чего нет на сайте: таб-бар, лента, оглавление,
    тир-бейджи, ⚖️ SRI, safe-area, деградация вне Telegram.
+
+   Тон Этапа 1 — инженерный: палитра и гарнитуры прежние (единство с
+   лендингом), но плотнее, суше, а всё счётное (номера, статусы, объёмы)
+   — моноширинно и с tabular-nums. «Терминал исследователя» — это про
+   плотность и честность цифр, а не про смену палитры.
    ============================================================ */
 
 :root {
@@ -20,6 +33,31 @@
   --tma-pad: clamp(1rem, 4.5vw, 1.6rem);
   /* длина строки в читальне: 65–75 символов */
   --tma-measure: 68ch;
+  /* третья гарнитура — только для счётного: номера заявок, объёмы, статусы */
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+/* счётное — моноширинно и не «прыгает» при смене цифр */
+.mono {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.94em;
+}
+
+/* заголовок экрана, нужный скринридеру, но избыточный на глаз:
+   его роль на Терминале играет строка статуса, на Полигоне — сегменты,
+   а название вкладки и так подписано в таб-баре */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 /* тело TMA: не ездит вбок, дышит под шапкой и таб-баром */
@@ -49,6 +87,9 @@ body.tma {
   color: var(--deep-ink);
 }
 .tma-brand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.45rem;
   font-family: var(--serif);
   font-weight: 600;
   font-size: 1.05rem;
@@ -57,6 +98,16 @@ body.tma {
   text-decoration: none;
   margin-right: auto;
   padding: 0.35rem 0.1rem;
+}
+.tma-brand-lab {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  padding: 0.1rem 0.32rem;
+  border: 1px solid var(--deep-rule);
+  border-radius: 3px;
+  color: var(--deep-dim);
 }
 .tma-back,
 .tma-theme {
@@ -81,20 +132,20 @@ body.tma {
 
 /* ——— Честная плашка «песочница» ——— */
 .tma-sandbox {
-  padding: 0.6rem var(--tma-pad);
+  padding: 0.4rem var(--tma-pad);
   background: var(--deep-2);
   border-bottom: 1px solid var(--deep-rule);
   color: var(--deep-dim);
   font-family: var(--sans);
-  font-size: 0.86rem;
-  line-height: 1.5;
+  font-size: 0.78rem;
+  line-height: 1.45;
 }
 .tma-sandbox strong { color: var(--gold-hi); font-weight: 600; }
 
 /* ——— Каркас экранов ——— */
 .tma-main {
   display: block;
-  padding: 1.6rem var(--tma-pad) 2.4rem;
+  padding: 1rem var(--tma-pad) 2.4rem;
   /* запас под фиксированный таб-бар + safe-area */
   padding-bottom: calc(var(--tma-tab-h) + var(--sa-bottom) + 2.4rem);
   max-width: 46rem;
@@ -102,16 +153,19 @@ body.tma {
   outline: none;
 }
 .screen[hidden] { display: none; }
+/* инженерный тон: заголовок экрана компактнее, чем на сайте — на 390×600
+   каждый лишний десяток пикселей отодвигает первое дело за сгиб */
 .screen-h {
-  font-size: clamp(1.55rem, 6vw, 2.05rem);
-  line-height: 1.18;
-  margin: 0 0 0.7rem;
+  font-size: clamp(1.3rem, 5vw, 1.8rem);
+  line-height: 1.2;
+  margin: 0 0 0.35rem;
 }
 .screen-sub {
   color: var(--text-2);
-  font-size: 1rem;
+  font-size: 0.92rem;
+  line-height: 1.5;
   max-width: var(--tma-measure);
-  margin: 0 0 1.6rem;
+  margin: 0 0 0.9rem;
 }
 .about-h {
   font-size: 1.2rem;
@@ -147,13 +201,22 @@ body.tma {
 .rubrics {
   display: flex;
   gap: 0.45rem;
-  margin: 0 0 1.2rem;
-  padding-bottom: 0.35rem;
+  margin: 0 0 0.9rem;
+  padding-bottom: 0.3rem;
   overflow-x: auto;
   overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  scroll-snap-type: x proximity;
+  /* растушёвка правого края: видно, что строка прокручивается дальше */
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 2rem), transparent 100%);
+  mask-image: linear-gradient(to right, #000 calc(100% - 2rem), transparent 100%);
 }
+.rubrics.at-end {
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+.rubrics .chip { scroll-snap-align: start; }
 .rubrics::-webkit-scrollbar { display: none; }
 .rubrics[hidden] { display: none; }
 
@@ -236,13 +299,23 @@ body.tma {
 }
 .feed-sub {
   color: var(--text-2);
-  font-size: 0.97rem;
-  margin: 0 0 0.7rem;
+  font-size: 0.95rem;
+  margin: 0 0 0.55rem;
 }
+/* Карточка — витрина, а не текст: подзаголовок и выжимка обрезаются, чтобы
+   на экране помещалось несколько материалов, а не полтора. */
+.feed-sub, .feed-ex {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.feed-sub { -webkit-line-clamp: 2; line-clamp: 2; }
 .feed-ex {
   color: var(--text-dim);
-  font-size: 0.92rem;
-  margin: 0 0 0.8rem;
+  font-size: 0.9rem;
+  margin: 0 0 0.7rem;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
 }
 .feed-meta {
   display: flex;
@@ -913,4 +986,430 @@ body.tma-in-telegram .tma-top,
 body.tma-in-telegram .tabbar {
   /* оставляем брендовый navy: интеграция — по теме (dark/light), не по чужому цвету */
   background: var(--deep);
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   ЭТАП 1 — новые узлы: Терминал, сегменты Полигона, SRI, корпуса,
+   Обогащение. Палитра и гарнитуры — те же; меняется только плотность.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ——— Терминал: строка статуса оператора ——— */
+.ops {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem 0.9rem;
+  margin: 0 0 0.9rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--gold);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  line-height: 1.35;
+  font-variant-numeric: tabular-nums;
+}
+.ops-c {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  min-width: 0;
+}
+.ops-k {
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.ops-v {
+  color: var(--text);
+  font-weight: 600;
+  max-width: 14ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ops-warn .ops-v { color: var(--accent); }
+
+/* ——— Терминал: главное действие ——— */
+.cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 56px;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--gold);
+  border-radius: 6px;
+  background: linear-gradient(180deg, var(--gold-hi), var(--gold));
+  color: #241a05;
+  font-family: var(--sans);
+  font-size: 1.02rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: filter .18s ease;
+}
+.cta:hover { filter: brightness(1.06); }
+.cta:focus-visible { outline: 2px solid var(--gold-hi); outline-offset: 2px; }
+.cta-br {
+  font-family: var(--mono);
+  font-weight: 400;
+  opacity: 0.6;
+}
+.cta.on {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--rule);
+}
+.cta.on .cta-br { opacity: 0.45; }
+@media (prefers-reduced-motion: reduce) {
+  .cta { transition: none; }
+  .cta:hover { filter: none; }
+}
+.cta-h {
+  margin: 0.55rem 0 1.4rem;
+  color: var(--text-dim);
+  font-family: var(--sans);
+  font-size: 0.86rem;
+  line-height: 1.5;
+  max-width: var(--tma-measure);
+}
+
+/* панель заявки (раскрывается кнопкой) */
+.panel {
+  margin: 0 0 1.6rem;
+  scroll-margin-top: calc(var(--tma-top-h) + var(--sa-top) + 0.6rem);
+}
+.panel[hidden] { display: none; }
+
+/* «Векторы Лаборатории» — свёрнуты по умолчанию: не заслоняют поле ввода */
+.vectors {
+  margin: 0 0 1.4rem;
+  padding: 0 1rem;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  max-width: var(--tma-measure);
+}
+.vectors > summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  margin: 0 -1rem;
+  padding: 0.7rem 1rem;
+  font-family: var(--sans);
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  list-style: none;
+}
+.vectors > summary::-webkit-details-marker { display: none; }
+.vectors > summary::before {
+  content: '▸';
+  margin-right: 0.5rem;
+  color: var(--accent);
+  transition: transform .18s ease;
+  display: inline-block;
+}
+.vectors[open] > summary::before { transform: rotate(90deg); }
+@media (prefers-reduced-motion: reduce) {
+  .vectors > summary::before { transition: none; }
+}
+.vec-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 1rem;
+  border-top: 1px solid var(--rule);
+  display: grid;
+  gap: 0.7rem;
+}
+.vec-list li {
+  padding-top: 0.7rem;
+  color: var(--text-2);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+.vec-list strong { color: var(--text); }
+
+/* ——— Блок экрана («Мои испытания») ——— */
+.block {
+  margin-top: 2rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--rule);
+  scroll-margin-top: calc(var(--tma-top-h) + var(--sa-top) + 0.6rem);
+}
+.block-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 0.9rem;
+}
+.block-h {
+  margin: 0;
+  font-size: 1.2rem;
+  line-height: 1.2;
+}
+.mini {
+  flex: none;
+  min-height: 32px;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+.mini:hover { border-color: var(--gold); color: var(--text); }
+.mini[hidden] { display: none; }
+
+/* сноска-честность: чего в данных НЕТ и почему мы это не рисуем */
+.foot-note {
+  margin: 1rem 0 0;
+  color: var(--text-dim);
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  max-width: var(--tma-measure);
+}
+.foot-note b { color: var(--text-2); font-weight: 600; }
+.tag-warn {
+  display: inline-block;
+  margin-right: 0.4rem;
+  padding: 0.1rem 0.45rem;
+  border: 1px dashed var(--rule);
+  border-radius: 3px;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+/* ——— Полигон: сегментированный контрол ——— */
+.seg {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  margin: 0 0 0.9rem;
+  padding: 2px;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+}
+.seg-b {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 44px;
+  padding: 0.35rem 0.3rem;
+  /* прозрачная рамка держит габарит: иначе активный сегмент «подрастал» на 2px
+     и соседи ёрзали при каждом переключении */
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: var(--text-2);
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  line-height: 1.22;
+  text-decoration: none;
+  cursor: pointer;
+}
+.seg-b:hover { color: var(--text); }
+.seg-b[aria-current="true"] {
+  background: color-mix(in srgb, var(--gold) 14%, var(--panel));
+  border-color: var(--gold);
+  color: var(--gold-hi);
+  font-weight: 600;
+}
+/* на пергаменте светлое золото нечитаемо — берём тёмный акцент той же палитры */
+:root[data-theme="light"] .seg-b[aria-current="true"] { color: var(--accent); }
+.pane[hidden] { display: none; }
+.pane-sub {
+  margin: 0 0 1rem;
+  color: var(--text-2);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  max-width: var(--tma-measure);
+}
+.pane-links {
+  margin: 1.2rem 0 0;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  max-width: var(--tma-measure);
+}
+
+/* ——— Полигон Б: дисклеймер SRI (движок не арбитрирует) ——— */
+.disclaimer {
+  margin: 0 0 1.1rem;
+  padding: 0.9rem 1rem;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent-2);
+  border-radius: 6px;
+  color: var(--text-2);
+  font-size: 0.92rem;
+  line-height: 1.55;
+  max-width: var(--tma-measure);
+}
+.disclaimer b { color: var(--text); font-weight: 600; }
+#pane-sri .btn { margin-top: 1.2rem; }
+
+/* ——— Полигон В: объём ядра и корпуса ——— */
+.kpi {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0 0 0.9rem;
+  padding: 0.75rem 1rem;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--gold);
+  border-radius: 6px;
+}
+.kpi-l {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+}
+.kpi-v {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--gold-hi);
+}
+:root[data-theme="light"] .kpi-v { color: var(--accent); }
+.kpi-u {
+  font-family: var(--sans);
+  font-size: 0.86rem;
+  color: var(--text-2);
+}
+
+.corp {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+  max-width: var(--tma-measure);
+}
+.corp[hidden] { display: none; }
+.corp-i {
+  padding: 0.85rem 1rem;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+}
+.corp-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+.corp-t {
+  margin: 0;
+  margin-right: auto;
+  font-family: var(--serif);
+  font-size: 1rem;
+  color: var(--text);
+}
+.corp-b {
+  flex: none;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.corp-b.b-base { color: var(--gold-hi); border-color: var(--gold); }
+:root[data-theme="light"] .corp-b.b-base { color: var(--accent); }
+.corp-b.b-off { border-style: dashed; opacity: 0.8; }
+.corp-h {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+/* ——— Обогащение ——— */
+.notice {
+  margin: 0 0 1.4rem;
+  padding: 0.9rem 1rem;
+  border: 1px dashed var(--gold);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--gold) 7%, var(--panel));
+  color: var(--text-2);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  max-width: var(--tma-measure);
+}
+.notice b { color: var(--text); font-weight: 600; }
+
+.enr {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.9rem;
+  max-width: var(--tma-measure);
+}
+.enr-c {
+  padding: 1.1rem 1.2rem;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  box-shadow: var(--shadow);
+}
+.enr-k {
+  margin: 0 0 0.35rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.enr-h {
+  margin: 0 0 0.55rem;
+  font-size: 1.15rem;
+  line-height: 1.25;
+}
+.enr-p {
+  margin: 0 0 0.7rem;
+  color: var(--text-2);
+  font-size: 0.94rem;
+  line-height: 1.6;
+}
+.enr-p .cite { color: var(--accent); white-space: normal; }
+.enr-a {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+}
+.enr-a .btn { flex: 1 1 auto; justify-content: center; }
+.enr-n {
+  margin: 0.8rem 0 0;
+  color: var(--text-dim);
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+/* статус, которого мы не знаем: показываем ключ сервера как есть */
+.req-st.st-unknown {
+  border-style: dotted;
+  font-family: var(--mono);
+  text-transform: none;
 }
