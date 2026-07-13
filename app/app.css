@@ -141,6 +141,63 @@ body.tma {
 }
 .state .btn { margin-top: 0.9rem; }
 
+/* ——— Рубрики ленты (чипы-сегменты) ———
+   Горизонтальный скроллер: рубрик может стать больше — строка не должна ломать
+   вёрстку и не должна ездить телом страницы. */
+.rubrics {
+  display: flex;
+  gap: 0.45rem;
+  margin: 0 0 1.2rem;
+  padding-bottom: 0.35rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.rubrics::-webkit-scrollbar { display: none; }
+.rubrics[hidden] { display: none; }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: none;
+  min-height: 36px;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--text-2);
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.chip:hover { border-color: var(--accent-2); color: var(--text); }
+.chip.on {
+  border-color: var(--gold);
+  color: var(--gold-hi);
+  background: color-mix(in srgb, var(--gold) 12%, var(--panel));
+}
+.chip-n {
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-dim);
+}
+.chip.on .chip-n { color: inherit; opacity: 0.85; }
+
+/* номер по оси рубрики (№3) — рядом с бейджем рубрики */
+.num {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
 /* ——— Лента читальни ——— */
 .feed {
   list-style: none;
@@ -512,6 +569,9 @@ body.tma {
   gap: 0.9rem;
   max-width: var(--tma-measure);
 }
+/* [hidden] сам по себе даёт лишь display:none низкого приоритета — .stub{display:flex}
+   его перебивает. Без этой строки скрытый гейт протекает поверх формы. */
+.stub[hidden] { display: none; }
 .stub p { color: var(--text-2); }
 .stub-badge {
   font-family: var(--sans);
@@ -531,7 +591,201 @@ body.tma {
   color: var(--text);
 }
 
+/* ——— Приёмная: форма ——— */
+.form {
+  display: grid;
+  gap: 1.6rem;
+  max-width: var(--tma-measure);
+}
+.form[hidden] { display: none; }
+.field {
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+.field-l {
+  display: block;
+  padding: 0;
+  margin: 0 0 0.5rem;
+  font-family: var(--sans);
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.field-t {
+  display: block;
+  width: 100%;
+  min-height: 9.5rem;
+  padding: 0.9rem 1rem;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: var(--serif);
+  font-size: 1rem;
+  line-height: 1.6;
+  resize: vertical;
+}
+.field-t::placeholder { color: var(--text-dim); }
+.field-t:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+.field-h {
+  margin: 0.5rem 0 0;
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+.field-h.warn { color: #C0705B; }
+.field-h strong { color: var(--text); }
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.7rem;
+}
+.chip-check input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.chip-check:focus-within { border-color: var(--gold); }
+.chip-disabled { opacity: 0.5; cursor: not-allowed; }
+#scopeState { margin-top: 0.7rem; font-size: 0.86rem; }
+#scopeState[hidden] { display: none; }
+
+.switch {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 44px;
+  font-size: 0.98rem;
+  color: var(--text);
+  cursor: pointer;
+}
+.switch input {
+  width: 1.15rem;
+  height: 1.15rem;
+  flex: none;
+  accent-color: var(--gold);
+}
+.form-err {
+  margin: 0;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid #C0705B;
+  border-radius: 6px;
+  color: #C0705B;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.form-err[hidden] { display: none; }
+.form .btn-primary { justify-self: start; }
+.form .btn-primary:disabled { opacity: 0.55; cursor: default; }
+/* Telegram сам рисует крупное действие — экранный дубль не нужен */
+body.tma-has-mainbutton .form .btn-primary { display: none; }
+#submitDone[hidden] { display: none; }
+
+/* ——— Кабинет: мои заявки ——— */
+.reqs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.9rem;
+  max-width: var(--tma-measure);
+}
+.reqs[hidden] { display: none; }
+.req {
+  padding: 1.1rem 1.2rem;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  box-shadow: var(--shadow);
+}
+.req-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+.req-n {
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.req-d {
+  margin-left: auto;
+  font-family: var(--sans);
+  font-size: 0.76rem;
+  color: var(--text-dim);
+}
+.req-st {
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.55rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.req-st.st-queued { color: var(--accent); border-color: var(--accent-2); }
+.req-st.st-done { color: var(--gold-hi); border-color: var(--gold); }
+.req-st.st-rejected { border-style: dashed; }
+.req-t {
+  margin: 0 0 0.6rem;
+  color: var(--text-2);
+  font-size: 0.98rem;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.req-f {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+.req .btn { margin-top: 0.9rem; }
+
 /* ——— О проекте ——— */
+.about-p {
+  color: var(--text-2);
+  max-width: var(--tma-measure);
+  margin: 0 0 1rem;
+}
+.about-q {
+  margin: 1.2rem 0 1.2rem;
+  padding: 0.2rem 0 0.2rem 1.1rem;
+  border-left: 2px solid var(--accent-2);
+  max-width: var(--tma-measure);
+}
+.about-q p {
+  margin: 0;
+  font-family: var(--serif);
+  color: var(--text-2);
+  line-height: 1.65;
+}
+.about-src {
+  margin-top: 0.55rem !important;
+  font-family: var(--sans) !important;
+  font-size: 0.84rem;
+}
+.about-src .cite {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  color: var(--accent);
+}
+
 .principles,
 .links-list {
   list-style: none;

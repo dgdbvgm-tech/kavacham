@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Перевод как интерпретация: как рождается точность священных текстов · КАВАЧАМ</title>
+<meta name="description" content="Аналитический обзор публичных обсуждений на forum.krishna.ru (раздел «Вопросы к издательству ББТ» и смежные темы). Все цитаты — с прямыми ссылками на архив обсуждений.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Перевод как интерпретация: как рождается точность священных текстов">
+<meta property="og:description" content="Аналитический обзор публичных обсуждений на forum.krishna.ru (раздел «Вопросы к издательству ББТ» и смежные темы). Все цитаты — с прямыми ссылками на архив обсуждений.">
+<meta property="og:image" content="https://dgdbvgm-tech.github.io/kavacham/og.png">
+<meta property="og:url" content="https://dgdbvgm-tech.github.io/kavacham/reading/analytika-perevod-vsegda-interpretaciya.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="generator" content="build_reader">
+<link rel="stylesheet" href="../styles.css">
+<style>
+.rd-pramana.rd-pramana{border-left:2px solid var(--accent-2)}
+.rd-pramana-nolink.rd-pramana-nolink{border-left-style:dotted}
+p.rd-quote.rd-quote{font-family:var(--serif);line-height:1.64;margin:0}
+p.rd-src.rd-src{margin:.6rem 0 0;font-size:.82rem;line-height:1.7;color:var(--text-dim);
+  display:flex;flex-wrap:wrap;gap:.35rem;align-items:baseline}
+p.rd-note-in.rd-note-in{margin:.6rem 0 0;font-size:.86rem;line-height:1.6;color:var(--text-2)}
+/* .cite в общей системе — короткая сноска (white-space:nowrap); у праманы источник
+   длинный, разрешаем перенос, иначе страница поедет вбок. */
+.rd-src .cite{white-space:normal;overflow-wrap:anywhere}
+.rd-dot{opacity:.55}
+.rd-badge{display:inline-block;font-size:.7rem;line-height:1.5;padding:.05rem .55rem;
+  border-radius:999px;border:1px solid var(--rule);white-space:nowrap}
+.rd-tier-t1{color:var(--accent);border-color:var(--accent-2)}
+.rd-tier-t2{color:var(--text-2)}
+.rd-tier-grey{opacity:.8}
+.rd-sri{white-space:normal;color:var(--text-2)}
+.rd-gap{font-size:.76rem;border-bottom:1px dotted currentColor}
+.rd-tablewrap{overflow-x:auto;overscroll-behavior-x:contain}
+.rd-tablewrap table{border-collapse:collapse;min-width:100%}
+.rd-tablewrap th,.rd-tablewrap td{border:1px solid var(--rule);padding:.5rem .65rem;
+  text-align:left;font-size:.9rem;vertical-align:top}
+
+/* Читальня: ОБВЯЗКА страницы (шапка/оглавление/подвал + типографика тела).
+   Компоненты праманы — в SHARED_CSS: они общие с TMA.
+   Дизайн НАСЛЕДУЕТСЯ из ../styles.css: компоновка (.band/.inner/.paper), ссылка-прамана
+   (.cite), кнопки (.btn), надзаголовок (.eyebrow), тёмный подвал (footer.deep).
+   ВАЖНО про токены: --deep*/--gold* ФИКСИРОВАНЫ (мир «щита», всегда тёмный), а тему
+   переключают семантические --ground/--panel/--text/--text-2/--text-dim/--rule/--accent.
+   Тело обязано жить на семантических, иначе в светлой теме получим кремовый текст на
+   пергаменте. --gold* используем только внутри .deep (подвал). */
+.rd-head{padding-bottom:1.4rem;border-bottom:1px solid var(--rule)}
+.rd-head .eyebrow{margin:0}
+.rd-sandbox{display:inline-block;font-size:.72rem;line-height:1.4;color:var(--text-dim);
+  border:1px solid var(--rule);border-radius:999px;padding:.25rem .7rem;margin-left:.6rem}
+.rd-title{font-size:clamp(1.6rem,4.6vw,2.6rem);line-height:1.18;margin:1.8rem 0 .7rem}
+.rd-sub{font-family:var(--serif);font-weight:400;text-wrap:balance;
+  font-size:clamp(1.02rem,2.5vw,1.24rem);line-height:1.45;color:var(--text-2);margin:0 0 1.2rem}
+.rd-meta{display:flex;flex-wrap:wrap;gap:.45rem;margin:0 0 2.2rem;font-size:.76rem;
+  font-variant-numeric:tabular-nums;color:var(--text-dim)}
+.rd-meta span{border:1px solid var(--rule);border-radius:999px;padding:.2rem .65rem}
+.rd-toc{background:var(--panel);border:1px solid var(--rule);border-radius:4px;
+  padding:1.2rem 1.4rem;margin:0 0 2.6rem}
+.rd-toc ol{list-style:none;margin:0;padding:0}
+.rd-toc li{margin:.35em 0;line-height:1.45}
+.rd-toc li.l3{padding-left:1.15em;font-size:.94em;color:var(--text-2)}
+.rd-toc a{color:inherit;text-decoration:none;border-bottom:1px solid transparent}
+.rd-toc a:hover{border-bottom-color:var(--accent)}
+.rd-body h2{font-size:clamp(1.3rem,3.2vw,1.75rem);line-height:1.26;margin:2.4rem 0 .8rem;
+  scroll-margin-top:1rem}
+.rd-body h3{font-size:clamp(1.06rem,2.5vw,1.28rem);line-height:1.32;margin:2rem 0 .6rem;
+  color:var(--accent);scroll-margin-top:1rem}
+.rd-body p{margin:0 0 1.1rem;line-height:1.72}
+.rd-body ul,.rd-body ol{margin:0 0 1.2rem;padding-left:1.35rem}
+.rd-body li{margin:.45rem 0;line-height:1.65}
+.rd-body a:not(.cite){color:var(--accent);text-underline-offset:3px}
+.rd-body hr{border:0;border-top:1px solid var(--rule);margin:2rem 0}
+.rd-body blockquote{margin:1.4rem 0;padding:.1rem 0 .1rem 1.1rem;
+  border-left:2px solid var(--rule)}
+.rd-body blockquote p{margin:0}
+.rd-body .rd-tablewrap{margin:0 0 1.3rem}
+.rd-cta{display:flex;flex-wrap:wrap;gap:.8rem;justify-content:center;margin:0 0 1.6rem}
+.rd-note{font-size:.84rem;line-height:1.7;color:var(--deep-dim);max-width:46rem;margin:0 auto}
+.rd-sig{font-family:var(--serif);letter-spacing:.18em;font-size:.72rem;text-transform:uppercase;
+  color:var(--gold);margin:1.8rem 0 0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+footer :focus-visible{outline-color:var(--gold)}
+</style>
+<script>
+  (function () {
+    var t = null;
+    try { t = localStorage.getItem('kavacham.theme'); } catch (e) {}
+    if (t === 'light' || t === 'dark') {
+      document.documentElement.setAttribute('data-theme', t);
+      document.documentElement.style.colorScheme = t;
+    }
+  })();
+</script>
+</head>
+<body>
+<main class="band narrow paper">
+  <div class="inner">
+    <header class="rd-head">
+      <p class="eyebrow">Лаборатория КАВАЧАМ<span class="rd-sandbox">песочница — не готовый продукт</span></p>
+    </header>
+
+    <article>
+      <h1 class="rd-title">Перевод как интерпретация: как рождается точность священных текстов</h1>
+      <p class="rd-sub">Обзор публичных обсуждений: перевод — всегда интерпретация (бхава-анувада), оригинал остаётся арбитром, а механизм уточнения текстов работает.</p>
+      <p class="rd-meta"><span>аналитика</span><span>2026-07-12</span></p>
+      <nav class="rd-toc" aria-label="Оглавление">
+        <p class="eyebrow">Оглавление</p>
+        <ol><li class="l2"><a href="#s-annotaciya">Аннотация</a></li><li class="l2"><a href="#s-1-postanovka-problemy-perevod-vsegda-interpretaciya">1. Постановка проблемы: перевод — всегда интерпретация</a></li><li class="l2"><a href="#s-2-istoricheskiy-kontekst-russkih-izdaniy">2. Исторический контекст русских изданий</a></li><li class="l2"><a href="#s-3-mehanizm-obratnoy-svyazi-kak-ustroeno-utochnenie-tekstov">3. Механизм обратной связи: как устроено уточнение текстов</a></li><li class="l2"><a href="#s-4-chto-proishodit-seychas">4. Что происходит сейчас</a></li><li class="l2"><a href="#s-5-vyvody">5. Выводы</a></li></ol>
+      </nav>
+
+      <div class="rd-body">
+<p><em>Аналитический обзор публичных обсуждений на forum.krishna.ru (раздел «Вопросы к издательству ББТ» и смежные темы). Все цитаты — с прямыми ссылками на архив обсуждений.</em></p>
+<hr>
+<h2 id="s-annotaciya">Аннотация</h2>
+<p>Русскоязычный читатель книг Шрилы Прабхупады получает текст, прошедший длинный путь: санскрит → английский оригинал → русский перевод → редакции переизданий. На форуме forum.krishna.ru более десяти лет шло открытое, содержательное обсуждение этого пути — с участием штатного представителя издательства «Бхактиведанта Бук Траст» (ББТ) и авторитетных санньяси. Этот обзор систематизирует: в чём состоит проблема перевода как таковая, какой метод применяется, какой механизм обратной связи существует и что происходит сейчас.</p>
+<h2 id="s-1-postanovka-problemy-perevod-vsegda-interpretaciya">1. Постановка проблемы: перевод — всегда интерпретация</h2>
+<p>Ключевую формулировку дал Е.С. Бхакти Вигьяна Госвами — переводчик с многолетним стажем работы над русскими изданиями:</p>
+<blockquote><p>«Даже в обычной теории перевода говорится, что хороший переводчик переводит не слова. Слова переводит только очень плохой переводчик… Хороший переводчик должен переводить весь текст целиком, иначе говоря, настоящий переводчик определяет значение слов в контексте всего произведения. Перевод — это ВСЕГДА интерпретация» — и далее о методе: «Это один из возможных и очень широко распространенных в индийской культуре методов перевода (он называется бхава-анувада)» (<a href="https://web.archive.org/web/20130907151754/http://www.forum.krishna.ru/showthread.php?t=8130&amp;page=2" target="_blank" rel="noopener noreferrer">обсуждение t-8130, стр. 2</a>).</p></blockquote>
+<p>И его же честное уточнение о природе любого перевода: «Любой перевод — это компромисс… все переводчики и редакторы относятся к категории fallible живых существ. Да и сама природа перевода… тоже fallible» (<a href="https://web.archive.org/web/20200120103639/http://forum.krishna.ru/archive/index.php/t-3534.html" target="_blank" rel="noopener noreferrer">t-3534</a>).</p>
+<p>Враджендра Кумар дас формулирует иерархию слоёв так: «Перевод — всегда второй сорт по отношению к оригиналу. Но… второй сорт — не брак» (<a href="https://web.archive.org/web/20200121000111/http://forum.krishna.ru/archive/index.php/t-1068.html" target="_blank" rel="noopener noreferrer">t-1068</a>).</p>
+<p>Отсюда главный структурный вывод, который разделяют и критики, и издательство: <strong>оригинал — арбитр</strong>. Английский текст Шрилы Прабхупады и санскрит первичны; русский слой — производный и сверяемый. Участница обсуждений выразила это образно: «переводчик должен быть прозрачной средой между Кришной и читателем… Санскрит — это первоисточник и страховка» (<a href="https://web.archive.org/web/20250517151034/http://www.forum.krishna.ru/showthread.php?t=20895&amp;s=9015806d826f066256a06a4e00bbdf6a&amp;p=195959" target="_blank" rel="noopener noreferrer">t-20895</a>).</p>
+<h2 id="s-2-istoricheskiy-kontekst-russkih-izdaniy">2. Исторический контекст русских изданий</h2>
+<p>Обсуждения зафиксировали важный факт истории: самые ранние русские переводы делались в 1980-х, в подполье, и частично шли через языки-посредники (французский, немецкий), а не напрямую с английского (<a href="https://web.archive.org/web/20191029093335/http://forum.krishna.ru/archive/index.php/t-1506.html" target="_blank" rel="noopener noreferrer">t-1506</a>). Это объясняет неоднородность ранних изданий — и объясняет, почему работа редакции над уточнением текстов продолжается десятилетиями. Представитель ББТ на форуме описывал это так: «В издательстве подготовлен и ждёт своего часа новый, улучшенный перевод, в котором исправлены многие неточности старого перевода (который преданные делали ещё в 80-х годах)» (<a href="https://web.archive.org/web/20190921151941/http://www.forum.krishna.ru/archive/index.php/t-19158.html?s=d0776aa94727dcf8fbde21dc3c43805b" target="_blank" rel="noopener noreferrer">t-19158</a>).</p>
+<p>Зафиксирован и принципиальный редакционный курс: «сейчас в российском ББТ принято решение стараться держаться ближе к тексту оригинала, а не гнаться за красотой» (<a href="https://web.archive.org/web/20200120103639/http://forum.krishna.ru/archive/index.php/t-3534.html" target="_blank" rel="noopener noreferrer">t-3534</a>) — то есть сдвиг от литературности к точности.</p>
+<p>Показательный пример эволюции терминологии — титул <em>founder-ācārya</em>: ранняя калька «основатель-ачарья» была со временем исправлена на «ачарья-основатель», и Е.С. Бхакти Вигьяна Госвами подробно объяснял, почему это не просто сочетание двух слов, а особый титул (<a href="https://web.archive.org/web/20181125234704/http://forum.krishna.ru/archive/index.php/t-11373.html" target="_blank" rel="noopener noreferrer">t-11373</a>).</p>
+<h2 id="s-3-mehanizm-obratnoy-svyazi-kak-ustroeno-utochnenie-tekstov">3. Механизм обратной связи: как устроено уточнение текстов</h2>
+<p>Самое ценное, что показал форум: точность — это <strong>процесс с работающим публичным механизмом</strong>, а не разовое событие.</p>
+<ol><li><strong>Официальный канал правок.</strong> У ББТ существует адрес <strong>ru.errors@bbt.se</strong> для сообщений о неточностях и опечатках; представитель издательства сам направлял туда участников обсуждений (<a href="https://web.archive.org/web/20190915225119/http://www.forum.krishna.ru/archive/index.php/t-17930.html?s=d0776aa94727dcf8fbde21dc3c43805b" target="_blank" rel="noopener noreferrer">t-17930</a>).</li><li><strong>Диалог, а не глухая оборона.</strong> Штатный представитель ББТ (Виджитатма дас) годами отвечал на вопросы по конкретным местам; часть предложений читателей принималась редакцией прямо в обсуждении (<a href="https://web.archive.org/web/20200108085017/http://www.forum.krishna.ru/showthread.php?t=15600" target="_blank" rel="noopener noreferrer">t-15600</a>).</li><li><strong>Приоритет качества.</strong> «Я бы предпочёл не приносить качество в жертву скорости» — позиция издательства в дискуссии о темпах переизданий (<a href="https://web.archive.org/web/20160826061749/http://www.forum.krishna.ru/showthread.php?t=13127&amp;s=33a9cec143812092b40681c110806779&amp;p=135824" target="_blank" rel="noopener noreferrer">t-13127</a>).</li><li><strong>Граница доверия.</strong> За пределами ББТ систематического контроля качества переводов нет — «единственный критерий тут — доверие к личности переводчика» (<a href="https://web.archive.org/web/20170708155059/http://www.forum.krishna.ru/showthread.php?t=13724" target="_blank" rel="noopener noreferrer">t-13724</a>). Это прямое обоснование того, почему официальные издания и vedabase.io остаются эталоном.</li></ol>
+<h2 id="s-4-chto-proishodit-seychas">4. Что происходит сейчас</h2>
+<p>Сам форум ушёл в архив (обсуждения доступны через web.archive.org — все ссылки в этом обзоре ведут туда), но выстроенная им культура никуда не делась, и сегодня она усилена инструментами:</p>
+<ul><li><strong>vedabase.io</strong> даёт каждому читателю то, что раньше требовало библиотеки: санскрит, пословный перевод, английский оригинал и русский текст — рядом, в один клик. Принцип «оригинал — арбитр» стал практически доступным любому.</li><li><strong>Канал ru.errors@bbt.se</strong> — официальный путь для уточнений, указанный представителем издательства. Домен bbt.se принадлежит североевропейскому отделению ББТ (Швеция, домен зарегистрирован в 1989 году), почтовый ящик существует и принимает почту — проверено технически в июле 2026 года.</li><li>Проекты работы с первоисточниками (в том числе наша лаборатория) строятся по принципу <strong>«указатель, а не переиздатель»</strong>: не заменять официальные издания, а вести читателя к ним — показывая при необходимости оба слоя (оригинал + перевод) со ссылкой на источник.</li></ul>
+<h2 id="s-5-vyvody">5. Выводы</h2>
+<ol><li>Перевод священного текста — это всегда интерпретация (бхава-анувада); это признают сами переводчики и издательство.</li><li>Поэтому оригинал (английский Прабхупады + санскрит) — арбитр, а русский слой — производный и сверяемый; это не критика перевода, а описание того, как процесс устроен по факту.</li><li>Уточнение текстов — нормальный, живой, многолетний процесс с официальным механизмом обратной связи.</li><li>Современные инструменты делают сверку с оригиналом доступной каждому читателю — и серьёзный инструмент работы с текстами обязан показывать источник, а не пересказывать его.</li></ol>
+<hr>
+<p><em>Обзор подготовлен по материалам публичных обсуждений forum.krishna.ru. Живой форум на момент публикации периодически недоступен (ошибка 503), поэтому каждая ссылка ведёт на проверенную архивную копию web.archive.org с конкретной датой снимка — содержимое и цитаты сверены с каждой копией перед публикацией. Живой адрес любой темы: forum.krishna.ru/archive/index.php/t-НОМЕР.html. Обзор не является позицией издательства; все оценки принадлежат цитируемым участникам обсуждений.</em></p>
+      </div>
+    </article>
+  </div>
+</main>
+
+<footer class="deep">
+  <div class="rd-cta">
+    <a class="btn btn-primary" href="https://t.me/kavacham_lab_bot" target="_blank" rel="noopener noreferrer">Нашли неточность / пришлите тему на разбор</a>
+    <a class="btn btn-ghost" href="https://dgdbvgm-tech.github.io/kavacham/app/" target="_blank" rel="noopener noreferrer">Открыть читальню</a>
+  </div>
+  <p class="rd-note">Каждая цитата дословна и снабжена проверяемой ссылкой на первоисточник. Где ссылки нет — это честно помечено как пробел корпуса: движок не додумывает. Витрина проекта — <a class="cite" href="https://dgdbvgm-tech.github.io/kavacham/" target="_blank" rel="noopener noreferrer">лендинг КАВАЧАМ</a>.</p>
+  <p class="rd-sig">KAVACHAM · DGD · ZERO ENTROPY</p>
+</footer>
+</body>
+</html>

@@ -60,6 +60,7 @@
     <section class="screen" id="screen-reader" hidden>
       <h1 class="screen-h">Читальня</h1>
       <p class="screen-sub">Разборы и мега-разборы — одной страницей, с оглавлением. Каждая цитата — дословно и со ссылкой.</p>
+      <nav class="rubrics" id="rubrics" aria-label="Рубрики" hidden></nav>
       <div id="feedState" class="state" role="status" aria-live="polite">Загружаю ленту…</div>
       <ul class="feed" id="feedList" hidden></ul>
     </section>
@@ -96,51 +97,106 @@
       </article>
     </section>
 
-    <!-- Приёмная (Ф1 — заглушка) -->
+    <!-- Приёмная -->
     <section class="screen" id="screen-submit" hidden>
       <h1 class="screen-h">Приёмная</h1>
-      <div class="stub">
-        <p class="stub-badge">Фаза 1 · в разработке</p>
-        <p>Экран-форма появится в следующей фазе. Он ничего не изобретает заново — это будет зеркало того, что уже работает в боте.</p>
-        <p><strong>Пока — присылайте вызов прямо в боте.</strong> Там же выбор корпусов и анонимность (по умолчанию — «участник Лаборатории»).</p>
-        <button class="btn btn-primary" data-open-bot type="button">Открыть бота</button>
+      <p class="screen-sub">Пришлите вызов: софизм, мем, искажение, сложный вопрос. Разбор строится только на первоисточниках — а где опоры нет, движок молчит.</p>
+
+      <!-- Вне Telegram: честно говорим, что формы здесь нет, и даём рабочий путь -->
+      <div class="stub" id="submitGate" hidden>
+        <p class="stub-badge">Форма работает внутри Telegram</p>
+        <p>Заявку нужно подписать вашим аккаунтом Telegram — вне приложения Telegram подписи нет, и отправить отсюда нечего. Изображать отправку мы не станем.</p>
+        <p><strong>Тот же приём — в боте:</strong> там же выбор корпусов и анонимность (по умолчанию — «участник Лаборатории»).</p>
+        <button class="btn btn-primary" data-open-bot type="button">Прислать вызов в боте</button>
       </div>
+
+      <!-- В Telegram: форма-зеркало черновика бота -->
+      <form class="form" id="submitForm" hidden novalidate>
+        <div class="field">
+          <label class="field-l" for="reqText">Вызов или вопрос</label>
+          <textarea id="reqText" class="field-t" rows="7" maxlength="4000"
+                    placeholder="Например: «Сознание — просто свойство сложной материи, значит и ИИ станет личностью». Чем полнее исходный текст, тем точнее разбор."></textarea>
+          <p class="field-h"><span id="reqCount">0</span> / 4000 · не меньше 10 символов</p>
+        </div>
+
+        <fieldset class="field">
+          <legend class="field-l">Корпуса разбора</legend>
+          <p class="field-h" id="scopeBase">🕉 Шрила Прабхупада — основа, включена всегда.</p>
+          <div class="chips" id="scopeList" role="group" aria-label="Корпуса разбора"></div>
+          <p class="state" id="scopeState" role="status" aria-live="polite">Загружаю список корпусов…</p>
+        </fieldset>
+
+        <div class="field">
+          <label class="switch">
+            <input type="checkbox" id="showName">
+            <span>Указывать моё имя в публикации</span>
+          </label>
+          <p class="field-h">По умолчанию вы — <strong>«участник Лаборатории»</strong>. Имя, @аккаунт и духовное имя не публикуются, пока вы сами не разрешите этой галочкой.</p>
+        </div>
+
+        <p class="form-err" id="submitErr" role="alert" hidden></p>
+        <button class="btn btn-primary" id="btnSend" type="submit">Отправить вызов</button>
+      </form>
+
+      <!-- Успех -->
+      <div class="state" id="submitDone" role="status" aria-live="polite" hidden></div>
     </section>
 
-    <!-- Кабинет (Ф1 — заглушка) -->
+    <!-- Кабинет -->
     <section class="screen" id="screen-profile" hidden>
       <h1 class="screen-h">Кабинет</h1>
-      <div class="stub">
-        <p class="stub-badge">Фаза 1 · в разработке</p>
-        <p>«Мои заявки», статус и честное место в очереди появятся здесь в следующей фазе.</p>
-        <p><strong>Пока о готовности разбора вы узнаёте из бота:</strong> когда разбор выходит, бот присылает вам ссылку на него в ответ на вашу заявку. Отдельного экрана статуса ещё нет — обещать его сейчас было бы неправдой.</p>
+      <p class="screen-sub">Ваши заявки и их честный статус: очередь идёт по порядку поступления.</p>
+
+      <div class="stub" id="profileGate" hidden>
+        <p class="stub-badge">Кабинет работает внутри Telegram</p>
+        <p>Чтобы показать именно ваши заявки, нужна подпись вашего аккаунта Telegram — вне приложения Telegram её нет.</p>
+        <p><strong>В боте те же данные:</strong> команда <code>/status</code> — ваши заявки, <code>/queue</code> — очередь целиком.</p>
         <button class="btn btn-primary" data-open-bot type="button">Открыть бота</button>
       </div>
+
+      <div class="state" id="profileState" role="status" aria-live="polite" hidden></div>
+      <ul class="reqs" id="profileList" hidden></ul>
     </section>
 
     <!-- О проекте -->
     <section class="screen" id="screen-about" hidden>
       <h1 class="screen-h">О проекте</h1>
-      <p class="screen-sub">КАВАЧАМ (kavacham — «доспех, защита») — лаборатория проверяемого знания. Читальня — её карманная часть: разбор открывается целиком, а не «частью 1 из 2».</p>
+      <p class="screen-sub">КАВАЧАМ (санскр. «броня» — как в «Нараяна-кавачам», ШБ 6.8) — цифровой библиотекарь учения Шрилы Прабхупады. Он находит то, что уже сказано в первоисточниках, приводит дословно с кликабельной ссылкой — и молчит там, где опоры нет.</p>
 
-      <h2 class="about-h">Принципы</h2>
+      <h2 class="about-h">Как устроено</h2>
       <ul class="principles">
-        <li><strong>Ноль энтропии.</strong> Ни одной цитаты без дословности и без проверяемой ссылки. Нет ссылки — это пробел, а не повод додумать.</li>
-        <li><strong>Право молчать.</strong> Там, где линия не выносит единого вердикта, мы показываем обе стороны и границы — и не арбитрируем. Спорное и сокровенное — к наставнику.</li>
-        <li><strong>Точность важнее скорости.</strong> Быстрый неверный ответ хуже медленного верного.</li>
+        <li><strong>Заземление.</strong> Каждое утверждение привязано к проверяемой цитате первоисточника. Нет опоры — нет слова.</li>
+        <li><strong>Глубина.</strong> Столько проходов по библиотеке (37 000+ проверенных документов), сколько нужно для верного разбора, — а не для быстрого.</li>
+        <li><strong>Право молчать.</strong> Где опоры нет — честное «в моих источниках нет основания» вместо правдоподобной догадки. Молчание не вносит искажения.</li>
+      </ul>
+      <p class="about-p">Так это выглядит на практике — цитата дословно и со ссылкой, которую можно открыть и проверить:</p>
+      <blockquote class="about-q">
+        <p>«…my Guru Maharaja’s opinion is that press is the brihat mrdanga…» — «…мнение моего Гуру Махараджи: печатный станок и есть брихат-мриданга…».</p>
+        <p class="about-src"><a class="cite" href="https://vanisource.org/wiki/680823_-_Letter_to_Kirtanananda_and_Hayagriva_written_from_Montreal" target="_blank" rel="noopener">Шрила Прабхупада, письмо от 23 августа 1968 г.</a></p>
+      </blockquote>
+      <p class="about-p">Обычную мридангу слышно на квартал, «брихат-мридангу» — по всему миру. Каждый ачарья брал самый мощный канал своей эпохи: типография, радио, телевидение. Технология меняется, послание — нет.</p>
+
+      <h2 class="about-h">Что такое Лаборатория</h2>
+      <p class="about-p">Лаборатория — не витрина, а полигон. Участники присылают вызовы: софизмы, мемы, искажения сиддханты, критику оппонентов, вопросы науки и трансгуманизма, споры в соцсетях. Движок разбирает их по праманам, а <strong>каждый ответ перед публикацией утверждает человек</strong> — наружу без проверки не выходит ничего. Каждое ваше замечание становится обучающим примером: чем сложнее кейс, тем он ценнее.</p>
+      <ul class="principles">
+        <li><strong>Анонимность по умолчанию.</strong> В публикации заявитель — «участник Лаборатории». Имя появляется, только если вы сами его разрешили.</li>
+        <li><strong>Тонкие личные темы — не для движка.</strong> Религиозная травма, семейные вопросы, спорное и сокровенное — к наставникам и старшим вайшнавам. Это принцип, а не отговорка.</li>
       </ul>
 
       <h2 class="about-h">Чем это не является</h2>
-      <p class="muted">Не чат-«гуру» (движок не говорит голосом ачарьи), не соцсеть, не замена живому наставнику.</p>
+      <p class="about-p">Это библиотекарь, а не наставник. КАВАЧАМ не говорит голосом ачарьи, не даёт вани и не заменяет живого гуру — вани даёт гуру, живое человеческое общение ничем не заменить. Движок лишь подаёт точную книгу и открытую страницу. Не соцсеть, не оракул, не «ИИ-гуру».</p>
+
+      <h2 class="about-h">Честно о стадии</h2>
+      <p class="about-p">Это песочница, а не продакшн: и движок, и приложение в работе. Читальня открывается и вне Telegram — как обычная страница, поэтому там, где приложения Telegram недоступны, разборы всё равно читаются.</p>
 
       <h2 class="about-h">Куда идти дальше</h2>
       <ul class="links-list">
         <li><a class="cite" href="https://dgdbvgm-tech.github.io/kavacham/" target="_blank" rel="noopener">Лендинг проекта</a> — зачем это всё, полностью</li>
-        <li><a class="cite" href="https://t.me/+8zzg7sB9VHcxZWNi" data-tg-link target="_blank" rel="noopener">Канал Лаборатории</a> — публикации и обсуждение</li>
-        <li><a class="cite" href="https://t.me/kavacham_lab_bot" data-tg-link target="_blank" rel="noopener">Бот-приёмная</a> — прислать вызов, узнать статус</li>
+        <li><a class="cite" href="https://t.me/+8zzg7sB9VHcxZWNi" target="_blank" rel="noopener">Канал Лаборатории</a> — публикации и обсуждение</li>
+        <li><a class="cite" href="https://t.me/kavacham_lab_bot" target="_blank" rel="noopener">Бот-приёмная</a> — прислать вызов, узнать статус</li>
       </ul>
 
-      <p class="about-note">Читальня работает и вне Telegram — как обычная страница. Если приложение не открывается в вашем регионе, всё то же самое доступно в боте и на сайте.</p>
+      <p class="about-note">Проект ведёт Даял-Говинда дас — как служение делу систематизации и защиты наследия Шрилы Прабхупады в парампаре.</p>
     </section>
 
   </main>

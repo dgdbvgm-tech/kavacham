@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🗺 Карта вызовов Лаборатории КАВАЧАМ · КАВАЧАМ</title>
+<meta name="description" content="Это растущая карта. Здесь собраны типы вызовов, с которыми работает лаборатория: от научного атеизма до мемов в соцсетях. Каждая ваша заявка в бот Лаборатории либо ложится в одну из категорий, либо открывает новую — и карта растёт. Присылайте то, с чем…">
+<meta property="og:type" content="article">
+<meta property="og:title" content="🗺 Карта вызовов Лаборатории КАВАЧАМ">
+<meta property="og:description" content="Это растущая карта. Здесь собраны типы вызовов, с которыми работает лаборатория: от научного атеизма до мемов в соцсетях. Каждая ваша заявка в бот Лаборатории либо ложится в одну из категорий, либо открывает новую — и карта растёт. Присылайте то, с чем…">
+<meta property="og:image" content="https://dgdbvgm-tech.github.io/kavacham/og.png">
+<meta property="og:url" content="https://dgdbvgm-tech.github.io/kavacham/reading/karta-vyzovov.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="generator" content="build_reader">
+<link rel="stylesheet" href="../styles.css">
+<style>
+.rd-pramana.rd-pramana{border-left:2px solid var(--accent-2)}
+.rd-pramana-nolink.rd-pramana-nolink{border-left-style:dotted}
+p.rd-quote.rd-quote{font-family:var(--serif);line-height:1.64;margin:0}
+p.rd-src.rd-src{margin:.6rem 0 0;font-size:.82rem;line-height:1.7;color:var(--text-dim);
+  display:flex;flex-wrap:wrap;gap:.35rem;align-items:baseline}
+p.rd-note-in.rd-note-in{margin:.6rem 0 0;font-size:.86rem;line-height:1.6;color:var(--text-2)}
+/* .cite в общей системе — короткая сноска (white-space:nowrap); у праманы источник
+   длинный, разрешаем перенос, иначе страница поедет вбок. */
+.rd-src .cite{white-space:normal;overflow-wrap:anywhere}
+.rd-dot{opacity:.55}
+.rd-badge{display:inline-block;font-size:.7rem;line-height:1.5;padding:.05rem .55rem;
+  border-radius:999px;border:1px solid var(--rule);white-space:nowrap}
+.rd-tier-t1{color:var(--accent);border-color:var(--accent-2)}
+.rd-tier-t2{color:var(--text-2)}
+.rd-tier-grey{opacity:.8}
+.rd-sri{white-space:normal;color:var(--text-2)}
+.rd-gap{font-size:.76rem;border-bottom:1px dotted currentColor}
+.rd-tablewrap{overflow-x:auto;overscroll-behavior-x:contain}
+.rd-tablewrap table{border-collapse:collapse;min-width:100%}
+.rd-tablewrap th,.rd-tablewrap td{border:1px solid var(--rule);padding:.5rem .65rem;
+  text-align:left;font-size:.9rem;vertical-align:top}
+
+/* Читальня: ОБВЯЗКА страницы (шапка/оглавление/подвал + типографика тела).
+   Компоненты праманы — в SHARED_CSS: они общие с TMA.
+   Дизайн НАСЛЕДУЕТСЯ из ../styles.css: компоновка (.band/.inner/.paper), ссылка-прамана
+   (.cite), кнопки (.btn), надзаголовок (.eyebrow), тёмный подвал (footer.deep).
+   ВАЖНО про токены: --deep*/--gold* ФИКСИРОВАНЫ (мир «щита», всегда тёмный), а тему
+   переключают семантические --ground/--panel/--text/--text-2/--text-dim/--rule/--accent.
+   Тело обязано жить на семантических, иначе в светлой теме получим кремовый текст на
+   пергаменте. --gold* используем только внутри .deep (подвал). */
+.rd-head{padding-bottom:1.4rem;border-bottom:1px solid var(--rule)}
+.rd-head .eyebrow{margin:0}
+.rd-sandbox{display:inline-block;font-size:.72rem;line-height:1.4;color:var(--text-dim);
+  border:1px solid var(--rule);border-radius:999px;padding:.25rem .7rem;margin-left:.6rem}
+.rd-title{font-size:clamp(1.6rem,4.6vw,2.6rem);line-height:1.18;margin:1.8rem 0 .7rem}
+.rd-sub{font-family:var(--serif);font-weight:400;text-wrap:balance;
+  font-size:clamp(1.02rem,2.5vw,1.24rem);line-height:1.45;color:var(--text-2);margin:0 0 1.2rem}
+.rd-meta{display:flex;flex-wrap:wrap;gap:.45rem;margin:0 0 2.2rem;font-size:.76rem;
+  font-variant-numeric:tabular-nums;color:var(--text-dim)}
+.rd-meta span{border:1px solid var(--rule);border-radius:999px;padding:.2rem .65rem}
+.rd-toc{background:var(--panel);border:1px solid var(--rule);border-radius:4px;
+  padding:1.2rem 1.4rem;margin:0 0 2.6rem}
+.rd-toc ol{list-style:none;margin:0;padding:0}
+.rd-toc li{margin:.35em 0;line-height:1.45}
+.rd-toc li.l3{padding-left:1.15em;font-size:.94em;color:var(--text-2)}
+.rd-toc a{color:inherit;text-decoration:none;border-bottom:1px solid transparent}
+.rd-toc a:hover{border-bottom-color:var(--accent)}
+.rd-body h2{font-size:clamp(1.3rem,3.2vw,1.75rem);line-height:1.26;margin:2.4rem 0 .8rem;
+  scroll-margin-top:1rem}
+.rd-body h3{font-size:clamp(1.06rem,2.5vw,1.28rem);line-height:1.32;margin:2rem 0 .6rem;
+  color:var(--accent);scroll-margin-top:1rem}
+.rd-body p{margin:0 0 1.1rem;line-height:1.72}
+.rd-body ul,.rd-body ol{margin:0 0 1.2rem;padding-left:1.35rem}
+.rd-body li{margin:.45rem 0;line-height:1.65}
+.rd-body a:not(.cite){color:var(--accent);text-underline-offset:3px}
+.rd-body hr{border:0;border-top:1px solid var(--rule);margin:2rem 0}
+.rd-body blockquote{margin:1.4rem 0;padding:.1rem 0 .1rem 1.1rem;
+  border-left:2px solid var(--rule)}
+.rd-body blockquote p{margin:0}
+.rd-body .rd-tablewrap{margin:0 0 1.3rem}
+.rd-cta{display:flex;flex-wrap:wrap;gap:.8rem;justify-content:center;margin:0 0 1.6rem}
+.rd-note{font-size:.84rem;line-height:1.7;color:var(--deep-dim);max-width:46rem;margin:0 auto}
+.rd-sig{font-family:var(--serif);letter-spacing:.18em;font-size:.72rem;text-transform:uppercase;
+  color:var(--gold);margin:1.8rem 0 0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+footer :focus-visible{outline-color:var(--gold)}
+</style>
+<script>
+  (function () {
+    var t = null;
+    try { t = localStorage.getItem('kavacham.theme'); } catch (e) {}
+    if (t === 'light' || t === 'dark') {
+      document.documentElement.setAttribute('data-theme', t);
+      document.documentElement.style.colorScheme = t;
+    }
+  })();
+</script>
+</head>
+<body>
+<main class="band narrow paper">
+  <div class="inner">
+    <header class="rd-head">
+      <p class="eyebrow">Лаборатория КАВАЧАМ<span class="rd-sandbox">песочница — не готовый продукт</span></p>
+    </header>
+
+    <article>
+      <h1 class="rd-title">🗺 Карта вызовов Лаборатории КАВАЧАМ</h1>
+      <p class="rd-sub">Растущая карта типов вызовов, с которыми работает лаборатория: от научного атеизма до мемов в соцсетях.</p>
+      <p class="rd-meta"><span>карта</span><span>2026-07-11</span></p>
+      <nav class="rd-toc" aria-label="Оглавление">
+        <p class="eyebrow">Оглавление</p>
+        <ol><li class="l2"><a href="#s-a-nauchno-estestvennye-vyzovy">А. Научно-естественные вызовы</a></li><li class="l2"><a href="#s-b-tehnologicheskie-i-futuristicheskie-vyzovy">Б. Технологические и футуристические вызовы</a></li><li class="l2"><a href="#s-v-socialno-eticheskie-vyzovy">В. Социально-этические вызовы</a></li><li class="l2"><a href="#s-g-vnutrennie-problemy-i-krizisy">Г. Внутренние проблемы и кризисы</a></li><li class="l2"><a href="#s-d-pop-kultura-i-media">Д. Поп-культура и медиа</a></li><li class="l2"><a href="#s-e-povsednevnaya-apologetika">Е. Повседневная апологетика</a></li><li class="l2"><a href="#s-zh-uchebnye-zaprosy-shastra-stadi">Ж. Учебные запросы (шастра-стади)</a></li></ol>
+      </nav>
+
+      <div class="rd-body">
+<p><strong>Это растущая карта.</strong> Здесь собраны типы вызовов, с которыми работает лаборатория: от научного атеизма до мемов в соцсетях. Каждая ваша заявка в <a href="https://t.me/kavacham_lab_bot" target="_blank" rel="noopener noreferrer">бот Лаборатории</a> либо ложится в одну из категорий, либо открывает новую — и карта растёт. Присылайте то, с чем столкнулись сами: вопрос, статью, скриншот спора, мем.</p>
+<hr>
+<h2 id="s-a-nauchno-estestvennye-vyzovy">А. Научно-естественные вызовы</h2>
+<p>Противопоставление науки и духовного знания.</p>
+<p>- <strong>А1. Новый атеизм</strong> — «наука опровергла религию» (Докинз, Харрис и др.).</p>
+<p>- <strong>А2. Эволюция и космология</strong> — происхождение Вселенной и человека, критика ведической космологии. <em>(есть <a href="https://telegra.ph/Mega-razbor-1--Vedicheskaya-kosmologiya-i-nauka-07-12" target="_blank" rel="noopener noreferrer">мега-разбор №1: часть 1</a> · <a href="https://telegra.ph/Mega-razbor-1--Kosmologiya-chast-22-07-12" target="_blank" rel="noopener noreferrer">часть 2</a>)</em></p>
+<p>- <strong>А3. Нейронаука и редукционизм</strong> — «сознание — это химия мозга», отрицание души.</p>
+<h2 id="s-b-tehnologicheskie-i-futuristicheskie-vyzovy">Б. Технологические и футуристические вызовы</h2>
+<p>- <strong>Б1. Трансгуманизм и иммортализм</strong> — физическое бессмертие технологиями, вызов пониманию души и самсары. <em>(есть <a href="https://telegra.ph/Otchet-po-Testu-1-Transgumanizm-i-priroda-soznaniya-07-09-2" target="_blank" rel="noopener noreferrer">разбор лаборатории</a>)</em></p>
+<p>- <strong>Б2. ИИ и сознание</strong> — может ли машина обладать сознанием; «ИИ-религии».</p>
+<h2 id="s-v-socialno-eticheskie-vyzovy">В. Социально-этические вызовы</h2>
+<p>- <strong>В1. Секулярный гуманизм</strong> — «чтобы быть хорошим человеком, Бог не нужен».</p>
+<p>- <strong>В2. Новая этика</strong> — критика традиционных взглядов на семью, брак и уклад.</p>
+<p>- <strong>В3. Психологическая критика</strong> — «религиозная травма», обвинения в манипуляциях и зависимости.</p>
+<h2 id="s-g-vnutrennie-problemy-i-krizisy">Г. Внутренние проблемы и кризисы</h2>
+<p>- <strong>Г1. Репутационные кризисы</strong> — как отделять святость учения от ошибок людей.</p>
+<p>- <strong>Г2. Критика бывших единоверцев</strong> — самая опасная: оперирует реальным опытом и терминологией.</p>
+<p>- <strong>Г3. Философские искажения</strong> — сахаджия, ритвик-вада, майавада под маской вайшнавизма.</p>
+<p>- <strong>Г4. Межконфессиональные претензии</strong> — от других традиций и религий.</p>
+<h2 id="s-d-pop-kultura-i-media">Д. Поп-культура и медиа</h2>
+<p>- <strong>Д1. Кино и литература</strong> — искажённые образы духовных традиций в массовой культуре.</p>
+<p>- <strong>Д2. Эзотерика и «духовность без религии»</strong> — нью-эйдж как «лёгкая альтернатива».</p>
+<h2 id="s-e-povsednevnaya-apologetika">Е. Повседневная апологетика</h2>
+<p>- <strong>Е1. Вопросы родных и знакомых</strong> — «почему ты не ешь мясо?», «это же секта?».</p>
+<p>- <strong>Е2. Споры в соцсетях</strong> — скриншот комментария, на который не знаешь, как ответить с опорой на источники.</p>
+<p>- <strong>Е3. Мемы и сатира</strong> — деконструкция скрытого посыла.</p>
+<h2 id="s-zh-uchebnye-zaprosy-shastra-stadi">Ж. Учебные запросы (шастра-стади)</h2>
+<p>Не вызов — но такое же испытание точности: вопросы по изучению писаний, на которые движок отвечает дословными цитатами с проверяемыми ссылками.</p>
+<p>- <strong>Ж1. Вопросы курсов и семинаров</strong> — по «Бхагавад-гите», «Шримад-Бхагаватам», «Нектару преданности» и другим книгам. <em>(есть <a href="https://telegra.ph/Razbor-3-Pyat-voprosov-po-Nektaru-predannosti--ehkzamen-dlya-dvizhka-07-10" target="_blank" rel="noopener noreferrer">разбор лаборатории</a>)</em></p>
+<p>- <strong>Ж2. Розыск цитаты</strong> — «где точно Прабхупада это говорит?»: проверка атрибуции, поиск первоисточника, отсев ложных цитат.</p>
+<hr>
+<p><strong>Как это работает.</strong> Заявка получает номер и встаёт в очередь → движок ищет ответ строго в первоисточниках (каждая цитата — с кликабельной проверяемой ссылкой) → человек проверяет каждый разбор до публикации → готовый разбор выходит в канале, а вы получаете уведомление.</p>
+<p><strong>Опубликованные разборы:</strong> <a href="https://telegra.ph/Razbor-2-CHitat-acharev--ehto-v-obhod-Prabhupady-Kak-ustroena-prizma-07-10" target="_blank" rel="noopener noreferrer">№1 «Читать ачарьев — это в обход Прабхупады?» Как устроена призма</a> · <a href="https://telegra.ph/Otchet-po-Testu-1-Transgumanizm-i-priroda-soznaniya-07-09-2" target="_blank" rel="noopener noreferrer">№2 Трансгуманизм и природа сознания</a> · <a href="https://telegra.ph/Razbor-3-Pyat-voprosov-po-Nektaru-predannosti--ehkzamen-dlya-dvizhka-07-10" target="_blank" rel="noopener noreferrer">№3 Пять вопросов по «Нектару преданности»</a></p>
+<p><strong>Мега-разборы</strong> (широкие темы, тему выбирает голосование сообщества): <a href="https://telegra.ph/Mega-razbor-1--Vedicheskaya-kosmologiya-i-nauka-07-12" target="_blank" rel="noopener noreferrer">№1 Ведическая космология и наука — 168 цитат, часть 1</a> · <a href="https://telegra.ph/Mega-razbor-1--Kosmologiya-chast-22-07-12" target="_blank" rel="noopener noreferrer">часть 2</a></p>
+<p><strong>Чего лаборатория не делает:</strong> не спорит ради спора, не отвечает на троллинг, не разбирает публично тонкие и сокровенные темы — такие вопросы решаются с живым наставником.</p>
+<p>📮 Прислать вызов: <a href="https://t.me/kavacham_lab_bot" target="_blank" rel="noopener noreferrer">бот Лаборатории</a></p>
+      </div>
+    </article>
+  </div>
+</main>
+
+<footer class="deep">
+  <div class="rd-cta">
+    <a class="btn btn-primary" href="https://t.me/kavacham_lab_bot" target="_blank" rel="noopener noreferrer">Нашли неточность / пришлите тему на разбор</a>
+    <a class="btn btn-ghost" href="https://dgdbvgm-tech.github.io/kavacham/app/" target="_blank" rel="noopener noreferrer">Открыть читальню</a>
+  </div>
+  <p class="rd-note">Каждая цитата дословна и снабжена проверяемой ссылкой на первоисточник. Где ссылки нет — это честно помечено как пробел корпуса: движок не додумывает. Витрина проекта — <a class="cite" href="https://dgdbvgm-tech.github.io/kavacham/" target="_blank" rel="noopener noreferrer">лендинг КАВАЧАМ</a>.</p>
+  <p class="rd-sig">KAVACHAM · DGD · ZERO ENTROPY</p>
+</footer>
+</body>
+</html>

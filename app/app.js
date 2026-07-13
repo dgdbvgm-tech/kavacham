@@ -19,6 +19,8 @@
 
   var BOT_URL = 'https://t.me/kavacham_lab_bot';
   var LANDING = 'https://dgdbvgm-tech.github.io/kavacham/';
+  // REST API Ф1 («Приёмная»/«Кабинет») — та же очередь, что у бота.
+  var API_BASE = 'https://kavacham-bot-928986955802.us-central1.run.app';
   // База, относительно которой раскрываются относительные пути ленты (pages_url)
   // в АБСОЛЮТНЫЕ — для шаринга. location.href тут не годится: с localhost
   // поделиться нечем.
@@ -42,8 +44,48 @@
     if (!inTelegram || !tg.HapticFeedback) return;
     try {
       if (kind === 'select') tg.HapticFeedback.selectionChanged();
-      else tg.HapticFeedback.impactOccurred(kind || 'light');
+      else if (kind === 'success' || kind === 'error' || kind === 'warning') {
+        tg.HapticFeedback.notificationOccurred(kind);
+      } else tg.HapticFeedback.impactOccurred(kind || 'light');
     } catch (e) { /* тактильная отдача — украшение, не функция */ }
+  }
+
+  // ——— Аутентификация Ф1 ————————————————————————————————————
+  // Единственный признак «я правда в Telegram и меня можно подписать» — непустая
+  // initData. user.id из initDataUnsafe НЕ используется: подписи в нём нет,
+  // доверять ему нельзя (и бэкенд его не принимает — он проверяет HMAC).
+  function initData() {
+    return (inTelegram && typeof tg.initData === 'string') ? tg.initData : '';
+  }
+  function authed() { return initData().length > 0; }
+
+  // Один сетевой шов на все вызовы API: подпись в заголовке, ошибка — по-русски.
+  function api(path, opts) {
+    var o = opts || {};
+    var headers = { 'X-Telegram-InitData': initData() };
+    var init = { method: o.method || 'GET', headers: headers };
+    if (o.body) {
+      headers['Content-Type'] = 'application/json';
+      init.body = JSON.stringify(o.body);
+    }
+    return fetch(API_BASE + path, init).then(function (r) {
+      return r.text().then(function (t) {
+        var data = null;
+        try { data = t ? JSON.parse(t) : null; } catch (e) { data = null; }
+        if (!r.ok) {
+          var msg = (data && data.error) ? data.error
+            : (r.status === 401 ? 'Подпись Telegram не принята. Откройте приложение заново из бота.'
+                                : 'Сервер ответил ошибкой (' + r.status + ').');
+          var err = new Error(msg);
+          err.status = r.status;
+          throw err;
+        }
+        if (!data) throw new Error('Сервер вернул пустой ответ.');
+        return data;
+      });
+    }, function () {
+      throw new Error('Нет связи с сервером. Проверьте интернет и попробуйте ещё раз.');
+    });
   }
 
   function openExternal(url) {
@@ -162,15 +204,30 @@
     about:   { el: 'screen-about',   tab: 'about',   back: false }
   };
 
-  var current = { name: 'reader', slug: null };
+  var current = { name: 'reader', slug: null, rubric: null };
 
   function parseHash() {
-    var h = (location.hash || '').replace(/^#\/?/, '');
-    var parts = h.split('/').filter(Boolean);
-    if (!parts.length) return { name: 'reader', slug: null };
-    if (parts[0] === 'reading' && parts[1]) return { name: 'reading', slug: parts[1] };
-    if (SCREENS[parts[0]] && parts[0] !== 'reading') return { name: parts[0], slug: null };
-    return { name: 'reader', slug: null };
+    var raw = (location.hash || '').replace(/^#\/?/, '');
+    // хвост-запрос: #/reader?rubric=razbor — выбранная рубрика живёт в маршруте,
+    // иначе «назад» Telegram не возвращает в тот же срез ленты
+    var q = '';
+    var qi = raw.indexOf('?');
+    if (qi >= 0) { q = raw.slice(qi + 1); raw = raw.slice(0, qi); }
+
+    var rubric = null;
+    q.split('&').forEach(function (kv) {
+      var p = kv.split('=');
+      if (p[0] === 'rubric' && p[1]) {
+        var v = decodeURIComponent(p[1]);
+        if (/^[a-z0-9_-]{1,40}$/i.test(v)) rubric = v;
+      }
+    });
+
+    var parts = raw.split('/').filter(Boolean);
+    if (!parts.length) return { name: 'reader', slug: null, rubric: rubric };
+    if (parts[0] === 'reading' && parts[1]) return { name: 'reading', slug: parts[1], rubric: null };
+    if (SCREENS[parts[0]] && parts[0] !== 'reading') return { name: parts[0], slug: null, rubric: rubric };
+    return { name: 'reader', slug: null, rubric: rubric };
   }
 
   function setBackButton(show) {
@@ -203,8 +260,12 @@
   }
   var mainHandler = null;
 
+  // куда возвращает «назад» из разбора: в тот же срез ленты, из которого ушли
+  var lastReaderHash = '#/reader';
+
   function route() {
     var r = parseHash();
+    var prev = current;
     current = r;
 
     Object.keys(SCREENS).forEach(function (name) {
@@ -221,17 +282,23 @@
     setMainButton(null);
 
     if (r.name === 'reading') loadReading(r.slug);
-    if (r.name === 'submit' || r.name === 'profile') {
-      setMainButton('Открыть бота', function () { haptic('medium'); openTelegram(BOT_URL); });
+    if (r.name === 'reader') {
+      lastReaderHash = '#/reader' + (r.rubric ? '?rubric=' + encodeURIComponent(r.rubric) : '');
+      loadFeed(r.rubric);
     }
-    if (r.name === 'reader') loadFeed();
+    if (r.name === 'submit') enterSubmit();
+    if (r.name === 'profile') enterProfile();
 
-    window.scrollTo(0, 0);
-    $('main').focus({ preventScroll: true });
+    // смена рубрики — не «новый экран»: не дёргаем скролл и фокус на каждый чип
+    var sameSlice = (prev.name === r.name && r.name === 'reader');
+    if (!sameSlice) {
+      window.scrollTo(0, 0);
+      $('main').focus({ preventScroll: true });
+    }
   }
 
   function goBack() {
-    if (current.name === 'reading') location.hash = '#/reader';
+    if (current.name === 'reading') location.hash = lastReaderHash;
     else if (history.length > 1) history.back();
     else location.hash = '#/reader';
   }
@@ -245,8 +312,18 @@
   // раскладку — читальня начнёт молча 404-ить, хотя правильный адрес лежит в ленте.
   var feedPromise = null;                 // fetch ленты — один на всё приложение
   var feedIndex = Object.create(null);    // slug → элемент ленты (без прототипа!)
-  var feedLoaded = false;                 // лента УЖЕ отрисована на экране
   var feedOk = false;                     // лента прочитана (значит, её индексу можно верить)
+  var feedItems = [];                     // items как есть (уже отсортированы генератором)
+  var rubrics = [];                       // [{key,title,order}] — ИЗ ленты, не из кода
+  var rubricByKey = Object.create(null);
+
+  // рубрика элемента: контрактное поле rubric; kind — совместимость со старой лентой
+  function itemRubric(it) {
+    return (it && (it.rubric || it.kind)) || 'razbor';
+  }
+  function rubricTitle(key) {
+    return (rubricByKey[key] && rubricByKey[key].title) || KIND_LABEL[key] || 'Материал';
+  }
 
   function fetchFeed() {
     if (!feedPromise) {
@@ -256,12 +333,30 @@
           return r.json();
         })
         .then(function (data) {
-          var items = (data && Array.isArray(data.items)) ? data.items : [];
-          items.forEach(function (it) {
+          feedItems = (data && Array.isArray(data.items)) ? data.items : [];
+          feedItems.forEach(function (it) {
             if (it && typeof it.slug === 'string' && it.slug) feedIndex[it.slug] = it;
           });
+
+          // порядок и названия рубрик — из ленты; в коде их нет ни строчкой
+          var declared = (data && Array.isArray(data.rubrics)) ? data.rubrics.slice() : [];
+          declared = declared.filter(function (r) { return r && r.key && r.title; });
+          declared.sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
+          rubricByKey = Object.create(null);
+          declared.forEach(function (r) { rubricByKey[r.key] = r; });
+          // рубрика, объявленная в items, но не в rubrics — не теряем материал
+          feedItems.forEach(function (it) {
+            var k = itemRubric(it);
+            if (!rubricByKey[k]) {
+              var r = { key: k, title: KIND_LABEL[k] || k, order: 900 };
+              rubricByKey[k] = r;
+              declared.push(r);
+            }
+          });
+          rubrics = declared;
+
           feedOk = true;
-          return items;
+          return feedItems;
         });
     }
     return feedPromise;
@@ -291,9 +386,8 @@
     try { return new URL(pagesUrlFor(slug), APP_BASE).href; } catch (e) { return LANDING; }
   }
 
-  function loadFeed() {
-    if (feedLoaded) return;
-    var stateEl = $('feedState'), listEl = $('feedList');
+  function loadFeed(rubric) {
+    var stateEl = $('feedState'), listEl = $('feedList'), navEl = $('rubrics');
 
     fetchFeed()
       .then(function (items) {
@@ -302,12 +396,21 @@
             '<span class="state-h">Лента пока пуста</span>' +
             'Первые разборы появятся здесь сразу после публикации. Пока их можно читать в канале Лаборатории.', false);
           listEl.hidden = true;
+          navEl.hidden = true;
           return;
         }
-        renderFeed(items);
+
+        // рубрика из маршрута, которой в ленте нет — молча показываем всё
+        var active = (rubric && rubricByKey[rubric]) ? rubric : null;
+        renderRubrics(active);
+
+        var slice = active
+          ? items.filter(function (it) { return itemRubric(it) === active; })
+          : items;
+
+        renderFeed(slice);
         stateEl.hidden = true;
         listEl.hidden = false;
-        feedLoaded = true;
       })
       .catch(function (err) {
         // упавший промис нельзя кэшировать: иначе «Повторить» переиспользует ту же
@@ -319,8 +422,45 @@
           'Похоже, нет связи. Разборы всегда доступны в боте и на сайте — это и есть запасной путь.' +
           '<br><button class="btn btn-ghost" type="button" data-retry-feed>Повторить</button>', true);
         listEl.hidden = true;
+        navEl.hidden = true;
         if (window.console) console.warn('[kavacham] feed:', err && err.message);
       });
+  }
+
+  // Чипы рубрик: «Все» + непустые рубрики со счётчиком. Выбор — ссылка на маршрут,
+  // а не внутреннее состояние: тогда «назад» Telegram возвращает в тот же срез.
+  function renderRubrics(active) {
+    var navEl = $('rubrics');
+    navEl.textContent = '';
+
+    var counts = Object.create(null);
+    feedItems.forEach(function (it) {
+      var k = itemRubric(it);
+      counts[k] = (counts[k] || 0) + 1;
+    });
+
+    var shown = rubrics.filter(function (r) { return counts[r.key]; });
+    if (shown.length < 2) { navEl.hidden = true; return; }
+
+    function chip(key, title, count) {
+      var a = document.createElement('a');
+      a.className = 'chip' + (key === active ? ' on' : '');
+      a.href = '#/reader' + (key ? '?rubric=' + encodeURIComponent(key) : '');
+      if (key === active) a.setAttribute('aria-current', 'true');
+      var t = document.createElement('span');
+      t.textContent = title;
+      a.appendChild(t);
+      var c = document.createElement('span');
+      c.className = 'chip-n';
+      c.textContent = String(count);
+      a.appendChild(c);
+      a.addEventListener('click', function () { haptic('select'); });
+      return a;
+    }
+
+    navEl.appendChild(chip(null, 'Все', feedItems.length));
+    shown.forEach(function (r) { navEl.appendChild(chip(r.key, r.title, counts[r.key])); });
+    navEl.hidden = false;
   }
 
   function renderFeed(items) {
@@ -333,12 +473,20 @@
       a.className = 'feed-card';
       a.href = '#/reading/' + encodeURIComponent(it.slug || '');
 
+      var rk = itemRubric(it);
       var top = document.createElement('div');
       top.className = 'feed-top';
       var kind = document.createElement('span');
-      kind.className = 'kind k-' + (it.kind || 'razbor');
-      kind.textContent = KIND_LABEL[it.kind] || 'Разбор';
+      kind.className = 'kind k-' + rk;
+      kind.textContent = rubricTitle(rk);
       top.appendChild(kind);
+      // номер по оси рубрики — только если он есть; выдумывать нумерацию нельзя
+      if (typeof it.number === 'number' && it.number > 0) {
+        var num = document.createElement('span');
+        num.className = 'num';
+        num.textContent = '№' + it.number;
+        top.appendChild(num);
+      }
       a.appendChild(top);
 
       var h = document.createElement('h2');
@@ -451,7 +599,9 @@
     var slug = data.slug || current.slug;
     var meta = data.meta || {};
 
-    $('readingKind').textContent = KIND_LABEL[meta.kind] || 'Разбор';
+    var rk = meta.rubric || meta.kind || 'razbor';
+    $('readingKind').textContent = rubricTitle(rk) +
+      (typeof meta.number === 'number' && meta.number > 0 ? ' · №' + meta.number : '');
     $('readingTitle').textContent = data.title || 'Разбор';
     var subEl = $('readingSub');
     subEl.textContent = data.subtitle || '';
@@ -601,6 +751,372 @@
     $('tocList').hidden = true;
   }
 
+  // ——— Приёмная (Ф1) ————————————————————————————————————————
+  // Зеркало черновика бота: тот же текст, те же корпуса, та же анонимность,
+  // та же очередь. Вне Telegram форма НЕ показывается: подписать заявку нечем,
+  // а рисовать кнопку, которая ничего не отправит, — обман.
+
+  var DRAFT_TEXT = 'tma.draft.text';
+  var DRAFT_SCOPES = 'tma.draft.scopes';
+  var DRAFT_SHOW = 'tma.draft.show';
+
+  var scopeSel = [];          // выбранные ключи корпусов
+  var scopesReq = null;       // промис GET /api/scopes — один на сессию
+  var sending = false;
+
+  function cloud() {
+    return (inTelegram && tg.CloudStorage && typeof tg.CloudStorage.setItem === 'function')
+      ? tg.CloudStorage : null;
+  }
+  function draftSave(key, val) {
+    var c = cloud();
+    if (c) { try { c.setItem(key, String(val), function () {}); } catch (e) {} }
+    try { localStorage.setItem(key, String(val)); } catch (e) {}
+  }
+  function draftClear() {
+    [DRAFT_TEXT, DRAFT_SCOPES, DRAFT_SHOW].forEach(function (k) {
+      var c = cloud();
+      if (c && typeof c.removeItem === 'function') { try { c.removeItem(k, function () {}); } catch (e) {} }
+      try { localStorage.removeItem(k); } catch (e) {}
+    });
+  }
+  // сперва облако Telegram (черновик переживает смену устройства), затем локальный
+  function draftLoad(cb) {
+    var local = {};
+    try {
+      local[DRAFT_TEXT] = localStorage.getItem(DRAFT_TEXT) || '';
+      local[DRAFT_SCOPES] = localStorage.getItem(DRAFT_SCOPES) || '';
+      local[DRAFT_SHOW] = localStorage.getItem(DRAFT_SHOW) || '';
+    } catch (e) {}
+    var c = cloud();
+    if (!c || typeof c.getItems !== 'function') { cb(local); return; }
+    var done = false;
+    var t = setTimeout(function () { if (!done) { done = true; cb(local); } }, 1200);
+    try {
+      c.getItems([DRAFT_TEXT, DRAFT_SCOPES, DRAFT_SHOW], function (err, res) {
+        if (done) return;
+        done = true; clearTimeout(t);
+        if (err || !res) { cb(local); return; }
+        cb({
+          'tma.draft.text': res[DRAFT_TEXT] || local[DRAFT_TEXT] || '',
+          'tma.draft.scopes': res[DRAFT_SCOPES] || local[DRAFT_SCOPES] || '',
+          'tma.draft.show': res[DRAFT_SHOW] || local[DRAFT_SHOW] || ''
+        });
+      });
+    } catch (e) { if (!done) { done = true; clearTimeout(t); cb(local); } }
+  }
+
+  var draftRestored = false;
+
+  function enterSubmit() {
+    var gate = $('submitGate'), form = $('submitForm'), done = $('submitDone');
+
+    if (!authed()) {
+      gate.hidden = false;
+      form.hidden = true;
+      done.hidden = true;
+      setMainButton('Прислать вызов в боте', function () { haptic('medium'); openTelegram(BOT_URL); });
+      return;
+    }
+
+    gate.hidden = true;
+    done.hidden = true;
+    form.hidden = false;
+
+    loadScopes();
+
+    if (!draftRestored) {
+      draftRestored = true;
+      draftLoad(function (d) {
+        var t = d[DRAFT_TEXT] || '';
+        if (t && !$('reqText').value) $('reqText').value = t.slice(0, 4000);
+        var s = d[DRAFT_SCOPES];
+        if (typeof s === 'string' && s) scopeSel = s.split(',').filter(Boolean);
+        if (d[DRAFT_SHOW] === '1') $('showName').checked = true;
+        syncScopeChips();
+        syncCount();
+      });
+    }
+
+    syncCount();
+    setMainButton('Отправить вызов', trySend);
+    syncMain();
+  }
+
+  function loadScopes() {
+    var listEl = $('scopeList'), stateEl = $('scopeState');
+    if (!scopesReq) {
+      scopesReq = api('/api/scopes').then(function (d) {
+        return (d && Array.isArray(d.scopes)) ? d.scopes : [];
+      });
+    }
+    scopesReq.then(function (scopes) {
+      listEl.textContent = '';
+      if (!scopes.length) {
+        showState(stateEl, 'Список корпусов пуст — разбор пойдёт по основе (Шрила Прабхупада).', false);
+        return;
+      }
+      scopes.forEach(function (s) {
+        if (!s || !s.key) return;
+        // Основа (s.base) — «Шрила Прабхупада», всегда включена, тумблером не является:
+        // о ней уже сказано статичной строкой #scopeBase. Дубль-чекбоксом её не рисуем,
+        // иначе он выглядит отключаемым (а сервер основу всё равно навяжет).
+        if (s.base) return;
+        var lab = document.createElement('label');
+        lab.className = 'chip chip-check';
+        var inp = document.createElement('input');
+        inp.type = 'checkbox';
+        inp.value = s.key;
+        // s.disabled — контрактный флаг «пока недоступно»: показываем, но не переключаем.
+        if (s.disabled) {
+          inp.disabled = true;
+          lab.classList.add('chip-disabled');
+        }
+        inp.checked = !s.disabled && scopeSel.indexOf(s.key) >= 0;
+        if (!s.disabled) {
+          inp.addEventListener('change', function () {
+            var i = scopeSel.indexOf(s.key);
+            if (inp.checked && i < 0) scopeSel.push(s.key);
+            if (!inp.checked && i >= 0) scopeSel.splice(i, 1);
+            draftSave(DRAFT_SCOPES, scopeSel.join(','));
+            lab.classList.toggle('on', inp.checked);
+            haptic('select');
+          });
+        }
+        lab.classList.toggle('on', inp.checked);
+        lab.appendChild(inp);
+        var t = document.createElement('span');
+        t.textContent = s.title || s.key;
+        lab.appendChild(t);
+        if (s.hint) lab.title = s.hint;
+        listEl.appendChild(lab);
+      });
+      stateEl.hidden = true;
+    }).catch(function (err) {
+      scopesReq = null;
+      showState(stateEl,
+        'Не удалось загрузить список корпусов. Разбор всё равно пойдёт по основе — Шрила Прабхупада. ' +
+        (err && err.message ? err.message : ''), true);
+    });
+  }
+
+  function syncScopeChips() {
+    Array.prototype.forEach.call($('scopeList').querySelectorAll('input[type=checkbox]'), function (inp) {
+      inp.checked = scopeSel.indexOf(inp.value) >= 0;
+      if (inp.parentNode) inp.parentNode.classList.toggle('on', inp.checked);
+    });
+  }
+
+  function textLen() { return $('reqText').value.trim().length; }
+  function textValid() { var n = textLen(); return n >= 10 && n <= 4000; }
+
+  function syncCount() {
+    var n = $('reqText').value.length;
+    $('reqCount').textContent = String(n);
+    $('reqCount').parentNode.classList.toggle('warn', n > 0 && textLen() < 10);
+    syncMain();
+  }
+
+  function syncMain() {
+    if (!inTelegram || !tg.MainButton) return;
+    try {
+      if (textValid() && !sending) tg.MainButton.enable();
+      else tg.MainButton.disable();
+    } catch (e) {}
+  }
+
+  function formErr(msg) {
+    var el = $('submitErr');
+    if (!msg) { el.hidden = true; el.textContent = ''; return; }
+    el.textContent = msg;
+    el.hidden = false;
+    haptic('error');
+  }
+
+  function trySend() {
+    if (sending) return;
+    if (!authed()) { formErr('Отправка работает только внутри Telegram.'); return; }
+
+    var n = textLen();
+    if (n < 10) { formErr('Вызов слишком короткий: нужно не меньше 10 символов, сейчас ' + n + '. Опишите суть — так разбор будет точнее.'); return; }
+    if (n > 4000) { formErr('Слишком длинно: до 4000 символов, сейчас ' + n + '. Пришлите главное, остальное дополните в боте.'); return; }
+
+    formErr(null);
+    sending = true;
+    syncMain();
+    $('btnSend').disabled = true;
+    if (inTelegram && tg.MainButton && tg.MainButton.showProgress) {
+      try { tg.MainButton.showProgress(true); } catch (e) {}
+    }
+
+    api('/api/requests', {
+      method: 'POST',
+      body: {
+        text: $('reqText').value.trim(),
+        corpora: scopeSel.slice(),
+        show_name: !!$('showName').checked
+      }
+    }).then(function (res) {
+      haptic('success');
+      draftClear();
+      $('reqText').value = '';
+      syncCount();
+      showDone(res);
+    }).catch(function (err) {
+      formErr(err && err.message ? err.message : 'Не удалось отправить заявку.');
+    }).then(function () {
+      sending = false;
+      $('btnSend').disabled = false;
+      if (inTelegram && tg.MainButton && tg.MainButton.hideProgress) {
+        try { tg.MainButton.hideProgress(); } catch (e) {}
+      }
+      syncMain();
+    });
+  }
+
+  function showDone(res) {
+    var id = (res && typeof res.id === 'number') ? res.id : null;
+    var pos = (res && typeof res.position === 'number') ? res.position : null;
+
+    var html = '<span class="state-h">Заявка' + (id ? ' №' + id : '') + ' принята</span>';
+    html += pos
+      ? 'Перед вами в очереди ' + (pos - 1) + ' ' + plural(pos - 1, 'заявка', 'заявки', 'заявок') +
+        ' — вы ' + pos + '-й по счёту. Очередь идёт по порядку поступления, без «пропустить вперёд».'
+      : 'Заявка встала в общую очередь. Она идёт по порядку поступления.';
+    html += ' Когда разбор выйдет, бот пришлёт вам ссылку.';
+    html += '<br><button class="btn btn-ghost" type="button" data-go-profile>Мои заявки</button>';
+
+    showState($('submitDone'), html, false);
+    $('submitForm').hidden = true;
+    setMainButton('Мои заявки', function () { haptic('medium'); location.hash = '#/profile'; });
+  }
+
+  $('reqText').addEventListener('input', function () {
+    syncCount();
+    formErr(null);
+    draftSave(DRAFT_TEXT, $('reqText').value.slice(0, 4000));
+  });
+  $('showName').addEventListener('change', function () {
+    draftSave(DRAFT_SHOW, $('showName').checked ? '1' : '0');
+    haptic('select');
+  });
+  $('submitForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    trySend();
+  });
+
+  // ——— Кабинет (Ф1) ————————————————————————————————————————
+  var STATUS = {
+    queued: { label: 'В очереди', cls: 'st-queued' },
+    done: { label: 'Готово', cls: 'st-done' },
+    rejected: { label: 'Отклонена', cls: 'st-rejected' }
+  };
+
+  function enterProfile() {
+    var gate = $('profileGate');
+    if (!authed()) {
+      gate.hidden = false;
+      $('profileState').hidden = true;
+      $('profileList').hidden = true;
+      setMainButton('Открыть бота', function () { haptic('medium'); openTelegram(BOT_URL); });
+      return;
+    }
+    gate.hidden = true;
+    setMainButton('Прислать вызов', function () { haptic('medium'); location.hash = '#/submit'; });
+    loadMine();
+  }
+
+  function loadMine() {
+    var stateEl = $('profileState'), listEl = $('profileList');
+    listEl.hidden = true;
+    showState(stateEl, 'Загружаю ваши заявки…', false);
+
+    api('/api/requests/mine').then(function (d) {
+      var items = (d && Array.isArray(d.items)) ? d.items : [];
+      if (!items.length) {
+        showState(stateEl,
+          '<span class="state-h">Заявок пока нет</span>' +
+          'Пришлите вызов — софизм, мем, искажение или сложный вопрос. Разбор придёт сюда и в бота.' +
+          '<br><button class="btn btn-ghost" type="button" data-go-submit>В приёмную</button>', false);
+        return;
+      }
+      renderMine(items);
+      stateEl.hidden = true;
+      listEl.hidden = false;
+    }).catch(function (err) {
+      showState(stateEl,
+        '<span class="state-h">Не удалось загрузить заявки</span>' +
+        (err && err.message ? err.message : '') +
+        '<br><button class="btn btn-ghost" type="button" data-retry-mine>Повторить</button>', true);
+    });
+  }
+
+  function renderMine(items) {
+    var listEl = $('profileList');
+    listEl.textContent = '';
+
+    items.forEach(function (it) {
+      var st = STATUS[it.status] || { label: it.status || 'В работе', cls: 'st-queued' };
+
+      var li = document.createElement('li');
+      li.className = 'req';
+
+      var head = document.createElement('div');
+      head.className = 'req-head';
+
+      var num = document.createElement('span');
+      num.className = 'req-n';
+      num.textContent = '№' + (it.id != null ? it.id : '—');
+      head.appendChild(num);
+
+      var badge = document.createElement('span');
+      badge.className = 'req-st ' + st.cls;
+      badge.textContent = st.label;
+      head.appendChild(badge);
+
+      if (it.created_at) {
+        var d = document.createElement('span');
+        d.className = 'req-d';
+        d.textContent = fmtDate(it.created_at);
+        head.appendChild(d);
+      }
+      li.appendChild(head);
+
+      var p = document.createElement('p');
+      p.className = 'req-t';
+      var txt = String(it.text || '');
+      p.textContent = txt.length > 180 ? txt.slice(0, 180).trim() + '…' : txt;
+      li.appendChild(p);
+
+      var foot = document.createElement('p');
+      foot.className = 'req-f';
+      if (it.status === 'queued') {
+        foot.textContent = (typeof it.position === 'number' && it.position > 0)
+          ? 'Место в очереди: ' + it.position + '. Очередь идёт по порядку поступления.'
+          : 'В очереди. Порядок — по времени поступления.';
+      } else if (it.status === 'rejected') {
+        foot.textContent = 'Заявка не пошла в разбор. Причину можно спросить в боте.';
+      } else if (it.status === 'done' && !it.post_url) {
+        foot.textContent = 'Разбор готов. Ссылку пришлёт бот.';
+      } else {
+        foot.textContent = 'Разбор опубликован.';
+      }
+      li.appendChild(foot);
+
+      if (it.post_url && /^https?:\/\//i.test(it.post_url)) {
+        var a = document.createElement('a');
+        a.className = 'btn btn-ghost';
+        a.href = it.post_url;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.textContent = 'Открыть разбор';
+        li.appendChild(a);
+      }
+
+      listEl.appendChild(li);
+    });
+  }
+
   // ——— Тост (без самописных модалок: для да/нет есть tg.showConfirm) ————
   var toastTimer = null;
   function showToast(msg) {
@@ -623,7 +1139,16 @@
     if (botBtn) { haptic('medium'); openTelegram(BOT_URL); return; }
 
     var retry = e.target.closest && e.target.closest('[data-retry-feed]');
-    if (retry) { feedLoaded = false; loadFeed(); return; }
+    if (retry) { loadFeed(current.rubric); return; }
+
+    var retryMine = e.target.closest && e.target.closest('[data-retry-mine]');
+    if (retryMine) { loadMine(); return; }
+
+    var toSubmit = e.target.closest && e.target.closest('[data-go-submit]');
+    if (toSubmit) { haptic('light'); location.hash = '#/submit'; return; }
+
+    var toProfile = e.target.closest && e.target.closest('[data-go-profile]');
+    if (toProfile) { haptic('light'); location.hash = '#/profile'; return; }
 
     // ссылки на Telegram и лендинг — через нативные открывалки клиента
     var link = e.target.closest && e.target.closest('a[href^="http"]');

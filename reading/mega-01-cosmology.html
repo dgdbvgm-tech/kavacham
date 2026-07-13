@@ -19,6 +19,7 @@
 p.rd-quote.rd-quote{font-family:var(--serif);line-height:1.64;margin:0}
 p.rd-src.rd-src{margin:.6rem 0 0;font-size:.82rem;line-height:1.7;color:var(--text-dim);
   display:flex;flex-wrap:wrap;gap:.35rem;align-items:baseline}
+p.rd-note-in.rd-note-in{margin:.6rem 0 0;font-size:.86rem;line-height:1.6;color:var(--text-2)}
 /* .cite в общей системе — короткая сноска (white-space:nowrap); у праманы источник
    длинный, разрешаем перенос, иначе страница поедет вбок. */
 .rd-src .cite{white-space:normal;overflow-wrap:anywhere}
@@ -35,15 +36,14 @@ p.rd-src.rd-src{margin:.6rem 0 0;font-size:.82rem;line-height:1.7;color:var(--te
 .rd-tablewrap th,.rd-tablewrap td{border:1px solid var(--rule);padding:.5rem .65rem;
   text-align:left;font-size:.9rem;vertical-align:top}
 
-/* Читальня: ОБВЯЗКА страницы разбора (шапка/оглавление/подвал + типографика тела).
+/* Читальня: ОБВЯЗКА страницы (шапка/оглавление/подвал + типографика тела).
    Компоненты праманы — в SHARED_CSS: они общие с TMA.
-   Дизайн НАСЛЕДУЕТСЯ из ../styles.css, а не изобретается: компоновка (.band/.inner/
-   .paper), ссылка-прамана (.cite), кнопки (.btn), надзаголовок (.eyebrow), тёмный
-   подвал (footer.deep) — оттуда.
-   ВАЖНО про токены: --deep*/--gold* в системе ФИКСИРОВАНЫ (мир «щита», всегда тёмный),
-   а тему переключают семантические --ground/--panel/--text/--text-2/--text-dim/--rule/
-   --accent. Тело страницы обязано жить на семантических, иначе в светлой теме получим
-   кремовый текст на пергаменте. --gold* используем только внутри .deep (подвал). */
+   Дизайн НАСЛЕДУЕТСЯ из ../styles.css: компоновка (.band/.inner/.paper), ссылка-прамана
+   (.cite), кнопки (.btn), надзаголовок (.eyebrow), тёмный подвал (footer.deep).
+   ВАЖНО про токены: --deep*/--gold* ФИКСИРОВАНЫ (мир «щита», всегда тёмный), а тему
+   переключают семантические --ground/--panel/--text/--text-2/--text-dim/--rule/--accent.
+   Тело обязано жить на семантических, иначе в светлой теме получим кремовый текст на
+   пергаменте. --gold* используем только внутри .deep (подвал). */
 .rd-head{padding-bottom:1.4rem;border-bottom:1px solid var(--rule)}
 .rd-head .eyebrow{margin:0}
 .rd-sandbox{display:inline-block;font-size:.72rem;line-height:1.4;color:var(--text-dim);
@@ -102,8 +102,7 @@ footer :focus-visible{outline-color:var(--gold)}
     <article>
       <h1 class="rd-title">Мега-разбор №1 · Ведическая космология и наука</h1>
       <p class="rd-sub">«Опровергнута наукой»? Луна, Раху, «плоская Земля» — что на самом деле говорят первоисточники и где граница знания</p>
-      <p class="rd-meta"><span>мега-разбор</span><span>2026-07-12</span><span>168 праман</span><span>158 со ссылкой на первоисточник</span></p>
-
+      <p class="rd-meta"><span>мега-разбор</span><span>№1</span><span>2026-07-12</span><span>168 праман</span><span>158 со ссылкой на первоисточник</span></p>
       <nav class="rd-toc" aria-label="Оглавление">
         <p class="eyebrow">Оглавление</p>
         <ol><li class="l2"><a href="#s-0-chto-eto-za-otchet-i-kak-ego-chitat">0. Что это за отчёт и как его читать</a></li><li class="l2"><a href="#s-1-vyzov">1. Вызов</a></li><li class="l2"><a href="#s-2-argument-opponenta-v-silneyshey-forme-purvapaksha">2. Аргумент оппонента — в сильнейшей форме (пурвапакша)</a></li><li class="l2"><a href="#s-3-chto-na-samom-dele-skazano-v-istochnikah-10-liniy-168-pram">3. Что на самом деле сказано в источниках (10 линий, 168 праман)</a></li><li class="l3"><a href="#s-1-bhu-mandala-opisana-ne-forma-planety-a-plan-vselennoy">1. Бху-мандала: описана не форма планеты, а план вселенной</a></li><li class="l3"><a href="#s-2-zemlya-shar-bhu-gola-i-snyatie-protivorechiya-cherez-achin">2. Земля-шар: «бху-гола» и снятие противоречия через ачинтью</a></li><li class="l3"><a href="#s-3-luna-vysshaya-obitaemaya-planeta-vyshe-solnca">3. Луна: высшая обитаемая планета, выше Солнца</a></li><li class="l3"><a href="#s-4-rahu-i-zatmeniya">4. Раху и затмения</a></li><li class="l3"><a href="#s-5-solnce-kolesnica-yodzhany">5. Солнце, колесница, йоджаны</a></li><li class="l3"><a href="#s-6-koren-spora-epistemologiya-praman">6. Корень спора: эпистемология праман</a></li><li class="l3"><a href="#s-7-zachem-eta-kosmologiya-duhovnaya-geografiya-ne-astrofizika">7. Зачем эта космология: духовная география, не астрофизика</a></li><li class="l3"><a href="#s-8-achari-ni-bukvalizm-ni-kapitulyaciya">8. Ачарьи: ни буквализм, ни капитуляция</a></li><li class="l3"><a href="#s-9-russkiy-sloy-e-s-bhakti-vigyana-gosvami-dalee-bvgm">9. Русский слой: Е.С. Бхакти Вигьяна Госвами (далее — БВГМ)</a></li><li class="l3"><a href="#s-10-instituciya-hram-vedicheskogo-planetariya-tovp">10. Институция: Храм Ведического Планетария (TOVP)</a></li><li class="l2"><a href="#s-4-razreshenie-purvapakshi-chto-dvizhok-sdelal-i-chego-ne-del">4. Разрешение пурвапакши — что движок сделал и чего НЕ делал</a></li><li class="l2"><a href="#s-5-granicy-sri-uzly-gde-dvizhok-soznatelno-molchit">5. Границы (SRI-узлы) — где движок сознательно молчит</a></li><li class="l2"><a href="#s-6-chestnye-probely-korpusa">6. Честные пробелы корпуса</a></li><li class="l2"><a href="#s-7-metod-v-cifrah">7. Метод в цифрах</a></li><li class="l2"><a href="#s-itog">Итог</a></li></ol>
@@ -324,7 +323,6 @@ footer :focus-visible{outline-color:var(--gold)}
 <h2 id="s-itog">Итог</h2>
 <p>КАВАЧАМ здесь не «победил науку» и не сдал шастру. Он сделал три вещи: <strong>снял соломенное чучело</strong> («плоская Земля»), <strong>показал, что спор — об эпистемологии и назначении</strong> текста, а не о географии, и <strong>честно очертил границу</strong>, за которой начинается открытый среди преданных вопрос — туда движок не лезет, а ведёт к живому наставнику. Это и есть нулевая энтропия: точная цитата там, где она есть, и честное молчание там, где её нет.</p>
 <p><em>Полная выкладка — 168 праман выше. Вопросы и свои темы на разбор — в Лабораторию КАВАЧАМ.</em></p>
-<p><em>KAVACHAM · DGD · ZERO ENTROPY</em></p>
       </div>
     </article>
   </div>
