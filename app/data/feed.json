@@ -29,6 +29,23 @@
  ],
  "items": [
   {
+   "slug": "devlog-gbc-sac",
+   "kind": "devlog",
+   "rubric": "devlog",
+   "title": "Вызов от GBC SAC: Как научить ИИ понимать «вес» цитаты?",
+   "subtitle": "Обратная связь от эксперта вскрыла фундаментальную уязвимость векторного поиска. Мы переходим к архитектуре GraphRAG.",
+   "date": "2026-07-14",
+   "pramanas": 2,
+   "tags": [
+    "build in public",
+    "GraphRAG",
+    "архитектура"
+   ],
+   "excerpt": "Мы получили обратную связь от эксперта (члена Комитета советников по шастрам при GBC (SAC), переводчика трудов Дживы Госвами и выпускника легендарной школы санскрита Гопипаранадханы прабху). Он вскрыл фундаментальную уязвимость всех современных нейросетей:",
+   "reading_url": "data/reading/devlog-gbc-sac.json",
+   "pages_url": "../reading/devlog-gbc-sac.html"
+  },
+  {
    "slug": "dapologetics",
    "kind": "analytics",
    "rubric": "analytics",
