@@ -31,7 +31,9 @@ p.rd-note-in.rd-note-in{margin:.6rem 0 0;font-size:.86rem;line-height:1.6;color:
 .rd-tier-grey{opacity:.8}
 .rd-sri{white-space:normal;color:var(--text-2)}
 .rd-gap{font-size:.76rem;border-bottom:1px dotted currentColor}
-.rd-tooltip{text-decoration:underline dotted;cursor:help;border-bottom:1px dotted currentColor}
+.rd-tooltip{position:relative;border-bottom:1px dotted currentColor;cursor:help;outline:none;color:var(--text)}
+.rd-tooltip:focus .rd-tooltip-box,.rd-tooltip:hover .rd-tooltip-box{visibility:visible;opacity:1}
+.rd-tooltip-box{visibility:hidden;position:absolute;z-index:100;bottom:100%;left:0;width:280px;max-width:85vw;margin-bottom:8px;padding:.75rem 1rem;border-radius:8px;background:var(--panel);border:1px solid var(--rule);box-shadow:0 8px 24px rgba(0,0,0,.2);color:var(--text);font-size:.85rem;line-height:1.5;font-family:system-ui,sans-serif;font-weight:400;opacity:0;transition:opacity .2s;pointer-events:none;text-indent:0;white-space:normal}
 .rd-tablewrap{overflow-x:auto;overscroll-behavior-x:contain}
 .rd-tablewrap table{border-collapse:collapse;min-width:100%}
 .rd-tablewrap th,.rd-tablewrap td{border:1px solid var(--rule);padding:.5rem .65rem;
