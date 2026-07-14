@@ -677,6 +677,12 @@ body.tma {
   padding: 0;
   border: none;
 }
+/* ОБЯЗАТЕЛЬНО: авторский `display: block` перебивает `[hidden] { display: none }` из
+   UA-стилей — без этой строки скрытое поле продолжает рисоваться. Форма вклада одна на
+   все векторы и прячет лишние поля именно атрибутом hidden (ссылка — только у книг и
+   дискуссий, направление — только у компетенции), так что без правила у бага
+   появлялось бы поле «Ссылка на дискуссию». Тот же приём, что у .form/.panel/.state. */
+.field[hidden] { display: none; }
 .field-l {
   display: block;
   padding: 0;
@@ -1459,12 +1465,70 @@ body.tma-in-telegram .tabbar {
   margin-top: 0.9rem;
 }
 .enr-a .btn { flex: 1 1 auto; justify-content: center; }
+/* раскрытый вектор: кнопка держит состояние — иначе на 390 px не понять,
+   какая из шести карточек породила форму, что уехала под неё */
+.enr-a .btn.on {
+  border-color: var(--gold);
+  color: var(--gold-hi);
+  background: color-mix(in srgb, var(--gold) 10%, transparent);
+}
 .enr-n {
   margin: 0.8rem 0 0;
   color: var(--text-dim);
   font-family: var(--sans);
   font-size: 0.8rem;
   line-height: 1.5;
+}
+.enr-n code {
+  font-family: var(--mono);
+  font-size: 0.94em;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+/* Форма вклада: одна на все векторы, переезжает в раскрытую карточку.
+   Внутри карточки у неё уже есть паддинги — отделяем только линией сверху. */
+.enr-panel {
+  margin: 1.1rem 0 0;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--rule);
+}
+.enr-panel .form { gap: 1.25rem; }
+.enr-panel .enr-a { margin-top: 0; }
+.enr-panel .state { margin: 0; }
+
+/* Однострочные поля формы (ссылка) и выпадающий список (направление).
+   Наследуют вид .field-t — разница только в высоте и в стрелке селекта. */
+.field-i,
+.field-s {
+  display: block;
+  width: 100%;
+  min-height: 44px;                 /* палец, а не курсор: не меньше 44 px */
+  padding: 0.72rem 0.9rem;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 1rem;                  /* < 16px = iOS зумит страницу на фокусе */
+  line-height: 1.4;
+}
+.field-i::placeholder { color: var(--text-dim); }
+.field-i:focus,
+.field-s:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+.field-s {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 2.2rem;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+                    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: right 1.05rem center, right 0.75rem center;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  cursor: pointer;
 }
 
 /* статус, которого мы не знаем: показываем ключ сервера как есть */

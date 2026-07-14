@@ -313,25 +313,42 @@
   }
 
   var mainHandler = null;
-  var mainIsSend = false;   // MainButton сейчас = «Отправить вызов» (только тогда его валидируем)
+  // Владелец MainButton и его условие «можно жать». Кнопка у экрана ОДНА (два золотых
+  // действия на 390×600 — шум, а не навигация), и владельцев уже двое: Терминал занимает
+  // её «Отправить вызов», Обогащение — «Отправить вклад». Поэтому валидатор приходит
+  // вместе с кнопкой: кто её занял, тот и решает, когда она активна. Без валидатора
+  // (напр. «Поделиться») кнопка просто всегда активна.
+  var mainValidator = null;
 
-  function setMainButton(text, handler) {
+  function setMainButton(text, handler, validator) {
     if (!inTelegram || !tg.MainButton) return;
     try {
       if (mainHandler) tg.MainButton.offClick(mainHandler);
       mainHandler = null;
+      mainValidator = null;
       if (!text) {
         tg.MainButton.hide();
         document.body.classList.remove('tma-has-mainbutton');
         return;
       }
       mainHandler = handler;
+      mainValidator = validator || null;
       tg.MainButton.setText(text);
       tg.MainButton.onClick(mainHandler);
       tg.MainButton.enable();
       tg.MainButton.show();
       document.body.classList.add('tma-has-mainbutton');
     } catch (e) { /* старый клиент — экранных кнопок достаточно */ }
+  }
+
+  // Активность MainButton = условие её нынешнего владельца. Чужую кнопку не трогаем:
+  // без валидатора выходим сразу.
+  function syncMain() {
+    if (!inTelegram || !tg.MainButton || !mainValidator) return;
+    try {
+      if (mainValidator()) tg.MainButton.enable();
+      else tg.MainButton.disable();
+    } catch (e) { /* старый клиент */ }
   }
 
   // куда возвращает «назад» из разбора: в тот же срез ленты, из которого ушли
@@ -357,7 +374,6 @@
 
     setBackButton(SCREENS[r.name].back);
     setMainButton(null);
-    mainIsSend = false;
 
     // смена рубрики внутри одного среза — не «новый экран»: не дёргаем скролл и фокус
     var sameSlice = (prev.name === r.name && r.name === 'polygon' && prev.seg === r.seg);
@@ -369,6 +385,7 @@
     if (r.name === 'reading') loadReading(r.slug);
     else if (r.name === 'polygon') enterPolygon(r);
     else if (r.name === 'terminal') enterTerminal(r);
+    else if (r.name === 'enrich') enterEnrich();
   }
 
   function goBack() {
@@ -453,11 +470,8 @@
   // «Мои испытания») нельзя: на 390×600 два одинаковых золотых действия —
   // это шум, а не навигация. Все прочие действия живут на экране.
   function syncTerminalMain() {
-    mainIsSend = false;
-
     if (authed() && formOpen && !doneShown) {
-      mainIsSend = true;
-      setMainButton('Отправить вызов', trySend);
+      setMainButton('Отправить вызов', trySend, function () { return textValid() && !sending; });
       syncMain();          // пустой/короткий текст — кнопка выключена
       return;
     }
@@ -1245,16 +1259,6 @@
     syncMain();
   }
 
-  // Валидируем MainButton ТОЛЬКО когда он и есть «Отправить вызов».
-  // Иначе бы гасили чужую кнопку («Инициировать разбор», «Мои испытания»).
-  function syncMain() {
-    if (!mainIsSend || !inTelegram || !tg.MainButton) return;
-    try {
-      if (textValid() && !sending) tg.MainButton.enable();
-      else tg.MainButton.disable();
-    } catch (e) {}
-  }
-
   function formErr(msg) {
     var el = $('submitErr');
     if (!msg) { el.hidden = true; el.textContent = ''; return; }
@@ -1596,6 +1600,337 @@
     loadMine();
   });
 
+  /* ══════════════════════════════════════════════════════════════════
+     ОБОГАЩЕНИЕ (вкладка 3) — воронка со-создателей.
+
+     Форма на экране ОДНА и переезжает в раскрытую карточку (см. openContrib).
+     Шесть отдельных форм на 390×600 — это простыня, в которой не найти ни одной;
+     а ещё это шесть реализаций галочки «указать имя» — то есть шесть шансов
+     ошибиться в красной линии проекта. Одна форма — одна галочка — один код.
+
+     Красная линия (анонимность): #contribShowName сбрасывается в false при КАЖДОМ
+     открытии и закрытии формы, и НИГДЕ не сохраняется — ни в localStorage, ни в
+     CloudStorage. Черновик заявки мы бережём (там человек пишет долго), а согласие
+     на имя переживать сессию НЕ должно: согласие даётся на конкретный вклад, а не
+     «однажды и навсегда».
+     ══════════════════════════════════════════════════════════════════ */
+
+  // Презентация вектора: какие поля показать и как подписать. Это ВЁРСТКА, а не
+  // контракт: белый список типов держит сервер, и последнее слово за ним (разъедемся —
+  // он ответит внятной ошибкой, а не молча примет мусор). Ключи направлений
+  // компетенции здесь НЕ дублируются — они приходят с сервера (см. loadRoles).
+  // Вектора B тут нет намеренно: «бросить вызов» — обычная заявка, она на Терминале.
+  var CONTRIB_UI = {
+    book: {
+      vector: 'A · Книги и форумы',
+      label: 'Что за издание',
+      ph: 'Автор, название, издание. Чем оно ценно и почему считается выверенным.',
+      hint: 'Файл в это поле не вложить — приложение загрузку файлов не умеет. PDF или EPUB примет бот: команда /book, затем пришлите документ.',
+      url: 'optional',
+      urlLabel: 'Ссылка на источник',
+      urlHint: 'Необязательно — но со ссылкой издание проверят быстрее.',
+      cmd: '/book',
+      done: 'Издание уйдёт на сверку легитимности и качества перевода: в корпус попадает только то, что проверку прошло.'
+    },
+    discussion: {
+      vector: 'A · Книги и форумы',
+      label: 'Что там за спор',
+      ph: 'Пара слов: о чём спорят, кто с кем и почему это стоит мониторинга.',
+      url: 'required',
+      urlLabel: 'Ссылка на дискуссию',
+      urlHint: 'Обязательно: без ссылки наводку не проверить, а непроверяемое мы в работу не берём.',
+      cmd: '/discussion',
+      done: 'Наводку посмотрит человек: что там за спор и ставить ли его на мониторинг трендов.'
+    },
+    skill: {
+      vector: 'C · Соратники',
+      label: 'Что вы умеете',
+      ph: 'Опыт, чем именно готовы помочь, сколько у вас на это времени.',
+      hint: 'Ссылку на профиль или работы можно вставить прямо в текст.',
+      url: 'none',
+      role: true,
+      cmd: '/skill',
+      done: 'Автор проекта свяжется с вами лично. Служение — не вакансия: сначала разговор.'
+    },
+    patron: {
+      vector: 'D · Поддержка',
+      label: 'Чем можете помочь',
+      ph: 'Например: могу закрывать счёт за API; помогу с доменом; сведу с жертвователем.',
+      hint: 'Напишите, как с вами связаться. Платёжной кнопки здесь нет: договорённость идёт через живого человека.',
+      url: 'none',
+      cmd: '/patron',
+      done: 'Автор проекта свяжется с вами и покажет, куда именно уходят средства. Отчёт по расходам — по запросу, конкретными цифрами.'
+    },
+    bug: {
+      vector: 'E · Воронка фидбека',
+      label: 'Что сломалось',
+      ph: 'Что вы делали → что ожидали увидеть → что увидели на самом деле.',
+      hint: 'Скриншот сюда не вложить: пришлите его в бота командой /bug.',
+      url: 'none',
+      cmd: '/bug',
+      done: 'Баг уйдёт в бэклог проекта. Если для починки понадобятся детали, автор проекта напишет вам в бот.'
+    },
+    idea: {
+      vector: 'E · Воронка фидбека',
+      label: 'Что предлагаете',
+      ph: 'Чего не хватает и какую задачу это решит.',
+      hint: '',
+      url: 'none',
+      cmd: '/idea',
+      done: 'Идея уйдёт в бэклог проекта. Возьмут её в работу или нет — решает автор проекта; публичной доски задач у нас пока нет, поэтому обещать «следите за карточкой» не будем.'
+    }
+  };
+
+  var CONTRIB_MIN = 5;
+  var CONTRIB_MAX = 4000;
+  var contribKind = null;      // какой вектор раскрыт сейчас (null — все свёрнуты)
+  var contribSending = false;
+  var kindsReq = null;         // GET /api/contributions/kinds — один запрос на всё приложение
+
+  function fetchKinds() {
+    if (!kindsReq) {
+      kindsReq = api('/api/contributions/kinds').then(function (d) { return d || {}; });
+    }
+    return kindsReq;
+  }
+
+  function enterEnrich() {
+    // Вне Telegram честно говорим, что форм здесь нет, и называем команды бота.
+    $('enrichGate').hidden = authed();
+    closeContrib();            // возвращаясь на вкладку, не оставляем раскрытую форму
+  }
+
+  function contribErr(msg) {
+    var el = $('contribErr');
+    if (!msg) { el.hidden = true; el.textContent = ''; return; }
+    el.textContent = msg;
+    el.hidden = false;
+    haptic('error');
+  }
+
+  function contribLen() { return $('contribText').value.trim().length; }
+
+  function contribValid() {
+    if (contribSending || !contribKind) return false;
+    var n = contribLen();
+    if (n < CONTRIB_MIN || n > CONTRIB_MAX) return false;
+    var ui = CONTRIB_UI[contribKind];
+    if (ui.url === 'required' && !$('contribUrl').value.trim()) return false;
+    return true;
+  }
+
+  function syncContribCount() {
+    var n = $('contribText').value.length;
+    $('contribCount').textContent = String(n);
+    $('contribCount').parentNode.classList.toggle('warn', n > 0 && contribLen() < CONTRIB_MIN);
+    syncMain();
+  }
+
+  function syncEnrichMain() {
+    if (authed() && contribKind && !$('contribForm').hidden) {
+      setMainButton('Отправить вклад', trySendContrib, contribValid);
+      syncMain();
+      return;
+    }
+    setMainButton(null);
+  }
+
+  // Направления компетенции — ТОЛЬКО с сервера. Свой список ключей в приложении был бы
+  // вторым источником правды: разъедется с сервером — человек заполнит форму и получит
+  // 400 на ровном месте. Не пришли — поле прячем и шлём вклад без направления (сервер
+  // это допускает); выдумывать ключи не станем.
+  function loadRoles() {
+    var sel = $('contribRole'), hint = $('contribRoleHint'), field = $('contribRoleField');
+    sel.textContent = '';
+    hint.textContent = 'Загружаю направления…';
+    field.hidden = false;
+
+    fetchKinds().then(function (d) {
+      var roles = (d && Array.isArray(d.roles)) ? d.roles : [];
+      if (!roles.length) { field.hidden = true; return; }
+      sel.appendChild(new Option('— не выбрано —', ''));
+      roles.forEach(function (r) {
+        if (r && r.key) sel.appendChild(new Option(r.label || r.key, r.key));
+      });
+      hint.textContent = 'Необязательно — но так автор проекта поймёт, с чего начать разговор.';
+    }).catch(function () {
+      kindsReq = null;
+      field.hidden = true;
+    });
+  }
+
+  function openContrib(kind, card) {
+    var ui = CONTRIB_UI[kind];
+    if (!ui || !card) return;
+
+    // Вне Telegram подписать вклад нечем. Не показываем форму, которая ничего не
+    // отправит: уводим в бота и называем ТУ САМУЮ команду — там вклад принимается целиком.
+    if (!authed()) {
+      haptic('warning');
+      showToast('Форма работает в Telegram. В боте: ' + ui.cmd);
+      openTelegram(BOT_URL);
+      return;
+    }
+
+    contribKind = kind;
+
+    var panel = $('contribPanel');
+    card.appendChild(panel);          // одна форма на все векторы — она переезжает в карточку
+    panel.hidden = false;
+
+    $('contribVector').textContent = ui.vector;
+    $('contribLabel').textContent = ui.label;
+
+    var ta = $('contribText');
+    ta.value = '';
+    ta.placeholder = ui.ph || '';
+
+    var h = $('contribHint');
+    h.textContent = ui.hint || '';
+    h.hidden = !ui.hint;
+
+    var uf = $('contribUrlField');
+    uf.hidden = (ui.url === 'none');
+    $('contribUrl').value = '';
+    $('contribUrlLabel').textContent = ui.urlLabel || 'Ссылка';
+    $('contribUrlHint').textContent = ui.urlHint || '';
+
+    if (ui.role) loadRoles();
+    else $('contribRoleField').hidden = true;
+
+    // КРАСНАЯ ЛИНИЯ: согласие на имя — заново на каждый вклад. Ни переноса между
+    // векторами, ни памяти между сессиями.
+    $('contribShowName').checked = false;
+
+    contribErr(null);
+    $('contribForm').hidden = false;
+    $('contribDone').hidden = true;
+
+    Array.prototype.forEach.call(document.querySelectorAll('[data-contrib]'), function (b) {
+      b.classList.toggle('on', b.getAttribute('data-contrib') === kind);
+    });
+
+    syncContribCount();
+    syncEnrichMain();
+    scrollToEl(panel);
+  }
+
+  function closeContrib() {
+    var panel = $('contribPanel');
+    panel.hidden = true;
+    $('contribForm').hidden = false;
+    $('contribDone').hidden = true;
+    $('contribText').value = '';
+    $('contribUrl').value = '';
+    $('contribShowName').checked = false;      // согласие не переживает закрытие формы
+    contribErr(null);
+    contribKind = null;
+
+    // Панель возвращается на своё место в экране: остаться внутри чужой карточки она
+    // не должна — иначе следующее открытие таскало бы её по DOM непредсказуемо.
+    var host = $('screen-enrich');
+    if (panel.parentNode !== host) host.appendChild(panel);
+
+    Array.prototype.forEach.call(document.querySelectorAll('[data-contrib]'), function (b) {
+      b.classList.remove('on');
+    });
+    setMainButton(null);
+  }
+
+  function trySendContrib() {
+    if (contribSending || !contribKind) return;
+    if (!authed()) { contribErr('Отправка работает только внутри Telegram.'); return; }
+
+    var ui = CONTRIB_UI[contribKind];
+    var n = contribLen();
+    if (n < CONTRIB_MIN) {
+      contribErr('Слишком коротко: нужно не меньше ' + CONTRIB_MIN + ' символов, сейчас ' + n + '.');
+      return;
+    }
+    if (n > CONTRIB_MAX) {
+      contribErr('Слишком длинно: до ' + CONTRIB_MAX + ' символов, сейчас ' + n + '.');
+      return;
+    }
+
+    var url = $('contribUrl').value.trim();
+    if (ui.url === 'required' && !url) {
+      contribErr('Нужна ссылка на дискуссию: без неё наводку не проверить.');
+      return;
+    }
+    if (url && !/^https?:\/\/[^\s]+$/i.test(url)) {
+      contribErr('Ссылка должна начинаться с http:// или https:// и быть без пробелов.');
+      return;
+    }
+
+    var role = (ui.role && !$('contribRoleField').hidden) ? $('contribRole').value : '';
+
+    contribErr(null);
+    contribSending = true;
+    syncMain();
+    $('contribSend').disabled = true;
+    if (inTelegram && tg.MainButton && tg.MainButton.showProgress) {
+      try { tg.MainButton.showProgress(true); } catch (e) {}
+    }
+
+    var body = {
+      kind: contribKind,
+      text: $('contribText').value.trim(),
+      // Строго булев: сервер согласием считает только настоящий true (fail-safe),
+      // и клиент обязан слать именно его — не "1", не "on".
+      show_name: !!$('contribShowName').checked
+    };
+    if (url) body.url = url;
+    if (role) body.meta = { role: role };
+
+    api('/api/contributions', { method: 'POST', body: body }).then(function (res) {
+      haptic('success');
+      showContribDone(res);
+    }).catch(function (err) {
+      contribErr(err && err.message ? err.message : 'Не удалось отправить вклад.');
+    }).then(function () {
+      contribSending = false;
+      $('contribSend').disabled = false;
+      if (inTelegram && tg.MainButton && tg.MainButton.hideProgress) {
+        try { tg.MainButton.hideProgress(); } catch (e) {}
+      }
+      syncMain();
+    });
+  }
+
+  function showContribDone(res) {
+    var id = (res && typeof res.id === 'number') ? res.id : null;
+    var ui = CONTRIB_UI[contribKind] || {};
+    var named = !!$('contribShowName').checked;
+
+    // Номер показываем только если сервер его вернул: «принято, номер …» без номера —
+    // это обещание, которого мы не держим.
+    var html = '<span class="state-h">Вклад' + (id ? ' <b class="mono">№' + id + '</b>' : '') + ' принят</span>';
+    html += ui.done || 'Его посмотрит человек.';
+    html += '<br><br>Имя: ' + (named
+      ? 'вы разрешили указать себя как автора.'
+      : '<b>анонимно</b> — вклад числится за «участником Лаборатории».');
+    html += '<br><button class="btn btn-ghost" type="button" data-contrib-close>Готово</button>';
+
+    $('contribForm').hidden = true;
+    showState($('contribDone'), html, false);
+    setMainButton(null);      // отправлять больше нечего
+  }
+
+  $('contribText').addEventListener('input', function () {
+    syncContribCount();
+    contribErr(null);
+  });
+  $('contribUrl').addEventListener('input', function () {
+    syncMain();
+    contribErr(null);
+  });
+  $('contribShowName').addEventListener('change', function () { haptic('select'); });
+  $('contribCancel').addEventListener('click', function () { haptic('light'); closeContrib(); });
+  $('contribForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    trySendContrib();
+  });
+
   // ——— Тост (без самописных модалок: для да/нет есть tg.showConfirm) ————
   var toastTimer = null;
   function showToast(msg) {
@@ -1617,9 +1952,21 @@
     var t = e.target;
     if (!t || !t.closest) return;
 
-    // Все кнопки «Обогащения» ведут в бота — эндпоинтов для этих форм ещё НЕТ,
-    // и рисовать отправку в никуда мы не будем.
     if (t.closest('[data-open-bot]')) { haptic('medium'); openTelegram(BOT_URL); return; }
+
+    // Обогащение: кнопка вектора раскрывает форму ПОД своей карточкой (повторное
+    // нажатие — сворачивает). Открыт может быть только один вектор: сперва закрываем
+    // прежний, иначе форма-одиночка осталась бы висеть в чужой карточке.
+    var cbtn = t.closest('[data-contrib]');
+    if (cbtn) {
+      haptic('medium');
+      var k = cbtn.getAttribute('data-contrib');
+      var wasOpen = (contribKind === k);
+      closeContrib();
+      if (!wasOpen) openContrib(k, cbtn.closest('.enr-c'));
+      return;
+    }
+    if (t.closest('[data-contrib-close]')) { haptic('light'); closeContrib(); return; }
 
     // «Инициировать разбор» из другого экрана: если мы уже на терминале —
     // просто раскрываем панель (хэш тот же, hashchange бы не выстрелил).

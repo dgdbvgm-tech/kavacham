@@ -218,15 +218,22 @@
       </div>
     </section>
 
-    <!-- ═══ 3. ОБОГАЩЕНИЕ ═════════════════════════════════════════════ -->
+    <!-- ═══ 3. ОБОГАЩЕНИЕ ═════════════════════════════════════════════
+         Пять векторов ТЗ. Форма на экране ОДНА (#contribPanel) и переезжает
+         в раскрытую карточку: на 390×600 шесть развёрнутых форм — это простыня,
+         в которой не найти ни одной. Вектор B своей формы не имеет намеренно —
+         «бросить вызов» это обычная заявка на разбор, она живёт на Терминале. -->
     <section class="screen" id="screen-enrich" hidden>
       <h1 class="screen-h">Обогащение</h1>
       <p class="screen-sub">Сила Лаборатории — это полнота корпуса и качество тест-кейсов. Пять направлений, где нужна помощь.</p>
 
-      <p class="notice">
-        <b>Приём идёт через бота.</b> Форм для этих направлений в приложении ещё нет — это следующий этап.
-        Кнопки ниже открывают бота, где заявку примет живой человек. Отправку в никуда мы не изображаем.
-      </p>
+      <!-- Вне Telegram: подписать вклад нечем. Форму не показываем и отправку не изображаем. -->
+      <div class="stub" id="enrichGate" hidden>
+        <p class="stub-badge">Формы работают внутри Telegram</p>
+        <p>Вклад нужно подписать вашим аккаунтом Telegram — вне приложения Telegram подписи нет, и отправить отсюда нечего. Изображать отправку мы не станем.</p>
+        <p><strong>В боте — то же самое и теми же командами:</strong> <code>/book</code>, <code>/discussion</code>, <code>/skill</code>, <code>/patron</code>, <code>/bug</code>, <code>/idea</code> — или просто <code>/contribute</code>, и бот покажет меню. Команды работают и там, где приложения Telegram не открываются.</p>
+        <button class="btn btn-primary" data-open-bot type="button">Открыть бота</button>
+      </div>
 
       <ul class="enr">
         <li class="enr-c">
@@ -235,9 +242,10 @@
           <p class="enr-p">Библиотека чиста, но содержит слепые зоны. Нужны редкие выверенные тексты (труды учеников Прабхупады, переводы ачарьев, апологетика) и источники трендов.</p>
           <p class="enr-p"><a class="cite" href="https://dgdbvgm-tech.github.io/kavacham/corpus.html" target="_blank" rel="noopener">Сверьтесь с каталогом корпуса</a> — возможно, издание уже в ядре.</p>
           <div class="enr-a">
-            <button class="btn btn-ghost" type="button" data-open-bot>Предложить выверенное издание</button>
-            <button class="btn btn-ghost" type="button" data-open-bot>Дать наводку на живую дискуссию</button>
+            <button class="btn btn-ghost" type="button" data-contrib="book">Предложить выверенное издание</button>
+            <button class="btn btn-ghost" type="button" data-contrib="discussion">Дать наводку на живую дискуссию</button>
           </div>
+          <p class="enr-n">Те же два пути в боте: <code>/book</code> и <code>/discussion</code>. Файл издания принимает только бот — приложение загрузку файлов не умеет.</p>
         </li>
 
         <li class="enr-c">
@@ -247,7 +255,7 @@
           <div class="enr-a">
             <button class="btn btn-primary" type="button" data-go-form>Бросить вызов Лаборатории</button>
           </div>
-          <p class="enr-n">Это направление уже работает в приложении: заявка идёт в терминал и трекается по номеру.</p>
+          <p class="enr-n">Отдельной формы у этого вектора нет и не нужно: вызов — это обычная заявка на разбор. Она идёт в терминал, встаёт в ту же очередь и трекается по своему номеру.</p>
         </li>
 
         <li class="enr-c">
@@ -255,17 +263,20 @@
           <h2 class="enr-h">Усиление команды</h2>
           <p class="enr-p">Соборное служение. Проекту требуются специфические компетенции: инженеры ИИ/ML (поиск и синтез), знатоки шастры и ньяи для ревью, те, кто может связать проект с ББТ и GBC.</p>
           <div class="enr-a">
-            <button class="btn btn-ghost" type="button" data-open-bot>Предложить свою компетенцию</button>
+            <button class="btn btn-ghost" type="button" data-contrib="skill">Предложить свою компетенцию</button>
           </div>
+          <p class="enr-n">В боте: <code>/skill</code>.</p>
         </li>
 
         <li class="enr-c">
           <p class="enr-k mono">D · Поддержка</p>
           <h2 class="enr-h">Вычислительный бюджет</h2>
-          <p class="enr-p">Базовый поиск бесплатен, но глубокий слой (синтез цитат, ньяя) требует оплаты мощных нейросетей — <b class="mono">$70–165/мес</b>. Расходы проекта открыты: на что ушли средства, покажем по запросу.</p>
+          <p class="enr-p">Базовый поиск бесплатен. Платный — глубокий слой: синтез цитат и разбор по ньяе идут через мощные нейросети, это <b class="mono">$70–165/мес</b>, плюс домен и хостинг.</p>
+          <p class="enr-p">Честно про отчётность: публичной страницы с отчётом о расходах у нас пока нет — и обещать «полностью прозрачную отчётность» до того, как она есть, мы не станем. Отчёт по расходам даём <b>по запросу</b>, конкретными цифрами.</p>
           <div class="enr-a">
-            <button class="btn btn-ghost" type="button" data-open-bot>Стать покровителем проекта</button>
+            <button class="btn btn-ghost" type="button" data-contrib="patron">Стать покровителем проекта</button>
           </div>
+          <p class="enr-n">Платёжной кнопки здесь нет: договорённость идёт через живого человека. В боте: <code>/patron</code>.</p>
         </li>
 
         <li class="enr-c">
@@ -273,12 +284,57 @@
           <h2 class="enr-h">Баги и идеи</h2>
           <p class="enr-p">Приложение и движок собираются «наживую». Мы напрямую зависим от вашей наблюдательности — помогите сделать продукт удобнее.</p>
           <div class="enr-a">
-            <button class="btn btn-ghost" type="button" data-open-bot>🐞 Сообщить о баге</button>
-            <button class="btn btn-ghost" type="button" data-open-bot>💡 Предложить идею</button>
+            <button class="btn btn-ghost" type="button" data-contrib="bug">🐞 Сообщить о баге</button>
+            <button class="btn btn-ghost" type="button" data-contrib="idea">💡 Предложить идею</button>
           </div>
-          <p class="enr-n">Идея уходит в бэклог проекта. Имя автора идеи называем только с его согласия — по умолчанию это «участник Лаборатории».</p>
+          <p class="enr-n">Баг и идея уходят в бэклог проекта. Имя автора называем только с его согласия — по умолчанию это «участник Лаборатории». В боте: <code>/bug</code> и <code>/idea</code>.</p>
         </li>
       </ul>
+
+      <!-- Одна форма на все векторы. Скрипт переносит её в раскрытую карточку и
+           переподписывает поля; галочка имени сбрасывается при КАЖДОМ открытии. -->
+      <div class="panel enr-panel" id="contribPanel" hidden>
+        <form class="form" id="contribForm" novalidate>
+          <p class="enr-k mono" id="contribVector"></p>
+
+          <div class="field">
+            <label class="field-l" for="contribText" id="contribLabel">Текст</label>
+            <textarea id="contribText" class="field-t" rows="6" maxlength="4000"></textarea>
+            <p class="field-h"><span id="contribCount">0</span> / 4000 · не меньше 5 символов</p>
+            <p class="field-h" id="contribHint" hidden></p>
+          </div>
+
+          <div class="field" id="contribUrlField" hidden>
+            <label class="field-l" for="contribUrl" id="contribUrlLabel">Ссылка</label>
+            <input id="contribUrl" class="field-i" type="url" inputmode="url" maxlength="500"
+                   autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="https://…">
+            <p class="field-h" id="contribUrlHint"></p>
+          </div>
+
+          <div class="field" id="contribRoleField" hidden>
+            <label class="field-l" for="contribRole">Направление</label>
+            <select id="contribRole" class="field-s"></select>
+            <p class="field-h" id="contribRoleHint"></p>
+          </div>
+
+          <div class="field">
+            <label class="switch">
+              <input type="checkbox" id="contribShowName">
+              <span>Указывать моё имя</span>
+            </label>
+            <p class="field-h">По умолчанию вы — <strong>«участник Лаборатории»</strong>. Имя, @аккаунт и духовное имя не публикуются, пока вы сами не разрешите этой галочкой.</p>
+          </div>
+
+          <p class="form-err" id="contribErr" role="alert" hidden></p>
+
+          <div class="enr-a">
+            <button class="btn btn-primary" id="contribSend" type="submit">Отправить вклад</button>
+            <button class="btn btn-ghost" id="contribCancel" type="button">Отмена</button>
+          </div>
+        </form>
+
+        <div class="state" id="contribDone" role="status" aria-live="polite" hidden></div>
+      </div>
     </section>
 
     <!-- ═══ 4. О ПРОЕКТЕ ══════════════════════════════════════════════ -->

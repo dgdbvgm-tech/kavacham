@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-07-13",
+ "generated_at": "2026-07-14",
  "rubrics": [
   {
    "key": "razbor",
@@ -28,6 +28,22 @@
   }
  ],
  "items": [
+  {
+   "slug": "dapologetics",
+   "kind": "analytics",
+   "rubric": "analytics",
+   "title": "КАВАЧАМ: Инфраструктура верификации и апологетика в эпоху ИИ",
+   "subtitle": "Почему система КАВАЧАМ делает фокус на апологетику",
+   "date": "2026-07-14",
+   "pramanas": 0,
+   "tags": [
+    "апологетика",
+    "кавачам"
+   ],
+   "excerpt": "В эпоху стремительного развития генеративных языковых моделей (LLM) производство текстов, статистически неотличимых от глубокомысленного духовного учения, стало почти бесплатным. Это породило фундаментальный эпистемологический[^epistemology] кризис:…",
+   "reading_url": "data/reading/dapologetics.json",
+   "pages_url": "../reading/dapologetics.html"
+  },
   {
    "slug": "razbor-poryadok-chteniya-knig-prabhupady",
    "kind": "razbor",
