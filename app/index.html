@@ -125,8 +125,10 @@
 
           <fieldset class="field">
             <legend class="field-l">Корпуса разбора</legend>
-            <p class="field-h" id="scopeBase">🕉 Шрила Прабхупада — основа, включена всегда.</p>
+            <p class="field-h" id="scopeBase">🕉 Шрила Прабхупада — основа; можно снять — включится исследовательский режим.</p>
             <div class="chips" id="scopeList" role="group" aria-label="Корпуса разбора"></div>
+            <!-- Пометка исследовательского режима: видна, пока чип основы снят -->
+            <p class="research-note" id="researchNote" role="status" hidden>🔬 <strong>Исследовательский режим:</strong> поиск пойдёт без корпуса основы (Шрилы Прабхупады). Согласование выводов по призме ачарьи-основателя — на этапе сверки человеком.</p>
             <p class="state" id="scopeState" role="status" aria-live="polite">Загружаю список корпусов…</p>
           </fieldset>
 
@@ -186,6 +188,9 @@
       <!-- Раздел А: Разборы -->
       <div class="pane" id="pane-razbory" hidden>
         <nav class="rubrics" id="rubrics" aria-label="Рубрики" hidden></nav>
+        <!-- Активный тег-фильтр: чип «тег: … ✕» + счётчик. Состояние живёт в маршруте
+             (#/polygon?tag=…), поэтому «назад» Telegram честно снимает фильтр. -->
+        <div class="tag-filter" id="tagFilter" hidden></div>
         <div id="feedState" class="state" role="status" aria-live="polite">Загружаю ленту…</div>
         <ul class="feed" id="feedList" hidden></ul>
       </div>
@@ -398,6 +403,48 @@
       <p class="about-note">Проект ведёт Даял-Говинда дас — как служение делу систематизации и защиты наследия Шрилы Прабхупады в парампаре.</p>
     </section>
 
+    <!-- ═══ 5. ШТАБ (админ-раздел; вкладка появляется только после is_admin
+         от сервера — /api/me по подписанному initData. Здесь НЕТ ни одного id
+         админа: решение «кто админ» живёт только на сервере, а прямой заход
+         не-админа упирается и в гейт ниже, и в 403 всех /api/admin/*). ═══ -->
+    <section class="screen" id="screen-hq" hidden>
+      <h1 class="screen-h">Штаб</h1>
+      <p class="screen-sub">Пульт конвейера: те же переходы и те же уведомления заявителям, что у команд бота.</p>
+
+      <!-- Не-админ / вне Telegram: честный отказ (сервер всё равно ответит 403) -->
+      <div class="stub" id="hqGate" hidden>
+        <p class="stub-badge">Раздел доступен администраторам</p>
+        <p>Этот раздел — админский пульт Лаборатории. Права проверяет сервер по подписи Telegram; пароля здесь нет и не будет.</p>
+        <p>Если вы ищете свои заявки — они на «Терминале», блок «Мои испытания».</p>
+        <a class="btn btn-ghost" href="#/terminal">На Терминал</a>
+      </div>
+
+      <div id="hqBody" hidden>
+        <!-- Сводка: моноширинные числа -->
+        <div class="hq-stats" id="hqStats" role="status" aria-live="polite"></div>
+
+        <!-- Заявки: фильтр по стадиям + список -->
+        <section class="block" aria-labelledby="hqReqH">
+          <div class="block-top">
+            <h2 class="block-h" id="hqReqH">Заявки</h2>
+            <button class="mini" id="hqRefresh" type="button">Обновить</button>
+          </div>
+          <nav class="rubrics" id="hqFilter" aria-label="Фильтр по стадиям" hidden></nav>
+          <div class="state" id="hqReqState" role="status" aria-live="polite">Загружаю заявки…</div>
+          <ul class="reqs" id="hqReqList" hidden></ul>
+        </section>
+
+        <!-- Вклады Обогащения -->
+        <section class="block" aria-labelledby="hqContribH">
+          <div class="block-top">
+            <h2 class="block-h" id="hqContribH">Вклады Обогащения</h2>
+          </div>
+          <div class="state" id="hqContribState" role="status" aria-live="polite">Загружаю вклады…</div>
+          <ul class="reqs" id="hqContribList" hidden></ul>
+        </section>
+      </div>
+    </section>
+
     <!-- ═══ Разбор (экран чтения; вкладки не имеет) ═══════════════════ -->
     <section class="screen" id="screen-reading" hidden>
       <div id="readingState" class="state" role="status" aria-live="polite">Загружаю разбор…</div>
@@ -407,6 +454,8 @@
           <h1 class="reading-title" id="readingTitle"></h1>
           <p class="reading-sub" id="readingSub"></p>
           <p class="reading-meta" id="readingMeta"></p>
+          <!-- Теги разбора (из ленты): кликабельны, ведут в ленту с фильтром по тегу -->
+          <div class="feed-tags reading-tags" id="readingTags" hidden></div>
         </header>
 
         <nav class="toc" id="toc" aria-label="Оглавление" hidden>
@@ -455,6 +504,11 @@
     <a class="tab" href="#/about" data-tab="about">
       <!-- U+FE0E принуждает ТЕКСТОВЫЙ рендер: без него iOS рисует U+26E8 цветным эмодзи -->
       <span class="tab-i" aria-hidden="true">⛨&#xFE0E;</span><span class="tab-t">О проекте</span>
+    </a>
+    <!-- Штаб: скрыт по умолчанию; app.js показывает после is_admin=true от /api/me.
+         Глиф ▤ — «пульт»: монохром, в ряду с остальными. -->
+    <a class="tab" href="#/hq" data-tab="hq" id="tabHq" hidden>
+      <span class="tab-i" aria-hidden="true">▤&#xFE0E;</span><span class="tab-t">Штаб</span>
     </a>
   </nav>
 

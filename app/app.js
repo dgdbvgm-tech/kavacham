@@ -103,6 +103,18 @@
     else window.open(url, '_blank', 'noopener');
   }
 
+  // Да/нет: нативный tg.showConfirm, где он есть; вне Telegram — window.confirm.
+  // Ответ приходит колбэком (showConfirm асинхронный) — синхронного пути нет.
+  function askConfirm(msg, cb) {
+    if (inTelegram && typeof tg.showConfirm === 'function') {
+      try {
+        tg.showConfirm(msg, function (ok) { cb(!!ok); });
+        return;
+      } catch (e) { /* старый клиент — падаем в window.confirm */ }
+    }
+    cb(window.confirm(msg));
+  }
+
   // slug из хэша не доверяем: только безопасный набор, иначе не строим путь к JSON
   function safeSlug(s) {
     return /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,120}$/.test(s || '') ? s : null;
@@ -233,18 +245,37 @@
     polygon:  { el: 'screen-polygon',  tab: 'polygon',  back: false },
     reading:  { el: 'screen-reading',  tab: 'polygon',  back: true  },
     enrich:   { el: 'screen-enrich',   tab: 'enrich',   back: false },
-    about:    { el: 'screen-about',    tab: 'about',    back: false }
+    about:    { el: 'screen-about',    tab: 'about',    back: false },
+    hq:       { el: 'screen-hq',       tab: 'hq',       back: false }
   };
 
   var SEGS = { razbory: 'pane-razbory', sri: 'pane-sri', corpus: 'pane-corpus' };
 
-  var current = { name: 'terminal', slug: null, seg: 'razbory', rubric: null };
+  var current = { name: 'terminal', slug: null, seg: 'razbory', rubric: null, tag: null };
 
   // Ссылка на срез Полигона — единственное место, где собирается маршрут ленты.
-  function polygonHash(seg, rubric) {
+  // Тег-фильтр живёт в маршруте (#/polygon?tag=SRI): «назад» Telegram снимает его сам.
+  function polygonHash(seg, rubric, tag) {
     var h = '#/polygon?seg=' + (seg || 'razbory');
     if (rubric) h += '&rubric=' + encodeURIComponent(rubric);
+    if (tag) h += '&tag=' + encodeURIComponent(tag);
     return h;
+  }
+
+  // Тег из маршрута: произвольный текст из данных ленты (кириллица, пробелы),
+  // но с потолком длины и без управляющих символов — в путь к данным он не идёт,
+  // им только СРАВНИВАЮТ (нормализованно) со значениями tags[] из feed.json.
+  function safeTag(s) {
+    if (typeof s !== 'string') return null;
+    s = s.trim();
+    if (!s || s.length > 80 || /[\u0000-\u001f<>]/.test(s)) return null;
+    return s;
+  }
+
+  // Нормализация тега для сравнения (аналог casefold): регистр и лишние пробелы
+  // не считаются различием, а ПОКАЗЫВАЕМ теги всегда как в данных.
+  function normTag(s) {
+    return String(s || '').trim().toLowerCase();
   }
 
   // Разбор хэша + СОВМЕСТИМОСТЬ со старыми маршрутами.
@@ -269,13 +300,14 @@
 
     var rubric = (/^[a-z0-9_-]{1,40}$/i.test(p.rubric || '')) ? p.rubric : null;
     var seg = SEGS[p.seg] ? p.seg : 'razbory';
+    var tag = safeTag(p.tag);
 
     var parts = raw.split('/').filter(Boolean);
     var head = parts[0] || '';
 
     // — старые маршруты → новые экраны (редирект, а не 404) —
     if (head === 'reader') {
-      return { redirect: polygonHash('razbory', rubric) };
+      return { redirect: polygonHash('razbory', rubric, tag) };
     }
     if (head === 'submit') {
       return { redirect: '#/terminal?form=1' };
@@ -285,7 +317,7 @@
     }
 
     if (head === 'reading' && parts[1]) {
-      return { name: 'reading', slug: parts[1], seg: 'razbory', rubric: null };
+      return { name: 'reading', slug: parts[1], seg: 'razbory', rubric: null, tag: null };
     }
     if (SCREENS[head] && head !== 'reading') {
       return {
@@ -293,12 +325,13 @@
         slug: null,
         seg: seg,
         rubric: rubric,
+        tag: tag,
         form: p.form === '1',
         focus: p.focus || null
       };
     }
     // пустой/неизвестный хэш — стартовый экран
-    return { name: 'terminal', slug: null, seg: 'razbory', rubric: null };
+    return { name: 'terminal', slug: null, seg: 'razbory', rubric: null, tag: null };
   }
 
   function setBackButton(show) {
@@ -375,10 +408,17 @@
     setBackButton(SCREENS[r.name].back);
     setMainButton(null);
 
-    // смена рубрики внутри одного среза — не «новый экран»: не дёргаем скролл и фокус
-    var sameSlice = (prev.name === r.name && r.name === 'polygon' && prev.seg === r.seg);
+    // смена рубрики внутри одного среза — не «новый экран»: не дёргаем скролл и фокус.
+    // Смена ТЕГА — наоборот, скроллим наверх: тег кликают с карточки в глубине ленты,
+    // и без прокрутки человек не увидел бы ни чип фильтра, ни результат.
+    var sameSlice = (prev.name === r.name && r.name === 'polygon' && prev.seg === r.seg &&
+                     (prev.tag || null) === (r.tag || null));
     if (!sameSlice) {
-      window.scrollTo(0, 0);
+      // МГНОВЕННО, не smooth: html { scroll-behavior: smooth } из общего styles.css
+      // превращал этот сброс в анимацию, и scrollIntoView активной рубрики,
+      // выстреливая посреди неё, перехватывал прокрутку — экран замирал на полпути.
+      try { window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); }
+      catch (e) { window.scrollTo(0, 0); }
       $('main').focus({ preventScroll: true });
     }
 
@@ -386,6 +426,7 @@
     else if (r.name === 'polygon') enterPolygon(r);
     else if (r.name === 'terminal') enterTerminal(r);
     else if (r.name === 'enrich') enterEnrich();
+    else if (r.name === 'hq') enterHq();
   }
 
   function goBack() {
@@ -505,8 +546,8 @@
     });
 
     if (r.seg === 'razbory') {
-      lastFeedHash = polygonHash('razbory', r.rubric);
-      loadFeed(r.rubric);
+      lastFeedHash = polygonHash('razbory', r.rubric, r.tag);
+      loadFeed(r.rubric, r.tag);
     } else if (r.seg === 'sri') {
       loadSri();
     } else if (r.seg === 'corpus') {
@@ -595,7 +636,64 @@
     try { return new URL(pagesUrlFor(slug), APP_BASE).href; } catch (e) { return LANDING; }
   }
 
-  function loadFeed(rubric) {
+  // Теги элемента ленты: только строки, как в данных.
+  function itemTags(it) {
+    return (it && Array.isArray(it.tags)) ? it.tags.filter(function (t) {
+      return typeof t === 'string' && t.trim();
+    }) : [];
+  }
+
+  // Есть ли у элемента тег (сравнение нормализованное: регистр не различаем).
+  function itemHasTag(it, tag) {
+    var n = normTag(tag);
+    return itemTags(it).some(function (t) { return normTag(t) === n; });
+  }
+
+  // Тег для показа — КАК В ДАННЫХ: первое написание из ленты, а не то, что в маршруте.
+  function displayTag(items, tag) {
+    var n = normTag(tag);
+    for (var i = 0; i < items.length; i++) {
+      var ts = itemTags(items[i]);
+      for (var j = 0; j < ts.length; j++) {
+        if (normTag(ts[j]) === n) return ts[j].trim();
+      }
+    }
+    return tag;
+  }
+
+  // Чип активного тег-фильтра: «тег: SRI ✕» + счётчик. Снять — один тап (✕ ведёт
+  // на тот же срез без тега; рубрика при этом сохраняется).
+  function renderTagFilter(tag, shownTag, count, rubric) {
+    var el = $('tagFilter');
+    el.textContent = '';
+    if (!tag) { el.hidden = true; return; }
+
+    var chip = document.createElement('a');
+    chip.className = 'chip on tag-chip';
+    chip.href = polygonHash('razbory', rubric, null);
+    chip.setAttribute('aria-label', 'Снять фильтр по тегу «' + shownTag + '»');
+
+    var t = document.createElement('span');
+    t.textContent = 'тег: ' + shownTag;
+    chip.appendChild(t);
+
+    var c = document.createElement('span');
+    c.className = 'chip-n';
+    c.textContent = String(count);
+    chip.appendChild(c);
+
+    var x = document.createElement('span');
+    x.className = 'tag-x';
+    x.setAttribute('aria-hidden', 'true');
+    x.textContent = '✕';
+    chip.appendChild(x);
+
+    chip.addEventListener('click', function () { haptic('select'); });
+    el.appendChild(chip);
+    el.hidden = false;
+  }
+
+  function loadFeed(rubric, tag) {
     var stateEl = $('feedState'), listEl = $('feedList'), navEl = $('rubrics');
 
     fetchFeed()
@@ -606,16 +704,37 @@
             'Первые разборы появятся здесь сразу после публикации. Пока их можно читать в канале Лаборатории.', false);
           listEl.hidden = true;
           navEl.hidden = true;
+          $('tagFilter').hidden = true;
           return;
         }
 
         // рубрика из маршрута, которой в ленте нет — молча показываем всё
         var active = (rubric && rubricByKey[rubric]) ? rubric : null;
-        renderRubrics(active);
+        renderRubrics(active, tag);
 
         var slice = active
           ? items.filter(function (it) { return itemRubric(it) === active; })
           : items;
+
+        // тег-фильтр поверх рубрики: честное пересечение и счётчик по нему
+        var shownTag = null;
+        if (tag) {
+          shownTag = displayTag(items, tag);
+          slice = slice.filter(function (it) { return itemHasTag(it, tag); });
+        }
+        renderTagFilter(tag, shownTag, slice.length, active);
+
+        if (!slice.length) {
+          // пустой результат — честное состояние, а не пустой экран
+          var what = 'По тегу «' + String(shownTag || tag) + '»' +
+                     (active ? ' в рубрике «' + rubricTitle(active) + '»' : '') +
+                     ' материалов нет.';
+          showState(stateEl,
+            '<span class="state-h">Ничего не нашлось</span>' + what +
+            '<br><a class="btn btn-ghost" href="' + polygonHash('razbory', active, null) + '">Снять фильтр</a>', false);
+          listEl.hidden = true;
+          return;
+        }
 
         renderFeed(slice, listEl);
         stateEl.hidden = true;
@@ -637,7 +756,8 @@
 
   // Чипы рубрик: «Все» + непустые рубрики со счётчиком. Выбор — ссылка на маршрут,
   // а не внутреннее состояние: тогда «назад» Telegram возвращает в тот же срез.
-  function renderRubrics(active) {
+  // Активный тег-фильтр рубрики СОХРАНЯЮТ (пересечение — см. loadFeed).
+  function renderRubrics(active, tag) {
     var navEl = $('rubrics');
     navEl.textContent = '';
 
@@ -653,7 +773,7 @@
     function chip(key, title, count) {
       var a = document.createElement('a');
       a.className = 'chip' + (key === active ? ' on' : '');
-      a.href = polygonHash('razbory', key);
+      a.href = polygonHash('razbory', key, tag);
       if (key === active) a.setAttribute('aria-current', 'true');
       var t = document.createElement('span');
       t.textContent = title;
@@ -739,14 +859,14 @@
       }
       if (meta.childNodes.length) a.appendChild(meta);
 
-      if (Array.isArray(it.tags) && it.tags.length) {
+      var tagList = itemTags(it);
+      if (tagList.length) {
         var tags = document.createElement('div');
         tags.className = 'feed-tags';
-        it.tags.slice(0, 3).forEach(function (t) {
-          var s = document.createElement('span');
-          s.className = 'tag';
-          s.textContent = t;
-          tags.appendChild(s);
+        tagList.slice(0, 3).forEach(function (t) {
+          // Карточка сама — <a>, поэтому тег НЕ ссылка (вложенных <a> не бывает),
+          // а кликабельный span: клик/Enter уводят в ленту с фильтром по тегу.
+          tags.appendChild(makeTagEl(t, current.rubric));
         });
         a.appendChild(tags);
       }
@@ -755,6 +875,28 @@
       li.appendChild(a);
       listEl.appendChild(li);
     });
+  }
+
+  // Кликабельный тег: ведёт в ленту с фильтром по тегу. keepRubric — сохранить
+  // текущую рубрику (пересечение, см. loadFeed); null — все материалы с тегом.
+  function makeTagEl(t, keepRubric) {
+    var s = document.createElement('span');
+    s.className = 'tag tag-go';
+    s.setAttribute('role', 'link');
+    s.setAttribute('tabindex', '0');
+    s.setAttribute('aria-label', 'Материалы с тегом «' + t + '»');
+    s.textContent = t;
+    function go(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      haptic('select');
+      location.hash = polygonHash('razbory', keepRubric || null, t.trim());
+    }
+    s.addEventListener('click', go);
+    s.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') go(e);
+    });
+    return s;
   }
 
   // ——— Раздел Б: Индекс SRI ————————————————————————————————
@@ -954,6 +1096,18 @@
     }
     $('readingMeta').textContent = bits.join(' · ');
 
+    // Теги разбора — из ленты (свой источник правды по тегам; в reading-JSON их нет).
+    // Кликабельны: ведут в ленту с фильтром по тегу — все материалы с ним.
+    var tagsEl = $('readingTags');
+    tagsEl.textContent = '';
+    var rtags = itemTags(feedIndex[slug] || (meta && meta.tags ? { tags: meta.tags } : null));
+    if (rtags.length) {
+      rtags.forEach(function (t) { tagsEl.appendChild(makeTagEl(t, null)); });
+      tagsEl.hidden = false;
+    } else {
+      tagsEl.hidden = true;
+    }
+
     // тело: HTML нашего же генератора, из нашего же origin
     var body = $('readingBody');
     body.innerHTML = data.html || '';
@@ -1100,8 +1254,27 @@
   var DRAFT_SCOPES = 'tma.draft.scopes';
   var DRAFT_SHOW = 'tma.draft.show';
 
-  var scopeSel = [];          // выбранные ключи корпусов
+  var scopeSel = [];          // выбранные ключи ДОПОЛНИТЕЛЬНЫХ корпусов (без основы)
+  // Основа (Шрила Прабхупада). Снята → исследовательский режим: сервер ставит
+  // заявке флаг research_mode. Снятие — только через явное подтверждение.
+  var baseOn = true;
+  // Сентинел в черновике корпусов: «основа снята». Не ключ корпуса — флаг; старые
+  // черновики без него честно читаются как «основа включена».
+  var NO_BASE = '-base';
+  var RESEARCH_CONFIRM = 'Поиск пойдёт без корпуса основы (Шрилы Прабхупады). ' +
+    'Согласование выводов по призме ачарьи-основателя — на этапе сверки человеком. Продолжить?';
   var sending = false;
+
+  function syncResearchNote() {
+    var el = $('researchNote');
+    if (el) el.hidden = baseOn;
+  }
+
+  function saveScopesDraft() {
+    var keys = scopeSel.slice();
+    if (!baseOn) keys.push(NO_BASE);
+    draftSave(DRAFT_SCOPES, keys.join(','));
+  }
 
   function cloud() {
     return (inTelegram && tg.CloudStorage && typeof tg.CloudStorage.setItem === 'function')
@@ -1178,9 +1351,14 @@
         var t = d[DRAFT_TEXT] || '';
         if (t && !$('reqText').value) $('reqText').value = t.slice(0, 4000);
         var s = d[DRAFT_SCOPES];
-        if (typeof s === 'string' && s) scopeSel = s.split(',').filter(Boolean);
+        if (typeof s === 'string' && s) {
+          var keys = s.split(',').filter(Boolean);
+          baseOn = keys.indexOf(NO_BASE) < 0;   // сентинел «основа снята» — не корпус
+          scopeSel = keys.filter(function (k) { return k !== NO_BASE; });
+        }
         if (d[DRAFT_SHOW] === '1') $('showName').checked = true;
         syncScopeChips();
+        syncResearchNote();
         syncCount();
       });
     }
@@ -1200,15 +1378,49 @@
       }
       scopes.forEach(function (s) {
         if (!s || !s.key) return;
-        // Основа (s.base) — «Шрила Прабхупада», всегда включена, тумблером не является:
-        // о ней уже сказано статичной строкой #scopeBase. Дубль-чекбоксом её не рисуем,
-        // иначе он выглядит отключаемым (а сервер основу всё равно навяжет).
-        if (s.base) return;
         var lab = document.createElement('label');
         lab.className = 'chip chip-check';
         var inp = document.createElement('input');
         inp.type = 'checkbox';
         inp.value = s.key;
+
+        // Основа (s.base) — «Шрила Прабхупада»: с v6.0 чип СНИМАЕМЫЙ, но не молча.
+        // Снятие — только через явное подтверждение (showConfirm/confirm), и пока
+        // основа снята, на форме видна пометка «исследовательский режим».
+        if (s.base) {
+          lab.classList.add('chip-base');
+          inp.checked = baseOn;
+          inp.addEventListener('change', function () {
+            if (!inp.checked) {
+              // снятие основы: сперва честный вопрос, потом состояние
+              inp.checked = true;                 // до ответа ничего не меняем
+              askConfirm(RESEARCH_CONFIRM, function (ok) {
+                if (!ok) { syncScopeChips(); return; }
+                baseOn = false;
+                inp.checked = false;
+                lab.classList.remove('on');
+                saveScopesDraft();
+                syncResearchNote();
+                haptic('warning');
+              });
+              return;
+            }
+            baseOn = true;
+            lab.classList.add('on');
+            saveScopesDraft();
+            syncResearchNote();
+            haptic('select');
+          });
+          lab.classList.toggle('on', baseOn);
+          lab.appendChild(inp);
+          var bt = document.createElement('span');
+          bt.textContent = s.title || s.key;
+          lab.appendChild(bt);
+          if (s.hint) lab.title = s.hint;
+          listEl.appendChild(lab);
+          return;
+        }
+
         // s.disabled — контрактный флаг «пока недоступно»: показываем, но не переключаем.
         if (s.disabled) {
           inp.disabled = true;
@@ -1220,7 +1432,7 @@
             var i = scopeSel.indexOf(s.key);
             if (inp.checked && i < 0) scopeSel.push(s.key);
             if (!inp.checked && i >= 0) scopeSel.splice(i, 1);
-            draftSave(DRAFT_SCOPES, scopeSel.join(','));
+            saveScopesDraft();
             lab.classList.toggle('on', inp.checked);
             haptic('select');
           });
@@ -1233,6 +1445,7 @@
         if (s.hint) lab.title = s.hint;
         listEl.appendChild(lab);
       });
+      syncResearchNote();
       stateEl.hidden = true;
     }).catch(function (err) {
       scopesReq = null;
@@ -1244,7 +1457,8 @@
 
   function syncScopeChips() {
     Array.prototype.forEach.call($('scopeList').querySelectorAll('input[type=checkbox]'), function (inp) {
-      inp.checked = scopeSel.indexOf(inp.value) >= 0;
+      // чип основы синхронизируется с baseOn, остальные — с выбором слоёв
+      inp.checked = (inp.value === 'prabhupada') ? baseOn : scopeSel.indexOf(inp.value) >= 0;
       if (inp.parentNode) inp.parentNode.classList.toggle('on', inp.checked);
     });
   }
@@ -1274,6 +1488,10 @@
     var n = textLen();
     if (n < 10) { formErr('Вызов слишком короткий: нужно не меньше 10 символов, сейчас ' + n + '. Опишите суть — так разбор будет точнее.'); return; }
     if (n > 4000) { formErr('Слишком длинно: до 4000 символов, сейчас ' + n + '. Пришлите главное, остальное дополните в боте.'); return; }
+    if (!baseOn && !scopeSel.length) {
+      formErr('Основа снята, а слои не выбраны — разбору не по чему искать. Включите основу или отметьте хотя бы один слой.');
+      return;
+    }
 
     formErr(null);
     sending = true;
@@ -1287,13 +1505,20 @@
       method: 'POST',
       body: {
         text: $('reqText').value.trim(),
-        corpora: scopeSel.slice(),
+        // Контракт v6.0: основа передаётся ЯВНО. corpora без «prabhupada» —
+        // исследовательский режим (сервер ставит заявке флаг research_mode).
+        corpora: (baseOn ? ['prabhupada'] : []).concat(scopeSel),
         show_name: !!$('showName').checked
       }
     }).then(function (res) {
       haptic('success');
       draftClear();
       $('reqText').value = '';
+      // Исследовательский режим — решение на КОНКРЕТНУЮ заявку, не «раз и навсегда»:
+      // после отправки основа возвращается (та же логика, что у согласия на имя).
+      baseOn = true;
+      syncScopeChips();
+      syncResearchNote();
       syncCount();
       showDone(res);
     }).catch(function (err) {
@@ -1716,6 +1941,14 @@
       p.textContent = txt.length > 180 ? txt.slice(0, 180).trim() + '…' : txt;
       li.appendChild(p);
 
+      // флаг исследовательского режима — показываем только фактом от сервера
+      if (it.research_mode === true) {
+        var rm = document.createElement('p');
+        rm.className = 'req-f research-flag';
+        rm.textContent = '🔬 исследовательский режим: без корпуса основы';
+        li.appendChild(rm);
+      }
+
       var rows = stageRows(it, pipeline);
       if (rows) li.appendChild(renderPipe(rows));
 
@@ -2086,6 +2319,426 @@
     trySendContrib();
   });
 
+  /* ══════════════════════════════════════════════════════════════════
+     ШТАБ (вкладка 5) — админ-пульт конвейера. БЕЗ пароля и без чужих секретов
+     в клиенте: единственный источник права — сервер (/api/me по подписанному
+     initData; все /api/admin/* дополнительно проверяют user.id в списке админов
+     НА СЕРВЕРЕ). Здесь нет ни одного id админа — только булев ответ «я админ?».
+     Вкладка скрыта, пока сервер не сказал is_admin=true; прямой заход на #/hq
+     не-админом упирается в честный гейт (а API — в 403).
+     ══════════════════════════════════════════════════════════════════ */
+
+  var isAdmin = null;        // null — сервер ещё не отвечал; true/false — его слово
+  var hqFilterKey = '';      // фильтр по стадии ('' — все)
+  var hqItems = [];          // заявки с последнего ответа /api/admin/requests
+
+  // Метки стадий и допустимые переходы — те же, что на сервере (ALLOWED_MOVES):
+  // Штаб не рисует кнопку перехода, который сервер всё равно отвергнет.
+  var HQ_MOVES = {
+    queued:    ['scouting', 'verifying'],
+    scouting:  ['verifying'],
+    verifying: ['scouting'],
+    done:      [],
+    rejected:  []
+  };
+  var HQ_STAGE_BTN = { scouting: 'В разведку', verifying: 'На сверку' };
+
+  function checkAdmin() {
+    if (!authed()) { isAdmin = false; return; }
+    api('/api/me').then(function (d) {
+      isAdmin = !!(d && d.is_admin === true);
+      if (isAdmin) $('tabHq').hidden = false;
+      if (current.name === 'hq') enterHq();   // человек уже стоит на #/hq — обновим экран
+    }).catch(function () {
+      isAdmin = false;
+      if (current.name === 'hq') enterHq();
+    });
+  }
+
+  function enterHq() {
+    var gate = $('hqGate'), body = $('hqBody');
+    if (isAdmin === true) {
+      gate.hidden = true;
+      body.hidden = false;
+      loadHq();
+      return;
+    }
+    // не-админ, гость или сервер ещё не ответил — честный гейт (сервер всё равно 403)
+    gate.hidden = false;
+    body.hidden = true;
+  }
+
+  function loadHq() {
+    loadHqStats();
+    loadHqRequests();
+    loadHqContribs();
+  }
+
+  function loadHqStats() {
+    var el = $('hqStats');
+    el.textContent = 'Загружаю сводку…';
+    api('/api/admin/stats').then(function (d) {
+      el.textContent = '';
+      var r = (d && d.requests) || {};
+      var c = (d && d.contributions) || {};
+      function cell(k, v) {
+        var w = document.createElement('span');
+        w.className = 'hq-c';
+        var kk = document.createElement('span');
+        kk.className = 'hq-k';
+        kk.textContent = k;
+        var vv = document.createElement('b');
+        vv.className = 'hq-v mono';
+        vv.textContent = String(v == null ? '—' : v);
+        w.appendChild(kk);
+        w.appendChild(vv);
+        return w;
+      }
+      el.appendChild(cell('Очередь', r.queued));
+      el.appendChild(cell('В работе', r.in_work));
+      el.appendChild(cell('Опубликовано', r.done));
+      el.appendChild(cell('Отклонено', r.rejected));
+      el.appendChild(cell('Вкладов', c.total));
+      var kinds = c.by_kind || {};
+      Object.keys(kinds).forEach(function (k) {
+        el.appendChild(cell(k, kinds[k]));
+      });
+    }).catch(function (err) {
+      el.textContent = 'Сводка недоступна: ' + (err && err.message ? err.message : '');
+    });
+  }
+
+  function loadHqRequests() {
+    var stateEl = $('hqReqState'), listEl = $('hqReqList');
+    listEl.hidden = true;
+    showState(stateEl, 'Загружаю заявки…', false);
+    api('/api/admin/requests').then(function (d) {
+      hqItems = (d && Array.isArray(d.items)) ? d.items : [];
+      renderHqFilter();
+      renderHqList();
+      if (hqItems.length) stateEl.hidden = true;
+      else showState(stateEl, '<span class="state-h">Заявок пока нет</span>Очередь пуста.', false);
+    }).catch(function (err) {
+      showState(stateEl,
+        '<span class="state-h">Не удалось загрузить заявки</span>' +
+        (err && err.message ? err.message : '') +
+        '<br><button class="btn btn-ghost" type="button" data-retry-hq>Повторить</button>', true);
+    });
+  }
+
+  function renderHqFilter() {
+    var navEl = $('hqFilter');
+    navEl.textContent = '';
+    if (!hqItems.length) { navEl.hidden = true; return; }
+
+    var counts = Object.create(null);
+    hqItems.forEach(function (it) {
+      var k = it.status || 'queued';
+      counts[k] = (counts[k] || 0) + 1;
+    });
+
+    function chip(key, title, count) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'chip' + (key === hqFilterKey ? ' on' : '');
+      var t = document.createElement('span');
+      t.textContent = title;
+      b.appendChild(t);
+      var c = document.createElement('span');
+      c.className = 'chip-n';
+      c.textContent = String(count);
+      b.appendChild(c);
+      b.addEventListener('click', function () {
+        haptic('select');
+        hqFilterKey = key;
+        renderHqFilter();
+        renderHqList();
+      });
+      return b;
+    }
+
+    navEl.appendChild(chip('', 'Все', hqItems.length));
+    Object.keys(STATUS).forEach(function (k) {
+      if (counts[k]) navEl.appendChild(chip(k, STATUS[k].label, counts[k]));
+    });
+    navEl.hidden = false;
+  }
+
+  function renderHqList() {
+    var listEl = $('hqReqList');
+    listEl.textContent = '';
+    var slice = hqFilterKey
+      ? hqItems.filter(function (it) { return (it.status || 'queued') === hqFilterKey; })
+      : hqItems;
+    if (!slice.length) {
+      var li = document.createElement('li');
+      li.className = 'req';
+      li.textContent = 'В этой стадии заявок нет.';
+      listEl.appendChild(li);
+      listEl.hidden = false;
+      return;
+    }
+    slice.forEach(function (it) { listEl.appendChild(renderHqCard(it)); });
+    listEl.hidden = false;
+  }
+
+  function hqCardErr(li, msg) {
+    var el = li.querySelector('.hq-err');
+    if (!el) return;
+    if (!msg) { el.hidden = true; el.textContent = ''; return; }
+    el.textContent = msg;
+    el.hidden = false;
+    haptic('error');
+  }
+
+  // Действие Штаба: POST → сервер вернул обновлённую карточку → перерисовываем
+  // ТОЛЬКО её (без перезагрузки списка). Сводка обновляется отдельно — она дешёвая.
+  function hqAction(li, it, path, body) {
+    Array.prototype.forEach.call(li.querySelectorAll('button'), function (b) { b.disabled = true; });
+    hqCardErr(li, null);
+    api('/api/admin/requests/' + encodeURIComponent(it.id) + path, { method: 'POST', body: body || {} })
+      .then(function (res) {
+        var updated = (res && res.item) ? res.item : null;
+        if (updated) {
+          for (var i = 0; i < hqItems.length; i++) {
+            if (hqItems[i].id === updated.id) { hqItems[i] = updated; break; }
+          }
+          var fresh = renderHqCard(updated);
+          li.parentNode.replaceChild(fresh, li);
+        }
+        haptic('success');
+        var note = '№' + it.id + ': готово';
+        if (res && res.notified === false) {
+          note += '; уведомить заявителя не вышло' + (res.notify_error ? ' (' + res.notify_error + ')' : '');
+        } else {
+          note += '; заявитель уведомлён';
+        }
+        showToast(note);
+        renderHqFilter();
+        loadHqStats();
+      })
+      .catch(function (err) {
+        Array.prototype.forEach.call(li.querySelectorAll('button'), function (b) { b.disabled = false; });
+        hqCardErr(li, err && err.message ? err.message : 'Не удалось выполнить действие.');
+      });
+  }
+
+  function renderHqCard(it) {
+    var key = it.status || 'queued';
+    var fb = STATUS[key];
+    var stage = it.stage || null;
+    var label = (stage && (stage.short || stage.label)) || (fb ? fb.label : String(key));
+
+    var li = document.createElement('li');
+    li.className = 'req hq-card' + (IN_WORK[key] ? ' is-work' : '');
+
+    var head = document.createElement('div');
+    head.className = 'req-head';
+
+    var num = document.createElement('span');
+    num.className = 'req-n mono';
+    num.textContent = '№' + (it.id != null ? it.id : '—');
+    head.appendChild(num);
+
+    var badge = document.createElement('span');
+    badge.className = 'req-st ' + (fb ? fb.cls : 'st-unknown');
+    badge.textContent = label;
+    head.appendChild(badge);
+
+    if (it.created_at) {
+      var d = document.createElement('span');
+      d.className = 'req-d';
+      d.textContent = fmtDate(it.created_at);
+      head.appendChild(d);
+    }
+    li.appendChild(head);
+
+    // автор с его аккаунтом — норма админского контура (эти данные не выходят из Штаба)
+    var meta = document.createElement('p');
+    meta.className = 'req-f hq-meta';
+    var author = it.author || ('id ' + (it.user_id != null ? it.user_id : '—'));
+    meta.textContent = author + ' · ' + (it.show_name ? '🙋 имя можно' : '🕊 аноним') +
+      (it.scope ? ' · ' + it.scope : '');
+    li.appendChild(meta);
+
+    if (it.research_mode === true) {
+      var rm = document.createElement('p');
+      rm.className = 'req-f research-flag';
+      rm.textContent = '🔬 исследовательский режим: без корпуса основы';
+      li.appendChild(rm);
+    }
+
+    // текст: свёрнут в 2 строки, тап разворачивает (и сворачивает обратно)
+    var p = document.createElement('p');
+    p.className = 'req-t hq-clip';
+    p.textContent = String(it.text || '');
+    p.title = 'Показать целиком / свернуть';
+    p.addEventListener('click', function () {
+      p.classList.toggle('open');
+      haptic('select');
+    });
+    li.appendChild(p);
+
+    // путь по стадиям одной строкой — только факты из timeline
+    if (Array.isArray(it.timeline) && it.timeline.length) {
+      var tl = document.createElement('p');
+      tl.className = 'req-f';
+      tl.textContent = 'Путь: ' + it.timeline.map(function (e) {
+        return (e.label || e.key) + (e.at ? ' ' + fmtDay(e.at) : '');
+      }).join(' → ');
+      li.appendChild(tl);
+    }
+
+    if (it.post_url && /^https?:\/\//i.test(it.post_url)) {
+      var a = document.createElement('a');
+      a.className = 'cite hq-url';
+      a.href = it.post_url;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.textContent = it.post_url;
+      li.appendChild(a);
+    }
+
+    var err = document.createElement('p');
+    err.className = 'form-err hq-err';
+    err.hidden = true;
+    li.appendChild(err);
+
+    // ——— кнопки конвейера: только легальные переходы (зеркало ALLOWED_MOVES) ———
+    var actions = document.createElement('div');
+    actions.className = 'hq-actions';
+
+    (HQ_MOVES[key] || []).forEach(function (next) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'btn btn-ghost';
+      b.textContent = HQ_STAGE_BTN[next];
+      b.addEventListener('click', function () {
+        haptic('medium');
+        hqAction(li, it, '/stage', { stage: next });
+      });
+      actions.appendChild(b);
+    });
+
+    var terminal = (key === 'done' || key === 'rejected');
+    if (!terminal || key === 'done') {
+      // «Опубликовано» с полем URL; для уже опубликованной — поправить ссылку
+      var urlRow = document.createElement('div');
+      urlRow.className = 'hq-url-row';
+      var urlInp = document.createElement('input');
+      urlInp.type = 'url';
+      urlInp.className = 'field-i hq-url-inp';
+      urlInp.placeholder = 'https://… (ссылка на публикацию)';
+      urlInp.value = it.post_url || '';
+      var doneBtn = document.createElement('button');
+      doneBtn.type = 'button';
+      doneBtn.className = 'btn btn-primary';
+      doneBtn.textContent = key === 'done' ? 'Обновить ссылку' : 'Опубликовано';
+      doneBtn.addEventListener('click', function () {
+        var u = urlInp.value.trim();
+        if (u && !/^https?:\/\/[^\s]+$/i.test(u)) {
+          hqCardErr(li, 'Ссылка должна начинаться с http(s):// и быть без пробелов.');
+          return;
+        }
+        haptic('medium');
+        hqAction(li, it, '/done', { url: u });
+      });
+      urlRow.appendChild(urlInp);
+      urlRow.appendChild(doneBtn);
+      actions.appendChild(urlRow);
+    }
+
+    if (!terminal) {
+      var rej = document.createElement('button');
+      rej.type = 'button';
+      rej.className = 'btn btn-ghost hq-reject';
+      rej.textContent = 'Отклонить';
+      rej.addEventListener('click', function () {
+        askConfirm('Отклонить заявку №' + it.id + '? Заявитель получит вежливое уведомление; вернуть закрытую заявку в работу нельзя.', function (ok) {
+          if (!ok) return;
+          haptic('medium');
+          hqAction(li, it, '/reject', {});
+        });
+      });
+      actions.appendChild(rej);
+    }
+
+    if (actions.childNodes.length) li.appendChild(actions);
+    return li;
+  }
+
+  function loadHqContribs() {
+    var stateEl = $('hqContribState'), listEl = $('hqContribList');
+    listEl.hidden = true;
+    showState(stateEl, 'Загружаю вклады…', false);
+    api('/api/admin/contributions').then(function (d) {
+      var items = (d && Array.isArray(d.items)) ? d.items : [];
+      if (!items.length) {
+        showState(stateEl, '<span class="state-h">Вкладов пока нет</span>Воронка «Обогащение» пуста.', false);
+        return;
+      }
+      listEl.textContent = '';
+      items.forEach(function (c) {
+        var li = document.createElement('li');
+        li.className = 'req hq-card';
+
+        var head = document.createElement('div');
+        head.className = 'req-head';
+        var num = document.createElement('span');
+        num.className = 'req-n mono';
+        num.textContent = '№' + (c.id != null ? c.id : '—');
+        head.appendChild(num);
+        var kind = document.createElement('span');
+        kind.className = 'req-st st-queued';
+        kind.textContent = ((c.mark || '') + ' ' + (c.label || c.kind || '')).trim();
+        head.appendChild(kind);
+        if (c.created_at) {
+          var d2 = document.createElement('span');
+          d2.className = 'req-d';
+          d2.textContent = fmtDate(c.created_at);
+          head.appendChild(d2);
+        }
+        li.appendChild(head);
+
+        var meta = document.createElement('p');
+        meta.className = 'req-f hq-meta';
+        meta.textContent = (c.author || ('id ' + (c.user_id != null ? c.user_id : '—'))) +
+          ' · ' + (c.show_name ? '🙋 имя можно' : '🕊 аноним') +
+          (c.source ? ' · ' + c.source : '') +
+          (c.backlog ? ' · бэклог: ' + c.backlog : '');
+        li.appendChild(meta);
+
+        var p = document.createElement('p');
+        p.className = 'req-t hq-clip';
+        p.textContent = String(c.text || '');
+        p.addEventListener('click', function () { p.classList.toggle('open'); });
+        li.appendChild(p);
+
+        if (c.url && /^https?:\/\//i.test(c.url)) {
+          var a = document.createElement('a');
+          a.className = 'cite hq-url';
+          a.href = c.url;
+          a.target = '_blank';
+          a.rel = 'noopener';
+          a.textContent = c.url;
+          li.appendChild(a);
+        }
+        listEl.appendChild(li);
+      });
+      stateEl.hidden = true;
+      listEl.hidden = false;
+    }).catch(function (err) {
+      showState(stateEl,
+        '<span class="state-h">Не удалось загрузить вклады</span>' +
+        (err && err.message ? err.message : ''), true);
+    });
+  }
+
+  $('hqRefresh').addEventListener('click', function () {
+    haptic('light');
+    loadHq();
+  });
+
   // ——— Тост (без самописных модалок: для да/нет есть tg.showConfirm) ————
   var toastTimer = null;
   function showToast(msg) {
@@ -2134,8 +2787,9 @@
     if (t.closest('[data-go-mine]')) { haptic('light'); scrollToEl($('mineBlock')); return; }
     if (t.closest('[data-again]')) { haptic('light'); openForm(); return; }
 
-    if (t.closest('[data-retry-feed]')) { loadFeed(current.rubric); return; }
+    if (t.closest('[data-retry-feed]')) { loadFeed(current.rubric, current.tag); return; }
     if (t.closest('[data-retry-sri]')) { loadSri(); return; }
+    if (t.closest('[data-retry-hq]')) { loadHqRequests(); return; }
     if (t.closest('[data-retry-corp]')) { loadCorpus(); return; }
     if (t.closest('[data-retry-mine]')) { mineDirty = true; loadMine(); return; }
 
@@ -2186,4 +2840,8 @@
   }
 
   route();
+
+  // «Штаб»: спрашиваем сервер, админ ли текущий пользователь (/api/me по подписи).
+  // До ответа вкладка скрыта; не-админу она не появится вовсе.
+  checkAdmin();
 })();

@@ -1091,7 +1091,10 @@ body.tma-has-mainbutton .form .btn-primary { display: none; }
   bottom: 0;
   z-index: 70;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  /* колонки — по числу ВИДИМЫХ вкладок: пятая («Штаб») появляется только у админа,
+     скрытая вкладка не должна оставлять пустую колонку */
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
   background: var(--deep);
   border-top: 1px solid var(--deep-rule);
   padding-bottom: var(--sa-bottom);
@@ -1657,3 +1660,135 @@ body.tma-in-telegram .tabbar {
   font-family: var(--mono);
   text-transform: none;
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   v6.0 — теги-фильтры, «Штаб», исследовательский режим.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* скрытая вкладка (Штаб до ответа /api/me) не занимает колонку таб-бара */
+.tab[hidden] { display: none; }
+
+/* ——— Теги: кликабельные ———
+   Тег на карточке — НЕ ссылка (карточка сама <a>), а span с ролью link:
+   вид тот же, но по ховеру/фокусу видно, что он живой. */
+.tag-go { cursor: pointer; }
+.tag-go:hover,
+.tag-go:focus-visible {
+  border-color: var(--gold);
+  color: var(--text);
+  outline: none;
+}
+
+/* строка активного тег-фильтра над лентой */
+.tag-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0 0 0.9rem;
+}
+.tag-filter[hidden] { display: none; }
+.tag-chip .tag-x {
+  font-size: 0.78rem;
+  opacity: 0.8;
+}
+
+/* теги на экране разбора — под метаданными шапки */
+.reading-tags { margin-top: 0.7rem; }
+.reading-tags[hidden] { display: none; }
+
+/* ——— Исследовательский режим: пометка на форме ——— */
+.research-note {
+  margin: 0.7rem 0 0;
+  padding: 0.6rem 0.8rem;
+  border: 1px dashed var(--gold);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--gold) 7%, var(--panel));
+  color: var(--text-2);
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+.research-note[hidden] { display: none; }
+.research-note strong { color: var(--text); }
+/* флаг режима в карточке заявки (Мои испытания / Штаб) */
+.research-flag { color: var(--accent); }
+
+/* ——— Штаб ——— */
+#hqBody[hidden] { display: none; }
+.hq-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  margin: 0 0 1.2rem;
+  padding: 0.7rem 0.9rem;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--gold);
+  border-radius: 6px;
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  color: var(--text-2);
+}
+.hq-c {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+.hq-k {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+}
+.hq-v { color: var(--text); font-weight: 600; }
+
+.hq-meta { margin-top: 0; overflow-wrap: anywhere; }
+
+/* текст заявки/вклада: свёрнут в 2 строки, тап разворачивает */
+.hq-clip {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  cursor: pointer;
+}
+.hq-clip.open {
+  display: block;
+  -webkit-line-clamp: none;
+  line-clamp: none;
+}
+
+/* длинная ссылка обязана ПЕРЕНОСИТЬСЯ: nowrap задавал карточке min-content шире
+   экрана 390 px, и весь Штаб уезжал вбок */
+.hq-url {
+  display: block;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  color: var(--accent);
+  font-size: 0.84rem;
+}
+
+.hq-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--rule);
+}
+.hq-actions .btn { margin-top: 0; }
+.hq-url-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  flex: 1 1 100%;
+}
+.hq-url-inp { flex: 1 1 12rem; min-width: 0; }
+.hq-url-row .btn { flex: none; }
+.hq-reject { border-color: #C0705B; color: #C0705B; }
+.hq-reject:hover { border-color: #C0705B; filter: brightness(1.1); }
+.hq-err { margin-top: 0.7rem; }
+.hq-err[hidden] { display: none; }
