@@ -31,7 +31,7 @@
   --tma-top-h: 3.25rem;
   --tma-tab-h: 3.6rem;
   --tma-pad: clamp(1rem, 4.5vw, 1.6rem);
-  /* длина строки в читальне: 65–75 символов */
+  /* длина строки в протоколах: 65–75 символов */
   --tma-measure: 68ch;
   /* третья гарнитура — только для счётного: номера заявок, объёмы, статусы */
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
@@ -261,7 +261,7 @@ body.tma {
   font-variant-numeric: tabular-nums;
 }
 
-/* ——— Лента читальни ——— */
+/* ——— Лента протоколов ——— */
 .feed {
   list-style: none;
   margin: 0;
@@ -531,7 +531,7 @@ body.tma {
 .reading-body img { max-width: 100%; height: auto; border-radius: 6px; }
 
 /* ——— Разметка генератора (.rd-*) ————————————————————————————
-   ВАЖНО: имена классов — не наш выбор, а КОНТРАКТ генератора читальни.
+   ВАЖНО: имена классов — не наш выбор, а КОНТРАКТ генератора протоколов.
    Он отдаёт один и тот же HTML в TMA (data/reading/<slug>.json → .reading-body)
    и на страницу Pages (site/reading/<slug>.html). Фактическая разметка праманы:
 
@@ -1130,7 +1130,7 @@ body.tma-has-mainbutton .form .btn-primary { display: none; }
   border-top-color: var(--gold);
 }
 
-/* ——— Кнопки: ghost на светлом фоне читальни (на сайте он рассчитан на тёмную полосу) ——— */
+/* ——— Кнопки: ghost на светлом фоне протоколов (на сайте он рассчитан на тёмную полосу) ——— */
 body.tma .btn { font-size: 0.95rem; min-height: 44px; cursor: pointer; }
 body.tma .btn-ghost {
   color: var(--text);
