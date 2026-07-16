@@ -928,7 +928,7 @@
             ? 'Тот же текст открывается как обычная страница — она работает, даже когда приложение недоступно.' +
               '<br><a class="btn btn-ghost" href="' + pagesUrlFor(slug).replace(/"/g, '%22') +
               '" target="_blank" rel="noopener">Открыть как страницу</a>'
-            : 'Такого разбора в читальне нет — возможно, ссылка устарела или в ней опечатка.' +
+            : 'Такого разбора в протоколах нет — возможно, ссылка устарела или в ней опечатка.' +
               '<br><a class="btn btn-ghost" href="' + polygonHash('razbory', null) + '">В Полигон</a>'), true);
         if (window.console) console.warn('[kavacham] reading:', err && err.message);
       });

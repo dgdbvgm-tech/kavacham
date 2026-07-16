@@ -116,7 +116,7 @@
               <input type="checkbox" id="showName">
               <span>Указывать моё имя в публикации</span>
             </label>
-            <p class="field-h">По умолчанию вы — <strong>«участник Лаборатории»</strong>. Имя, @аккаунт и духовное имя не публикуются, пока вы сами не разрешите этой галочкой.</p>
+            <p class="field-h">По умолчанию вы — <strong>«участник Лаборатории»</strong>. Имя, @аккаунт не публикуются, пока вы сами не разрешите этой галочкой.</p>
           </div>
 
           <p class="form-err" id="submitErr" role="alert" hidden></p>
@@ -322,7 +322,7 @@
               <input type="checkbox" id="contribShowName">
               <span>Указывать моё имя</span>
             </label>
-            <p class="field-h">По умолчанию вы — <strong>«участник Лаборатории»</strong>. Имя, @аккаунт и духовное имя не публикуются, пока вы сами не разрешите этой галочкой.</p>
+            <p class="field-h">По умолчанию вы — <strong>«участник Лаборатории»</strong>. Имя, @аккаунт не публикуются, пока вы сами не разрешите этой галочкой.</p>
           </div>
 
           <p class="form-err" id="contribErr" role="alert" hidden></p>
@@ -419,18 +419,23 @@
   </footer>
 
   <!-- ——— Таб-бар ——— -->
+  <!-- Глифы вместо эмодзи (решение автора 2026-07-13): монохром наследует золото
+       палитры и не спорит с серифом. Смысловая привязка: ▶_ приглашение командной
+       строки (терминал), ◈ огранённая призма (полигон смотрит на источник через
+       призму), ⬗ наполняющаяся форма (вклад со-создателя), ⛨ щит — «кавача». -->
   <nav class="tabbar" id="tabbar" aria-label="Разделы">
     <a class="tab" href="#/terminal" data-tab="terminal">
-      <span class="tab-i" aria-hidden="true">💻</span><span class="tab-t">Терминал</span>
+      <span class="tab-i" aria-hidden="true">▶_</span><span class="tab-t">Терминал</span>
     </a>
     <a class="tab" href="#/polygon" data-tab="polygon">
-      <span class="tab-i" aria-hidden="true">📚</span><span class="tab-t">Полигон</span>
+      <span class="tab-i" aria-hidden="true">◈</span><span class="tab-t">Полигон</span>
     </a>
     <a class="tab" href="#/enrich" data-tab="enrich">
-      <span class="tab-i" aria-hidden="true">🔋</span><span class="tab-t">Обогащение</span>
+      <span class="tab-i" aria-hidden="true">⬗&#xFE0E;</span><span class="tab-t">Обогащение</span>
     </a>
     <a class="tab" href="#/about" data-tab="about">
-      <span class="tab-i" aria-hidden="true">ℹ️</span><span class="tab-t">О проекте</span>
+      <!-- U+FE0E принуждает ТЕКСТОВЫЙ рендер: без него iOS рисует U+26E8 цветным эмодзи -->
+      <span class="tab-i" aria-hidden="true">⛨&#xFE0E;</span><span class="tab-t">О проекте</span>
     </a>
   </nav>
 

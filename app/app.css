@@ -1000,7 +1000,14 @@ body.tma-has-mainbutton .form .btn-primary { display: none; }
   letter-spacing: 0.04em;
   border-top: 2px solid transparent;
 }
-.tab-i { font-size: 1.05rem; line-height: 1; }
+/* Глифы — не эмодзи: моноширинный стек, чтобы «▶_» держался как единый знак,
+   и одинаковая высота строки, чтобы разноширокие символы не плясали по базовой. */
+.tab-i {
+  font-family: var(--mono);
+  font-size: 1rem;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
 .tab:hover { color: var(--deep-ink); }
 .tab[aria-current="page"] {
   color: var(--gold-hi);
