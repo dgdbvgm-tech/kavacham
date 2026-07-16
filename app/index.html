@@ -100,6 +100,25 @@
             <label class="field-l" for="reqText">Вызов или вопрос</label>
             <textarea id="reqText" class="field-t" rows="7" maxlength="4000"
                       placeholder="Например: «Сознание — просто свойство сложной материи, значит и ИИ станет личностью». Чем полнее исходный текст, тем точнее разбор."></textarea>
+
+            <!-- Голосовой ввод: Deepgram через сервис kavacham-stt (ключ живёт ТОЛЬКО
+                 на сервере). Блок скрыт по умолчанию: app.js показывает его лишь там,
+                 где запись реально возможна (getUserMedia + MediaRecorder) — кнопка
+                 не должна выглядеть рабочей там, где записать нельзя. -->
+            <div class="voice" id="voiceRow" hidden>
+              <button class="voice-mic" id="voiceMic" type="button" aria-label="Надиктовать голосом">
+                <span aria-hidden="true">🎙</span><span>Надиктовать</span>
+              </button>
+              <div class="voice-status" id="voiceStatus" role="status" aria-live="polite" hidden>
+                <span class="voice-dot" aria-hidden="true"></span>
+                <span class="voice-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+                <span class="voice-text" id="voiceText">слушаю… говорите</span>
+                <span class="voice-timer" id="voiceTimer" hidden>0:00</span>
+                <button class="voice-stop" id="voiceStop" type="button">Стоп</button>
+              </div>
+              <p class="field-h voice-note" id="voiceNote" role="status" hidden></p>
+            </div>
+
             <p class="field-h"><span id="reqCount">0</span> / 4000 · не меньше 10 символов</p>
             <p class="field-h">Скриншот в это поле не вложить — здесь только текст. Изображение принимает бот: пришлите картинку туда, подпись к ней станет текстом заявки.</p>
           </div>
@@ -354,7 +373,7 @@
       <p class="about-p">Так это выглядит на практике — цитата дословно и со ссылкой, которую можно открыть и проверить:</p>
       <blockquote class="about-q">
         <p>«…my Guru Maharaja’s opinion is that press is the brihat mrdanga…» — «…мнение моего Гуру Махараджи: печатный станок и есть брихат-мриданга…».</p>
-        <p class="about-src"><a class="cite" href="https://vanisource.org/wiki/680823_-_Letter_to_Kirtanananda_and_Hayagriva_written_from_Montreal" target="_blank" rel="noopener">Шрила Прабхупада, письмо от 23 августа 1968 г.</a></p>
+        <p class="about-src"><a class="cite" href="https://vedabase.io/en/library/letters/letter-to-k%C4%ABrtan%C4%81nanda-hayagriva/#bb108640" target="_blank" rel="noopener">Шрила Прабхупада, письмо от 23 августа 1968 г.</a></p>
       </blockquote>
       <p class="about-p">Обычную мридангу слышно на квартал, «брихат-мридангу» — по всему миру. Каждый ачарья брал самый мощный канал своей эпохи: типография, радио, телевидение. Технология меняется, послание — нет.</p>
 

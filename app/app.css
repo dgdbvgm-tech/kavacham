@@ -724,6 +724,119 @@ body.tma {
 .field-h.warn { color: #C0705B; }
 .field-h strong { color: var(--text); }
 
+/* ——— Голосовой ввод (Deepgram через kavacham-stt; ключ — только на сервере) ———
+   Три состояния, переключает app.js:
+     idle — видна только кнопка «Надиктовать»;
+     rec  — статус-строка с пульсом, волной-эквалайзером, таймером и «Стоп»;
+     busy — та же строка со статичной точкой и текстом «распознаю…».
+   Волна — чистый CSS (5 полосок), без внешних библиотек; при
+   prefers-reduced-motion анимации гаснут, остаётся статичный индикатор. */
+.voice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.55rem;
+}
+.voice[hidden] { display: none; }
+.voice-mic {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 44px;
+  padding: 0.35rem 1rem;
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  color: var(--text-2);
+  font-family: var(--sans);
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+.voice-mic:hover, .voice-mic:focus-visible { border-color: var(--gold); color: var(--text); }
+.voice-mic[hidden] { display: none; }
+.voice-status {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex: 1 1 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0.4rem 0.45rem 0.4rem 0.8rem;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  font-family: var(--sans);
+  font-size: 0.88rem;
+  color: var(--text-2);
+}
+.voice-status[hidden] { display: none; }
+.voice-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #C0705B;
+  flex: none;
+}
+.voice-status.rec .voice-dot { animation: voice-dot 1.1s infinite; }
+@keyframes voice-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+.voice-eq {
+  display: none;
+  gap: 3px;
+  align-items: flex-end;
+  height: 16px;
+  flex: none;
+}
+.voice-status.rec .voice-eq { display: inline-flex; }
+/* статичные высоты — «волна» видна даже без анимации (reduced-motion) */
+.voice-eq i { width: 3px; border-radius: 2px; background: var(--accent); }
+.voice-eq i:nth-child(1) { height: 6px; }
+.voice-eq i:nth-child(2) { height: 11px; }
+.voice-eq i:nth-child(3) { height: 15px; }
+.voice-eq i:nth-child(4) { height: 11px; }
+.voice-eq i:nth-child(5) { height: 6px; }
+.voice-status.rec .voice-eq i { animation: voice-eq 0.9s ease-in-out infinite; }
+.voice-status.rec .voice-eq i:nth-child(2) { animation-delay: 0.12s; }
+.voice-status.rec .voice-eq i:nth-child(3) { animation-delay: 0.24s; }
+.voice-status.rec .voice-eq i:nth-child(4) { animation-delay: 0.36s; }
+.voice-status.rec .voice-eq i:nth-child(5) { animation-delay: 0.48s; }
+@keyframes voice-eq { 0%, 100% { height: 4px; } 50% { height: 15px; } }
+.voice-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.voice-timer {
+  margin-left: auto;
+  flex: none;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+.voice-timer[hidden] { display: none; }
+.voice-stop {
+  flex: none;
+  min-height: 34px;
+  padding: 0.2rem 0.85rem;
+  background: transparent;
+  border: 1px solid #C0705B;
+  border-radius: 999px;
+  color: #C0705B;
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.voice-stop[hidden] { display: none; }
+.voice-note { flex: 1 1 100%; }
+.voice-note[hidden] { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .voice-status.rec .voice-dot,
+  .voice-status.rec .voice-eq i { animation: none; }
+}
+
 .chips {
   display: flex;
   flex-wrap: wrap;

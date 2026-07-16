@@ -1345,6 +1345,161 @@
   });
 
   /* ══════════════════════════════════════════════════════════════════
+     ГОЛОСОВОЙ ВВОД — Deepgram через сервис kavacham-stt (Cloud Run).
+
+     Ключ Deepgram живёт ТОЛЬКО на сервере: приложение шлёт сырое аудио
+     на POST /api/stt и получает { transcript }. Тот же сервис и тот же
+     батч-эндпоинт, что у виджета «О проекте» на лендинге, — origin
+     https://dgdbvgm-tech.github.io у них общий, CORS уже разрешён.
+
+     Честность интерфейса:
+       • кнопка появляется ТОЛЬКО там, где запись реально возможна
+         (getUserMedia + MediaRecorder) — в WebView без них блока нет;
+       • отказ в доступе к микрофону / сбой сети — внятное сообщение,
+         обычный ввод текстом продолжает работать (деградация, не тупик);
+       • распознанный текст ДОПИСЫВАЕТСЯ к уже введённому, не затирая его.
+     Предел записи — 60 секунд: таймер виден, за 10 секунд до предела
+     предупреждаем, по истечении останавливаем сами.
+     ══════════════════════════════════════════════════════════════════ */
+  (function () {
+    var STT_URL = 'https://kavacham-stt-928986955802.us-central1.run.app/api/stt';
+    var MAX_SEC = 60;
+
+    var row = $('voiceRow'), mic = $('voiceMic'), status = $('voiceStatus'),
+        vText = $('voiceText'), vTimer = $('voiceTimer'), vStop = $('voiceStop'),
+        vNote = $('voiceNote');
+    if (!row) return;
+
+    // Признак «записать можно» — как в виджете лендинга. Без него блок скрыт:
+    // рисовать микрофон, который не запишет, — обман интерфейсом.
+    var canRecord = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+    if (!canRecord) return;
+    row.hidden = false;
+
+    var stream = null, mr = null, chunks = [], tick = null, t0 = 0, busy = false;
+
+    function note(msg) {
+      if (msg) { vNote.textContent = msg; vNote.hidden = false; }
+      else { vNote.hidden = true; vNote.textContent = ''; }
+    }
+    function fmtSec(s) { return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2); }
+    // idle — только кнопка; rec — статус с волной, таймером и «Стоп»; busy — «распознаю…»
+    function show(state) {
+      mic.hidden = state !== 'idle';
+      status.hidden = state === 'idle';
+      status.classList.toggle('rec', state === 'rec');
+      vStop.hidden = state !== 'rec';
+      vTimer.hidden = state !== 'rec';
+    }
+    function stopTracks() {
+      if (stream) { stream.getTracks().forEach(function (t) { t.stop(); }); stream = null; }
+    }
+
+    function startRec() {
+      if (busy || (mr && mr.state === 'recording')) return;
+      note(null);
+      navigator.mediaDevices.getUserMedia({ audio: true }).then(function (s) {
+        stream = s;
+        chunks = [];
+        // opus/webm — родной формат Chromium-WebView; где его нет (iOS даёт
+        // audio/mp4) — берём формат по умолчанию, Deepgram понимает оба.
+        try { mr = new MediaRecorder(s, { mimeType: 'audio/webm;codecs=opus' }); }
+        catch (e) {
+          try { mr = new MediaRecorder(s); }
+          catch (e2) {
+            stopTracks();
+            note('Запись в этом окружении недоступна — введите текст с клавиатуры.');
+            return;
+          }
+        }
+        mr.ondataavailable = function (ev) { if (ev.data && ev.data.size) chunks.push(ev.data); };
+        mr.onstop = onRecorded;
+        mr.start(250);
+        haptic('light');
+        t0 = Date.now();
+        vText.textContent = 'слушаю… говорите';
+        vTimer.textContent = '0:00';
+        show('rec');
+        tick = setInterval(function () {
+          var sec = Math.floor((Date.now() - t0) / 1000);
+          vTimer.textContent = fmtSec(Math.min(sec, MAX_SEC));
+          if (sec >= MAX_SEC) {
+            note('Предел записи — 60 секунд: остановил сам и распознаю сказанное. Продолжить можно новой записью.');
+            stopRec();
+          } else if (sec >= MAX_SEC - 10) {
+            vText.textContent = 'ещё ' + (MAX_SEC - sec) + ' сек — и запись остановится';
+          }
+        }, 250);
+      }).catch(function () {
+        show('idle');
+        note('Нет доступа к микрофону. Разрешите доступ в настройках — или просто введите текст с клавиатуры.');
+      });
+    }
+
+    function stopRec() {
+      if (tick) { clearInterval(tick); tick = null; }
+      haptic('medium');
+      try {
+        if (mr && mr.state !== 'inactive') mr.stop();  // onstop доделает остальное
+        else { stopTracks(); show('idle'); }
+      } catch (e) { stopTracks(); show('idle'); }
+    }
+
+    function onRecorded() {
+      stopTracks();
+      if (!chunks.length) {
+        show('idle');
+        note('Звук не записался — попробуйте ещё раз или введите текстом.');
+        return;
+      }
+      var blob = new Blob(chunks, { type: chunks[0].type || 'audio/webm' });
+      chunks = [];
+      busy = true;
+      vText.textContent = 'распознаю…';
+      show('busy');
+      fetch(STT_URL, { method: 'POST', headers: { 'Content-Type': blob.type || 'audio/webm' }, body: blob })
+        .then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
+        .then(function (d) {
+          busy = false;
+          show('idle');
+          var tr = ((d && d.transcript) || '').trim();
+          if (!tr) { note('Не расслышал — скажите ещё раз ближе к микрофону или введите текстом.'); return; }
+          insertTranscript(tr);
+        })
+        .catch(function () {
+          busy = false;
+          show('idle');
+          note('Распознавание не ответило (сеть или сервис). Текст можно ввести с клавиатуры.');
+        });
+    }
+
+    // Расшифровка ДОПИСЫВАЕТСЯ: уже введённое не затираем, курсор — в конец,
+    // счётчик и черновик обновляем тем же путём, что и ручной ввод.
+    function insertTranscript(tr) {
+      var ta = $('reqText');
+      var joined = ta.value ? (ta.value.replace(/\s+$/, '') + ' ' + tr) : tr;
+      if (joined.length > 4000) {
+        joined = joined.slice(0, 4000);
+        note('Часть расшифровки не поместилась: поле вмещает 4000 символов.');
+      }
+      ta.value = joined;
+      syncCount();
+      formErr(null);
+      draftSave(DRAFT_TEXT, ta.value.slice(0, 4000));
+      try { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); } catch (e) {}
+      haptic('success');
+    }
+
+    mic.addEventListener('click', startRec);
+    vStop.addEventListener('click', stopRec);
+    // Ушли с экрана во время записи — не держим микрофон открытым:
+    // останавливаем запись, расшифровка доедет в черновик.
+    window.addEventListener('hashchange', function () {
+      if (mr && mr.state === 'recording') stopRec();
+    });
+  })();
+
+  /* ══════════════════════════════════════════════════════════════════
      МОИ ИСПЫТАНИЯ (бывший «Кабинет») — конвейер стадий, честный.
 
      Сервер отдаёт три вещи:
