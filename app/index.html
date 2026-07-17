@@ -98,8 +98,24 @@
         <form class="form" id="submitForm" hidden novalidate>
           <div class="field">
             <label class="field-l" for="reqText">Вызов или вопрос</label>
+            <!-- Чипы-шаблоны (v6.2): вставляют маркер режима в начало текста.
+                 Режим сохраняется в паспорте заявки (query_mode) — под него оператор
+                 подбирает режим конвейера разбора. -->
+            <div class="chips qm-chips" id="qmChips" role="group" aria-label="Шаблоны запроса">
+              <button class="chip" type="button" data-qm="T-SOPHISM">🛡 Разбор софизма</button>
+              <button class="chip" type="button" data-qm="T-QUOTE">🔍 Проверка цитаты</button>
+              <button class="chip" type="button" id="qmEdu" aria-expanded="false" aria-controls="qmEduRow">📚 Учебный узел</button>
+            </div>
+            <div class="chips qm-chips" id="qmEduRow" role="group" aria-label="Ступень вайшнавского образования" hidden>
+              <button class="chip" type="button" data-qm="T-EDU-SHASTRI">Бхакти-шастри</button>
+              <button class="chip" type="button" data-qm="T-EDU-VAIBHAVA">Бхакти-вайбхава</button>
+              <button class="chip" type="button" data-qm="T-EDU-VEDANTA">Бхакти-веданта</button>
+              <button class="chip" type="button" data-qm="T-EDU-SARVABHAUMA">Бхакти-сарвабхаума</button>
+            </div>
+            <p class="field-h" id="editBanner" role="status" hidden></p>
+            <p class="field-h" id="draftRestored" role="status" hidden>♻️ Восстановлен несохранённый текст.</p>
             <textarea id="reqText" class="field-t" rows="7" maxlength="4000"
-                      placeholder="Например: «Сознание — просто свойство сложной материи, значит и ИИ станет личностью». Чем полнее исходный текст, тем точнее разбор."></textarea>
+                      placeholder="Вставьте софизм, ссылку на спорный текст или опишите философский узел…"></textarea>
 
             <!-- Голосовой ввод: Deepgram через сервис kavacham-stt (ключ живёт ТОЛЬКО
                  на сервере). Блок скрыт по умолчанию: app.js показывает его лишь там,
@@ -119,7 +135,8 @@
               <p class="field-h voice-note" id="voiceNote" role="status" hidden></p>
             </div>
 
-            <p class="field-h"><span id="reqCount">0</span> / 4000 · не меньше 10 символов</p>
+            <p class="field-h"><span id="reqCount">0</span> / 4000 · не меньше 15 символов</p>
+            <p class="field-h">КАВАЧАМ — аналитик, а не писатель. Мы проверяем праманы. Точный вопрос = точный ответ.</p>
             <p class="field-h">Скриншот в это поле не вложить — здесь только текст. Изображение принимает бот: пришлите картинку туда, подпись к ней станет текстом заявки.</p>
           </div>
 
@@ -144,7 +161,13 @@
           </div>
 
           <p class="form-err" id="submitErr" role="alert" hidden></p>
-          <button class="btn btn-primary" id="btnSend" type="submit">Отправить вызов</button>
+          <div class="form-actions">
+            <button class="btn btn-primary" id="btnSend" type="submit">Отправить вызов</button>
+            <!-- v6.2 §2.3: парковка «сложного узла» — текст уходит в Архив
+                 черновиков (серверный, статус draft), форма освобождается -->
+            <button class="btn btn-ghost" id="btnDraft" type="button">💾 Отложить в Архив</button>
+            <button class="btn btn-ghost" id="btnEditCancel" type="button" hidden>Отменить правку</button>
+          </div>
         </form>
 
         <!-- Успех -->
@@ -156,6 +179,11 @@
         <div class="block-top">
           <h2 class="block-h" id="mineH">Мои испытания</h2>
           <button class="mini" id="mineRefresh" type="button" hidden>Обновить</button>
+        </div>
+        <!-- v6.2 §2.3: подраздел «Архив черновиков» — переключатель списка -->
+        <div class="chips mine-tabs" id="mineTabs" role="tablist" hidden>
+          <button class="chip on" type="button" id="mineTabReq" role="tab" aria-selected="true">Заявки</button>
+          <button class="chip" type="button" id="mineTabDrafts" role="tab" aria-selected="false">📝 Черновики (<span id="draftCount">0</span>)</button>
         </div>
 
         <div class="stub" id="profileGate" hidden>

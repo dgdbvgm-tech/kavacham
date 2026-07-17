@@ -1057,8 +1057,24 @@ body.tma-has-mainbutton .form .btn-primary { display: none; }
   background: linear-gradient(180deg, var(--gold-hi), var(--gold));
 }
 .req-st.st-rejected { border-style: dashed; }
+/* v6.2: черновик — пунктир без цвета (он вне очереди и вне конвейера),
+   отменена — приглушённо и перечёркнуто настроением, не текстом */
+.req-st.st-draft { border-style: dashed; color: var(--text-dim); }
+.req-st.st-cancelled { color: var(--text-dim); opacity: 0.75; }
 /* заявка в руках движка или человека — видно по карточке, не только по бейджу */
 .req.is-work { border-left: 2px solid var(--accent-2); }
+
+/* v6.2: кнопки управления в карточке заявки */
+.req-actions { display: flex; gap: 0.5rem; margin-top: 0.6rem; }
+.mini-danger:hover { border-color: #c0392b; color: #c0392b; }
+
+/* v6.2: чипы-шаблоны над полем ввода + табы кабинета */
+.qm-chips { margin: 0 0 0.55rem; }
+.mine-tabs { margin: 0 0 0.8rem; }
+
+/* v6.2: кнопки формы в ряд; подтверждение «отложено» — зелёным, это не ошибка */
+.form-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; }
+.form-err.is-ok { color: #2e7d32; }
 .req-t {
   margin: 0 0 0.6rem;
   color: var(--text-2);

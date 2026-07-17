@@ -1355,7 +1355,11 @@
       draftRestored = true;
       draftLoad(function (d) {
         var t = d[DRAFT_TEXT] || '';
-        if (t && !$('reqText').value) $('reqText').value = t.slice(0, 4000);
+        if (t && !$('reqText').value) {
+          $('reqText').value = t.slice(0, 4000);
+          // v6.2 §2.4: свайп закрыл TMA — текст выжил, честно говорим об этом
+          $('draftRestored').hidden = false;
+        }
         var s = d[DRAFT_SCOPES];
         var sel = parseDraftScopes(typeof s === 'string' ? s : '');
         if (sel) {
@@ -1769,13 +1773,14 @@
     });
   }
 
+  // v6.2 §2.3: пре-флайт ужесточён до 15 (сервер держит свой минимум — фронт строже).
   function textLen() { return $('reqText').value.trim().length; }
-  function textValid() { var n = textLen(); return n >= 10 && n <= 4000; }
+  function textValid() { var n = textLen(); return n >= 15 && n <= 4000; }
 
   function syncCount() {
     var n = $('reqText').value.length;
     $('reqCount').textContent = String(n);
-    $('reqCount').parentNode.classList.toggle('warn', n > 0 && textLen() < 10);
+    $('reqCount').parentNode.classList.toggle('warn', n > 0 && textLen() < 15);
     syncMain();
   }
 
@@ -1787,15 +1792,48 @@
     haptic('error');
   }
 
+  // Генеративные стоп-слова (v6.2 §2.3). Текст с маркером [T-…] пропускаем:
+  // внутри шаблона может лежать ЦИТАТА оппонента с любыми словами — шаблон и есть
+  // то русло, куда Alert предлагает направить запрос.
+  var STOP_GEN = /(напиши|состав(?:ь|ьте)|придумай|эссе|конспект)/i;
+
   function trySend() {
     if (sending) return;
     if (!authed()) { formErr('Отправка работает только внутри Telegram.'); return; }
 
     var n = textLen();
-    if (n < 10) { formErr('Вызов слишком короткий: нужно не меньше 10 символов, сейчас ' + n + '. Опишите суть — так разбор будет точнее.'); return; }
+    if (n < 15) { formErr('Вызов слишком короткий: нужно не меньше 15 символов, сейчас ' + n + '. Опишите суть — так разбор будет точнее.'); return; }
     if (n > 4000) { formErr('Слишком длинно: до 4000 символов, сейчас ' + n + '. Пришлите главное, остальное дополните в боте.'); return; }
+    var rawText = $('reqText').value;
+    if (!/^\s*\[T-/.test(rawText) && STOP_GEN.test(rawText)) {
+      formErr('⚠️ Нецелевой запрос: КАВАЧАМ — аналитик, а не писатель, эссе и конспекты он не пишет. ' +
+              'Выберите шаблон над полем (софизм · цитата · учебный узел) и сформулируйте вопрос к первоисточникам.');
+      return;
+    }
     if (!baseOn && !scopeSel.length) {
       formErr('Основа снята, а слои не выбраны — разбору не по чему искать. Включите основу или отметьте хотя бы один слой.');
+      return;
+    }
+
+    // v6.2 (v6.2 §2.2): режим правки queued-заявки — PATCH, место в очереди сохраняется.
+    if (editing && editing.status === 'queued') {
+      formErr(null);
+      sending = true; syncMain(); $('btnSend').disabled = true;
+      api('/api/requests/' + editing.id, { method: 'PATCH', body: { text: rawText.trim() } })
+        .then(function () {
+          haptic('success');
+          var rid = editing.id;
+          stopEditing();
+          draftClear(); $('reqText').value = ''; syncCount();
+          mineDirty = true; mountProfile();
+          showState($('submitDone'), '<span class="state-h">Правка сохранена</span>Заявка №' + rid +
+            ' обновлена, место в очереди прежнее.' +
+            '<br><button class="btn btn-ghost" type="button" data-go-mine>Мои испытания</button>' +
+            '<button class="btn btn-ghost" type="button" data-again>Прислать ещё вызов</button>', false);
+          doneShown = true; $('submitForm').hidden = true; syncTerminalMain();
+        })
+        .catch(function (err) { formErr((err && err.message) || 'Не удалось сохранить правку.'); })
+        .then(function () { sending = false; $('btnSend').disabled = false; syncMain(); });
       return;
     }
 
@@ -1806,6 +1844,10 @@
     if (inTelegram && tg.MainButton && tg.MainButton.showProgress) {
       try { tg.MainButton.showProgress(true); } catch (e) {}
     }
+
+    // v6.2: отправка доработанного черновика = обычная постановка в КОНЕЦ очереди
+    // (новый номер — честный FIFO), а исходный черновик после успеха удаляется.
+    var draftToConsume = (editing && editing.status === 'draft') ? editing.id : null;
 
     api('/api/requests', {
       method: 'POST',
@@ -1821,6 +1863,11 @@
       }
     }).then(function (res) {
       haptic('success');
+      if (draftToConsume != null) {
+        stopEditing();
+        api('/api/requests/' + draftToConsume + '/cancel', { method: 'POST', body: { action: 'delete' } })
+          .catch(function () { /* черновик остался — человек удалит руками, заявка уже в очереди */ });
+      }
       draftClear();
       $('reqText').value = '';
       // Исследовательский режим — решение на КОНКРЕТНУЮ заявку, не «раз и навсегда»:
@@ -1872,6 +1919,7 @@
   $('reqText').addEventListener('input', function () {
     syncCount();
     formErr(null);
+    $('draftRestored').hidden = true;   // человек начал печатать — плашка своё отработала
     draftSave(DRAFT_TEXT, $('reqText').value.slice(0, 4000));
   });
   $('showName').addEventListener('change', function () {
@@ -1882,6 +1930,187 @@
     e.preventDefault();
     trySend();
   });
+
+  /* ══════════════════════════════════════════════════════════════════
+     v6.2 — v6.2 (правка/отмена/Архив черновиков) + v6.2 (чипы-шаблоны).
+     Грейсфул-деградация: если сервер ещё не обновлён (эндпоинтов нет), любые
+     действия отвечают честным сообщением, а данные пользователя не теряются.
+     ══════════════════════════════════════════════════════════════════ */
+
+  // ── Режим правки: заявка из очереди (PATCH) или черновик из Архива ──
+  var editing = null;   // {id, status: 'queued'|'draft'} | null
+
+  function startEditing(it) {
+    editing = { id: it.id, status: it.status };
+    doneShown = false;
+    $('submitDone').hidden = true;
+    $('submitForm').hidden = false;
+    var ta = $('reqText');
+    ta.value = String(it.text || '');
+    syncCount();
+    var warn = (it.status === 'queued' && /…\s*$/.test(ta.value))
+      ? ' ⚠️ Показана сокращённая версия (превью): сохранив её, вы замените полный текст заявки этим.'
+      : '';
+    $('editBanner').textContent = (it.status === 'draft'
+      ? '✏️ Дорабатываете черновик №' + it.id + ': «Отправить» поставит его в конец очереди, «Отложить» — сохранит обратно в Архив.'
+      : '✏️ Правите заявку №' + it.id + ' — место в очереди сохранится.') + warn;
+    $('editBanner').hidden = false;
+    $('btnEditCancel').hidden = false;
+    $('btnSend').textContent = it.status === 'queued' ? 'Сохранить правку' : 'Отправить в очередь';
+    $('btnDraft').hidden = it.status === 'queued';   // у queued свой путь в Архив — кнопка «Отменить» в карточке
+    scrollToEl($('submitForm'));
+    ta.focus();
+  }
+
+  function stopEditing() {
+    editing = null;
+    $('editBanner').hidden = true;
+    $('btnEditCancel').hidden = true;
+    $('btnSend').textContent = 'Отправить вызов';
+    $('btnDraft').hidden = false;
+  }
+
+  $('btnEditCancel').addEventListener('click', function () {
+    haptic('light');
+    stopEditing();
+    $('reqText').value = '';
+    syncCount();
+    formErr(null);
+  });
+
+  // ── v6.2 §2.3: «Отложить в Архив» ──
+  $('btnDraft').addEventListener('click', function () {
+    if (sending) return;
+    if (!authed()) { formErr('Архив черновиков работает только внутри Telegram.'); return; }
+    var text = $('reqText').value.trim();
+    if (!text) { formErr('Нечего откладывать: поле пустое.'); return; }
+    formErr(null);
+    sending = true;
+    $('btnDraft').disabled = true;
+    var req = (editing && editing.status === 'draft')
+      ? api('/api/requests/' + editing.id, { method: 'PATCH', body: { text: text } })
+      : api('/api/requests', {
+          method: 'POST',
+          body: {
+            text: text,
+            corpora: (baseOn ? ['prabhupada'] : []).concat(scopeSel),
+            books: collectBooks(),
+            show_name: !!$('showName').checked,
+            status: 'draft'
+          }
+        });
+    req.then(function () {
+      haptic('success');
+      stopEditing();
+      draftClear();
+      $('reqText').value = '';
+      syncCount();
+      mineDirty = true;
+      mountProfile();
+      var el = $('submitErr');
+      el.textContent = '💾 Отложено в Архив черновиков (см. «Мои испытания»). Форма свободна для нового вызова.';
+      el.classList.add('is-ok');
+      el.hidden = false;
+      setTimeout(function () { el.hidden = true; el.classList.remove('is-ok'); }, 6000);
+    }).catch(function (err) {
+      formErr((err && err.message) || 'Архив пока недоступен — сервер обновляется. Текст остался в поле, ничего не потеряно.');
+    }).then(function () {
+      sending = false;
+      $('btnDraft').disabled = false;
+      syncMain();
+    });
+  });
+
+  // ── v6.2 §2.2: чипы-шаблоны — маркер режима в начало текста ──
+  var QM_TPL = {
+    'T-SOPHISM': '[T-SOPHISM] Аргумент оппонента: {вставьте текст}',
+    'T-QUOTE': '[T-QUOTE] Правда ли, что Шрила Прабхупада говорил: "{вставьте цитату}"',
+    'T-EDU-SHASTRI': '[T-EDU-SHASTRI] Учебный запрос (Бхакти-шастри): {сформулируйте вопрос}',
+    'T-EDU-VAIBHAVA': '[T-EDU-VAIBHAVA] Учебный запрос (Бхакти-вайбхава): {сформулируйте вопрос}',
+    'T-EDU-VEDANTA': '[T-EDU-VEDANTA] Учебный запрос (Бхакти-веданта): {сформулируйте вопрос}',
+    'T-EDU-SARVABHAUMA': '[T-EDU-SARVABHAUMA] Учебный запрос (Бхакти-сарвабхаума): {сформулируйте вопрос}'
+  };
+  // Прежний шаблон-префикс заменяется целиком (маркер + вводная фраза шаблона),
+  // авторский текст после него бережём.
+  var QM_PREFIX_RE = /^\s*\[T-[A-Z-]+\]\s*(?:Аргумент оппонента:|Правда ли, что Шрила Прабхупада говорил:|Учебный запрос \([^)]*\):)?\s*/;
+
+  function insertTemplate(code) {
+    var ta = $('reqText');
+    var rest = ta.value.replace(QM_PREFIX_RE, '');
+    ta.value = QM_TPL[code] + (rest ? ' ' + rest : ' ');
+    syncCount();
+    formErr(null);
+    draftSave(DRAFT_TEXT, ta.value.slice(0, 4000));
+    ta.focus();
+    var i = ta.value.indexOf('{');
+    var j = ta.value.indexOf('}');
+    if (i >= 0 && j > i) { try { ta.setSelectionRange(i, j + 1); } catch (e) {} }
+    haptic('select');
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('#qmChips [data-qm], #qmEduRow [data-qm]'), function (b) {
+    b.addEventListener('click', function () { insertTemplate(b.getAttribute('data-qm')); });
+  });
+  $('qmEdu').addEventListener('click', function () {
+    var row = $('qmEduRow');
+    row.hidden = !row.hidden;
+    $('qmEdu').setAttribute('aria-expanded', row.hidden ? 'false' : 'true');
+    haptic('light');
+  });
+
+  // ── v6.2 §2.1: отмена заявки — нативный трёхкнопочный попап Telegram ──
+  function askThree(message, onDelete, onDraft) {
+    if (inTelegram && typeof tg.showPopup === 'function') {
+      try {
+        tg.showPopup({
+          title: 'Снять заявку с очереди?',
+          message: message,
+          buttons: [
+            { id: 'draft', type: 'default', text: '💾 В черновики' },
+            { id: 'delete', type: 'destructive', text: '🗑 Удалить' },
+            { id: 'back', type: 'cancel' }
+          ]
+        }, function (id) {
+          if (id === 'delete') onDelete();
+          else if (id === 'draft') onDraft();
+        });
+        return;
+      } catch (e) { /* упадём в фолбэк */ }
+    }
+    // Вне Telegram: два шага из «да/нет» (порядок сохраняет UX-защиту ТЗ)
+    askConfirm(message + '\n\nСохранить текст в Архив черновиков? («Отмена» = следующий вопрос — удалить навсегда)', function (toDraft) {
+      if (toDraft) { onDraft(); return; }
+      askConfirm('Удалить текст заявки навсегда?', function (kill) { if (kill) onDelete(); });
+    });
+  }
+
+  function doCancel(rid, action) {
+    api('/api/requests/' + rid + '/cancel', { method: 'POST', body: { action: action } })
+      .then(function () {
+        haptic('success');
+        if (editing && editing.id === rid) { stopEditing(); $('reqText').value = ''; syncCount(); }
+        mineDirty = true;
+        loadMine();
+      })
+      .catch(function (err) {
+        haptic('error');
+        showState($('profileState'), (err && err.message) || 'Не получилось — сервер обновляется, попробуйте позже.', true);
+      });
+  }
+
+  function askCancel(it) {
+    if (it.status === 'draft') {
+      askConfirm('Удалить черновик №' + it.id + ' навсегда?', function (ok) {
+        if (ok) doCancel(it.id, 'delete');
+      });
+      return;
+    }
+    askThree(
+      'Заявка №' + it.id + ': это освободит место для других участников. Можно удалить текст навсегда или отложить его в Архив черновиков, чтобы доработать позже.',
+      function () { doCancel(it.id, 'delete'); },
+      function () { doCancel(it.id, 'move_to_draft'); }
+    );
+  }
 
   /* ══════════════════════════════════════════════════════════════════
      ГОЛОСОВОЙ ВВОД — Deepgram через сервис kavacham-stt (Cloud Run).
@@ -2062,7 +2291,9 @@
     scouting:  { label: 'Разведка',      cls: 'st-scouting' },
     verifying: { label: 'Сверка праман', cls: 'st-verifying' },
     done:      { label: 'Опубликовано',  cls: 'st-done' },
-    rejected:  { label: 'Отклонена',     cls: 'st-rejected' }
+    rejected:  { label: 'Отклонена',     cls: 'st-rejected' },
+    draft:     { label: 'Черновик',      cls: 'st-draft' },      // v6.2
+    cancelled: { label: 'Отменена',      cls: 'st-cancelled' }   // v6.2
   };
   var IN_WORK = { scouting: 1, verifying: 1 };   // заявка в руках движка/человека
   var PIPE_MARK = { past: '✓', now: '◉', next: '○' };
@@ -2072,6 +2303,8 @@
   var mineAt = 0;          // когда загружали в последний раз
   var minePipe = null;     // маршрут стадий с последнего ответа сервера
   var MINE_TTL = 30000;
+  var mineItems = [];      // v6.2: последний список целиком (для табов Заявки/Черновики)
+  var mineView = 'req';    // 'req' | 'drafts'
 
   function mountProfile() {
     var gate = $('profileGate');
@@ -2101,14 +2334,16 @@
       mineDirty = false;
       mineAt = Date.now();
 
+      mineItems = items;
       if (!items.length) {
+        $('mineTabs').hidden = true;
         showState(stateEl,
           '<span class="state-h">Испытаний пока нет</span>' +
           'Пришлите вызов — софизм, мем, искажение или сложный вопрос. Разбор придёт сюда и в бота.' +
           '<br><button class="btn btn-ghost" type="button" data-go-form>Инициировать разбор</button>', false);
         return;
       }
-      renderMine(items, minePipe);
+      renderMineView();
       stateEl.hidden = true;
       listEl.hidden = false;
     }).catch(function (err) {
@@ -2213,6 +2448,23 @@
     li.appendChild(p);
   }
 
+  // v6.2 (v6.2 §2.3): табы «Заявки | Черновики». Черновики — отдельная полка:
+  // они не в очереди, и мешать их с живыми заявками значит врать про очередь.
+  function renderMineView() {
+    var drafts = mineItems.filter(function (it) { return it.status === 'draft'; });
+    var reqs = mineItems.filter(function (it) { return it.status !== 'draft'; });
+    $('draftCount').textContent = String(drafts.length);
+    $('mineTabs').hidden = !drafts.length && mineView === 'req' ? true : false;
+    if (!drafts.length && mineView === 'drafts') mineView = 'req';
+    $('mineTabReq').classList.toggle('on', mineView === 'req');
+    $('mineTabReq').setAttribute('aria-selected', mineView === 'req' ? 'true' : 'false');
+    $('mineTabDrafts').classList.toggle('on', mineView === 'drafts');
+    $('mineTabDrafts').setAttribute('aria-selected', mineView === 'drafts' ? 'true' : 'false');
+    renderMine(mineView === 'drafts' ? drafts : reqs, minePipe);
+  }
+  $('mineTabReq').addEventListener('click', function () { mineView = 'req'; haptic('select'); renderMineView(); });
+  $('mineTabDrafts').addEventListener('click', function () { mineView = 'drafts'; haptic('select'); renderMineView(); });
+
   function renderMine(items, pipeline) {
     var listEl = $('profileList');
     listEl.textContent = '';
@@ -2290,6 +2542,26 @@
         a.rel = 'noopener';
         a.textContent = 'Открыть разбор';
         li.appendChild(a);
+      }
+
+      // v6.2 (v6.2 §2.1–2.2): управление — СТРОГО пока заявка «В очереди»
+      // (ушла в разведку — кнопки пропадают, ресурс уже тратится) или это черновик.
+      if (key === 'queued' || key === 'draft') {
+        var act = document.createElement('div');
+        act.className = 'req-actions';
+        var bEdit = document.createElement('button');
+        bEdit.type = 'button';
+        bEdit.className = 'mini';
+        bEdit.textContent = key === 'draft' ? '✏ Доработать' : '✎ Изменить';
+        bEdit.addEventListener('click', function () { haptic('light'); startEditing(it); });
+        act.appendChild(bEdit);
+        var bCancel = document.createElement('button');
+        bCancel.type = 'button';
+        bCancel.className = 'mini mini-danger';
+        bCancel.textContent = key === 'draft' ? '🗑 Удалить' : '✖ Отменить';
+        bCancel.addEventListener('click', function () { haptic('light'); askCancel(it); });
+        act.appendChild(bCancel);
+        li.appendChild(act);
       }
 
       listEl.appendChild(li);
