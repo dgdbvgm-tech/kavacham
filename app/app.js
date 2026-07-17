@@ -1830,7 +1830,16 @@
   function syncCount() {
     var n = $('reqText').value.length;
     $('reqCount').textContent = String(n);
-    $('reqCount').parentNode.classList.toggle('warn', n > 0 && textLen() < 15);
+    // warn — на строке .field-h, не на внутреннем span: счётчик теперь обёрнут
+    // (строка counter-row), а красит только правило .field-h.warn
+    var line = $('reqCount').parentNode;
+    while (line && line.classList && !line.classList.contains('field-h')) line = line.parentNode;
+    if (line && line.classList) line.classList.toggle('warn', n > 0 && textLen() < 15);
+    // подсветка категории следует за текстом всюду, где он меняется программно
+    // (восстановление черновика, правка заявки, очистка формы), — syncCount
+    // зовут во всех этих местах
+    var m = /^\s*\[(T-[A-Z-]+)\]/.exec($('reqText').value);
+    syncQmChips(m ? m[1] : null);
     syncMain();
   }
 
@@ -2083,12 +2092,25 @@
   // Прежний шаблон-префикс заменяется целиком (маркер + вводная фраза шаблона),
   // авторский текст после него бережём.
   var QM_PREFIX_RE = /^\s*\[T-[A-Z-]+\]\s*(?:Аргумент оппонента:|Правда ли, что Шрила Прабхупада говорил:|Учебный запрос \([^)]*\):)?\s*/;
+  // НЕТРОНУТЫЙ плейсхолдер шаблона (в т.ч. в кавычках у T-QUOTE) — не авторский
+  // текст, при переключении категории срезается вместе с префиксом. Иначе
+  // «{сформулируйте вопрос}» наслаивался при каждом тапе по другой ступени.
+  var QM_PLACEHOLDER_RE = /^"?\{(?:вставьте текст|вставьте цитату|сформулируйте вопрос)\}"?\s*/;
+
+  function syncQmChips(code) {
+    // Подсветка выбранной категории: одна активная на оба ряда; выбор ступени
+    // подсвечивает и родительский чип «Учебный узел».
+    Array.prototype.forEach.call(document.querySelectorAll('#qmChips [data-qm], #qmEduRow [data-qm]'), function (b) {
+      b.classList.toggle('on', b.getAttribute('data-qm') === code);
+    });
+    $('qmEdu').classList.toggle('on', /^T-EDU-/.test(code || ''));
+  }
 
   function insertTemplate(code) {
     var ta = $('reqText');
-    var rest = ta.value.replace(QM_PREFIX_RE, '');
-    ta.value = QM_TPL[code] + (rest ? ' ' + rest : ' ');
-    syncCount();
+    var rest = ta.value.replace(QM_PREFIX_RE, '').replace(QM_PLACEHOLDER_RE, '');
+    ta.value = QM_TPL[code] + (rest ? ' ' + rest : '');
+    syncCount();               // счётчик + подсветка выбранной категории
     formErr(null);
     draftSave(DRAFT_TEXT, ta.value.slice(0, 4000));
     ta.focus();
@@ -2101,10 +2123,35 @@
   Array.prototype.forEach.call(document.querySelectorAll('#qmChips [data-qm], #qmEduRow [data-qm]'), function (b) {
     b.addEventListener('click', function () { insertTemplate(b.getAttribute('data-qm')); });
   });
+  var eduHideTimer = null;
   $('qmEdu').addEventListener('click', function () {
     var row = $('qmEduRow');
-    row.hidden = !row.hidden;
-    $('qmEdu').setAttribute('aria-expanded', row.hidden ? 'false' : 'true');
+    // Источник правды — класс .open, НЕ hidden: hidden в момент анимации
+    // сворачивания ещё false, и быстрый повторный тап читал бы его как «открыто».
+    var open = !row.classList.contains('open');
+    // таймер прошлого сворачивания ОБЯЗАН быть снят: иначе он прячет ряд
+    // через мгновение после нового открытия (гонка rAF против setTimeout)
+    clearTimeout(eduHideTimer);
+    if (open) {
+      row.hidden = false;                  // сперва вернуть в раскладку…
+      requestAnimationFrame(function () { row.classList.add('open'); });  // …потом кадр на transition
+    } else {
+      row.classList.remove('open');        // закрытие — синхронно, rAF не нужен
+      eduHideTimer = setTimeout(function () {
+        if (!row.classList.contains('open')) row.hidden = true;
+      }, 220);
+    }
+    $('qmEdu').setAttribute('aria-expanded', open ? 'true' : 'false');
+    $('qmEdu').classList.toggle('expanded', open);
+    haptic('light');
+  });
+
+  // ℹ️ детали формы: тот же паттерн раскрытия, что у ступеней (не hover-тултип —
+  // на тач-экране ховера нет)
+  $('reqInfo').addEventListener('click', function () {
+    var body = $('reqInfoBody');
+    body.hidden = !body.hidden;
+    $('reqInfo').setAttribute('aria-expanded', body.hidden ? 'false' : 'true');
     haptic('light');
   });
 
@@ -3526,6 +3573,9 @@
 
   var boardsAt = 0;
   var BOARDS_TTL = 60 * 1000;
+  var kbAdmin = false;       // сервер сказал is_admin в ответе /api/kanban
+  var kbDevHidden = [];      // заголовки, скрытые оператором с доски разработки
+  var kbNodesHidden = [];    // id заявок, скрытые с доски узлов
 
   function kbColumn(title, count) {
     var col = document.createElement('div');
@@ -3537,51 +3587,129 @@
     return col;
   }
 
+  // ✖ на карточке (только оператор): скрыть с витрины через пульт сервера
+  function kbHideBtn(board, key) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'mini mini-danger kb-hide';
+    b.textContent = '✖';
+    b.title = 'Скрыть с витрины';
+    b.addEventListener('click', function () {
+      haptic('light');
+      askConfirm('Скрыть карточку с витрины для всех?', function (ok) {
+        if (!ok) return;
+        api('/api/admin/kanban/hide', { method: 'POST', body: { board: board, key: key } })
+          .then(function () { showToast('Скрыто'); boardsAt = 0; loadBoards(); })
+          .catch(function (err) { showToast((err && err.message) || 'Не сохранилось'); });
+      });
+    });
+    return b;
+  }
+
+  // блок ПОД доской (подпись снапшота, список скрытых): внутрь .kb нельзя —
+  // это горизонтальный flex, любой ребёнок встаёт «колонкой»
+  function kbBelow(boardEl, id) {
+    var el = document.getElementById(id);
+    if (el) { el.textContent = ''; return el; }
+    el = document.createElement('div');
+    el.id = id;
+    boardEl.parentNode.insertBefore(el, boardEl.nextSibling);
+    return el;
+  }
+
+  // список скрытых с кнопками «↩ вернуть» (только оператор)
+  function kbHiddenList(board, keys, labelFn) {
+    var wrap = document.createElement('div');
+    wrap.className = 'kb-hidden';
+    if (!keys.length) return wrap;
+    var head = document.createElement('p');
+    head.className = 'field-h';
+    head.textContent = 'Скрыто оператором: ' + keys.length;
+    wrap.appendChild(head);
+    keys.forEach(function (k) {
+      var row = document.createElement('p');
+      row.className = 'kb-hidden-row';
+      var t = document.createElement('span');
+      t.textContent = labelFn(k);
+      row.appendChild(t);
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'mini';
+      b.textContent = '↩ вернуть';
+      b.addEventListener('click', function () {
+        haptic('light');
+        api('/api/admin/kanban/hide', { method: 'POST', body: { board: board, key: k, restore: true } })
+          .then(function () { showToast('Возвращено'); boardsAt = 0; loadBoards(); })
+          .catch(function (err) { showToast((err && err.message) || 'Не сохранилось'); });
+      });
+      row.appendChild(b);
+      wrap.appendChild(row);
+    });
+    return wrap;
+  }
+
+  function renderDevBoard(d) {
+    var devState = $('kbDevState'), devEl = $('kbDev');
+    var cols = (d && Array.isArray(d.columns)) ? d.columns : [];
+    devEl.textContent = '';
+    cols.forEach(function (c) {
+      var cards = (Array.isArray(c.cards) ? c.cards : []).filter(function (card) {
+        return kbDevHidden.indexOf(String(card.title || '')) < 0;
+      });
+      var col = kbColumn(c.title || '', cards.length);
+      cards.forEach(function (card) {
+        var el = document.createElement('div');
+        el.className = 'kb-card';
+        var t = document.createElement('span');
+        t.textContent = String(card.title || '');
+        el.appendChild(t);
+        if (kbAdmin) el.appendChild(kbHideBtn('dev', String(card.title || '')));
+        col.appendChild(el);
+      });
+      devEl.appendChild(col);
+    });
+    var below = kbBelow(devEl, 'kbDevBelow');
+    if (d && d.updated) {
+      var u = document.createElement('p');
+      u.className = 'field-h';
+      u.textContent = 'Снапшот от ' + fmtDate(d.updated) + ' — обновляется с каждой публикацией кода.';
+      below.appendChild(u);
+    }
+    if (kbAdmin) {
+      below.appendChild(kbHiddenList('dev', kbDevHidden, function (k) { return k; }));
+    }
+    devState.hidden = true;
+    devEl.hidden = false;
+  }
+
   function loadBoards() {
     var now = Date.now();
     if (now - boardsAt < BOARDS_TTL) return;
     boardsAt = now;
 
-    // — Доска 1: Разработка (статика) —
-    var devState = $('kbDevState'), devEl = $('kbDev');
-    fetch('kanban.json', { cache: 'no-cache' }).then(function (r) {
+    var devState = $('kbDevState');
+    var fetchDev = fetch('kanban.json', { cache: 'no-cache' }).then(function (r) {
       if (!r.ok) throw new Error('нет снапшота');
       return r.json();
-    }).then(function (d) {
-      var cols = (d && Array.isArray(d.columns)) ? d.columns : [];
-      devEl.textContent = '';
-      cols.forEach(function (c) {
-        var cards = Array.isArray(c.cards) ? c.cards : [];
-        var col = kbColumn(c.title || '', cards.length);
-        cards.forEach(function (card) {
-          var el = document.createElement('div');
-          el.className = 'kb-card';
-          el.textContent = String(card.title || '');
-          col.appendChild(el);
-        });
-        devEl.appendChild(col);
-      });
-      if (d && d.updated) {
-        var u = document.createElement('p');
-        u.className = 'field-h';
-        u.textContent = 'Снапшот от ' + fmtDate(d.updated) + ' — обновляется с каждой публикацией кода.';
-        devEl.appendChild(u);
-      }
-      devState.hidden = true;
-      devEl.hidden = false;
-    }).catch(function () {
-      showState(devState, 'Снапшот доски ещё не выгружен — появится со следующей публикацией кода.', false);
     });
 
     // — Доска 2: Очередь Узлов (живая, персональная) —
     var labState = $('kbLabState'), labEl = $('kbLab');
     if (!authed()) {
+      // вне Telegram живой доски нет; статика разработки — без операторского
+      // фильтра (он доедет со следующей пересборкой снапшота)
+      fetchDev.then(renderDevBoard).catch(function () {
+        showState(devState, 'Снапшот доски ещё не выгружен — появится со следующей публикацией кода.', false);
+      });
       showState(labState, 'Живой конвейер виден внутри Telegram: чтобы показать ВАШИ карточки с текстом, нужна подпись аккаунта.', false);
       labEl.hidden = true;
       return;
     }
     labState.hidden = true;
     api('/api/kanban').then(function (d) {
+      kbAdmin = !!(d && d.is_admin);
+      kbDevHidden = (d && d.dev_hidden) || [];
+      kbNodesHidden = (d && d.nodes_hidden) || [];
       var cols = (d && Array.isArray(d.columns)) ? d.columns : [];
       labEl.textContent = '';
       cols.forEach(function (c) {
@@ -3592,7 +3720,7 @@
           el.className = 'kb-card' + (card.mine ? ' kb-mine' : '');
           var k = document.createElement('p');
           k.className = 'kb-kind mono';
-          k.textContent = (card.mine ? '№' + card.id + ' · ' : '') + String(card.kind || '');
+          k.textContent = (card.id ? '№' + card.id + ' · ' : '') + String(card.kind || '');
           el.appendChild(k);
           if (card.mine && card.text) {
             var t = document.createElement('p');
@@ -3613,17 +3741,36 @@
             a.textContent = 'Открыть разбор';
             el.appendChild(a);
           }
+          if (kbAdmin && card.id) el.appendChild(kbHideBtn('nodes', card.id));
           col.appendChild(el);
         });
         labEl.appendChild(col);
       });
+      var labBelow = kbBelow(labEl, 'kbLabBelow');
+      if (kbAdmin) {
+        labBelow.appendChild(kbHiddenList('nodes', kbNodesHidden, function (k) { return 'Заявка №' + k; }));
+      }
       labEl.hidden = false;
+      $('kbRefresh').hidden = !kbAdmin;      // ⟳ — пульт оператора
+      // статика рендерится ПОСЛЕ живой доски: фильтр dev_hidden уже известен
+      fetchDev.then(renderDevBoard).catch(function () {
+        showState(devState, 'Снапшот доски ещё не выгружен — появится со следующей публикацией кода.', false);
+      });
     }).catch(function (err) {
       showState(labState, 'Конвейер сейчас недоступен: ' +
         (err && err.message ? err.message : ''), true);
       labEl.hidden = true;
+      fetchDev.then(renderDevBoard).catch(function () {
+        showState(devState, 'Снапшот доски ещё не выгружен — появится со следующей публикацией кода.', false);
+      });
     });
   }
+
+  $('kbRefresh').addEventListener('click', function () {
+    haptic('light');
+    boardsAt = 0;
+    loadBoards();
+  });
 
   /* ══════════════════════════════════════════════════════════════════
      КОНСОЛЬ ОПЕРАТОРА (v6.3, Штаб): сигналы связи + личный ответ + рассылка.

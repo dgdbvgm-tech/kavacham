@@ -80,15 +80,16 @@
       <!-- Панель заявки: раскрывается кнопкой выше -->
       <div class="panel" id="initPanel" hidden>
 
+        <!-- Три направления Лаборатории — те же, что чипы-шаблоны формы ниже:
+             одна таксономия на витрину и на кнопки, никакой параллельной. -->
         <details class="vectors">
           <summary>Векторы Лаборатории (что мы берём в разбор)</summary>
           <ul class="vec-list">
-            <li><strong>Теология и критика:</strong> искажения сиддханты, софизмы, критика от оппонентов и межконфессиональные споры.</li>
-            <li><strong>Современные вызовы:</strong> научный атеизм, трансгуманизм, вызовы ИИ, секулярная критика и гендерная повестка.</li>
-            <li><strong>Социум и инфополе:</strong> споры в соцсетях, каверзные вопросы от знакомых, поп-культура, эзотерика и мемы.</li>
-            <li><strong>Сложные узлы:</strong> претензии бывших единоверцев и «религиозная травма».</li>
-            <li><strong>Учебный полигон:</strong> глубокие запросы уровня курса Бхакти-шастр.</li>
+            <li><strong>🛡 Разбор софизма:</strong> искажения сиддханты, критика от оппонентов и межконфессиональные споры; научный атеизм, трансгуманизм, вызовы ИИ и секулярная критика; споры в соцсетях, каверзные вопросы, поп-культура, эзотерика и мемы; претензии бывших единоверцев.</li>
+            <li><strong>🔍 Проверка цитаты:</strong> «правда ли, что Шрила Прабхупада говорил…» — вирусные цитаты, спорные атрибуции, вырванные из контекста фразы.</li>
+            <li><strong>📚 Учебный узел:</strong> глубокие запросы по ступеням вайшнавского образования — от Бхакти-шастри до Бхакти-сарвабхаумы.</li>
           </ul>
+          <p class="vec-note">«Религиозная травма», семейные кризисы и сокровенные вопросы — не сюда: такие узлы решают живые наставники, это принцип Лаборатории.</p>
         </details>
 
         <!-- Вне Telegram: честно говорим, что формы здесь нет, и даём рабочий путь -->
@@ -109,9 +110,11 @@
             <div class="chips qm-chips" id="qmChips" role="group" aria-label="Шаблоны запроса">
               <button class="chip" type="button" data-qm="T-SOPHISM">🛡 Разбор софизма</button>
               <button class="chip" type="button" data-qm="T-QUOTE">🔍 Проверка цитаты</button>
-              <button class="chip" type="button" id="qmEdu" aria-expanded="false" aria-controls="qmEduRow">📚 Учебный узел</button>
+              <button class="chip" type="button" id="qmEdu" aria-expanded="false" aria-controls="qmEduRow">📚 Учебный узел <span class="chip-chev" aria-hidden="true">▾</span></button>
             </div>
-            <div class="chips qm-chips" id="qmEduRow" role="group" aria-label="Ступень вайшнавского образования" hidden>
+            <!-- Аккордеон ступеней: порядок — официальная лестница вайшнавского
+                 образования (шастри → вайбхава → веданта → сарвабхаума). -->
+            <div class="chips qm-chips qm-edu" id="qmEduRow" role="group" aria-label="Ступень вайшнавского образования" hidden>
               <button class="chip" type="button" data-qm="T-EDU-SHASTRI">Бхакти-шастри</button>
               <button class="chip" type="button" data-qm="T-EDU-VAIBHAVA">Бхакти-вайбхава</button>
               <button class="chip" type="button" data-qm="T-EDU-VEDANTA">Бхакти-веданта</button>
@@ -140,9 +143,16 @@
               <p class="field-h voice-note" id="voiceNote" role="status" hidden></p>
             </div>
 
-            <p class="field-h"><span id="reqCount">0</span> / 4000 · не меньше 15 символов</p>
-            <p class="field-h">КАВАЧАМ — аналитик, а не писатель. Мы проверяем праманы. Точный вопрос = точный ответ.</p>
-            <p class="field-h">Скриншот в это поле не вложить — здесь только текст. Изображение принимает бот: пришлите картинку туда, подпись к ней станет текстом заявки.</p>
+            <!-- Компактный копирайтинг: снаружи только счётчик, детали — за ℹ️.
+                 Три абзаца инструкции съедали пол-экрана 390×600 до первого дела. -->
+            <p class="field-h counter-row">
+              <span><span id="reqCount">0</span> / 4000 · не меньше 15 символов</span>
+              <button class="info-btn" id="reqInfo" type="button" aria-expanded="false" aria-controls="reqInfoBody">ℹ️ как это работает</button>
+            </p>
+            <div class="field-info" id="reqInfoBody" hidden>
+              <p>КАВАЧАМ — аналитик, а не писатель. Мы проверяем праманы, а не сочиняем тексты: точный вопрос = точный ответ.</p>
+              <p>Скриншот в это поле не вложить — здесь только текст. Изображение принимает бот: пришлите картинку туда, подпись к ней станет текстом заявки.</p>
+            </div>
           </div>
 
           <fieldset class="field">
@@ -357,7 +367,12 @@
            сервера, и персональная: свои карточки видны с текстом, чужие — только
            видом испытания и стадией (анонимность заявителей — правило проекта). -->
       <section class="block" id="boardsBlock" aria-labelledby="boardsH">
-        <h2 class="block-h" id="boardsH">Доски Лаборатории</h2>
+        <div class="block-top">
+          <h2 class="block-h" id="boardsH">Доски Лаборатории</h2>
+          <!-- ⟳ — пульт главного оператора: форс-обновление обеих досок.
+               Скрыт, пока сервер не подтвердил права в ответе доски. -->
+          <button class="mini" id="kbRefresh" type="button" hidden>⟳ Обновить</button>
+        </div>
         <p class="screen-sub">Карточки двигаются по мере реальной работы — это витрина процесса, а не декорация.</p>
 
         <h3 class="kb-h">🛠 Разработка</h3>
