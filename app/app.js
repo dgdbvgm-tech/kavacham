@@ -1271,6 +1271,12 @@
   }
 
   function saveScopesDraft() {
+    // Дерево есть → черновик v2 (JSON): группы целиком + точечные книги.
+    // Формат обратно совместим: parseDraftScopes читает и v2, и легаси-CSV.
+    if (TREE) {
+      draftSave(DRAFT_SCOPES, JSON.stringify({ v: 2, all: fullKeys(), books: collectBooks() }));
+      return;
+    }
     var keys = scopeSel.slice();
     if (!baseOn) keys.push(NO_BASE);
     draftSave(DRAFT_SCOPES, keys.join(','));
@@ -1343,7 +1349,7 @@
     done.hidden = true;
     form.hidden = false;
 
-    loadScopes();
+    loadCorpusSelector();
 
     if (!draftRestored) {
       draftRestored = true;
@@ -1351,19 +1357,319 @@
         var t = d[DRAFT_TEXT] || '';
         if (t && !$('reqText').value) $('reqText').value = t.slice(0, 4000);
         var s = d[DRAFT_SCOPES];
-        if (typeof s === 'string' && s) {
-          var keys = s.split(',').filter(Boolean);
-          baseOn = keys.indexOf(NO_BASE) < 0;   // сентинел «основа снята» — не корпус
-          scopeSel = keys.filter(function (k) { return k !== NO_BASE; });
+        var sel = parseDraftScopes(typeof s === 'string' ? s : '');
+        if (sel) {
+          // pendingSel дождётся отрисовки дерева; чипам хватает ключей и основы
+          pendingSel = sel;
+          baseOn = sel.all.indexOf('prabhupada') >= 0 ||
+            sel.books.some(function (b) { return corpusToKey(b.corpus || '') === 'prabhupada'; });
+          scopeSel = [];
+          sel.all.concat(sel.books.map(function (b) { return corpusToKey(b.corpus || ''); }))
+            .forEach(function (k) {
+              if (k && k !== 'prabhupada' && scopeSel.indexOf(k) < 0) scopeSel.push(k);
+            });
+          if (TREE) applySelection(sel);
         }
         if (d[DRAFT_SHOW] === '1') $('showName').checked = true;
-        syncScopeChips();
+        syncCorpusUI();
         syncResearchNote();
         syncCount();
       });
     }
 
     syncCount();
+  }
+
+  /* ── Дерево корпусов: группа → книги, как в пульте песочницы ──
+     Дерево отдаётся ТОЛЬКО авторизованным (GET /api/corpus-tree): в нём есть
+     корпуса, скрытые из публичного каталога. Ошибка или 404 → честный откат к
+     плоским чипам /api/scopes (loadScopes) — форма работает всегда, дерево —
+     обогащение. Состояние: gSel[gi] = множество индексов выбранных листьев.
+     Основа = группа со scope_key BASE_KEY: «выбран хотя бы один лист» ⇔ baseOn;
+     переход в ноль — только через RESEARCH_CONFIRM (как у чипа основы). */
+  var TREE = null;           // группы дерева либо null (работаем чипами)
+  var TREE_HINTS = {};
+  var BASE_KEY = 'prabhupada';
+  var gSel = [];             // gi → объект-множество: {bi: 1}
+  var treeReq = null;
+  var pendingSel = null;     // выбор из черновика, ждущий отрисовки дерева
+  // тир — языком продукта (тот же словарь, что в хинтах слоёв), не жаргоном движка
+  var TIER_TMA = { trusted: 'проверен', grey: 'серый список', pending: 'на вычитке' };
+
+  function fmtN(n) {
+    try { return (n || 0).toLocaleString('ru-RU'); } catch (e) { return String(n || 0); }
+  }
+  function corpusToKey(c) {
+    // мостик «корпус ядра → ключ слоя» — инвариант сервера v6.1: ключ слоя =
+    // имя корпуса, а четыре свода основы (bg/sb/cc/prabhupada) сворачиваются в базу
+    return (c === 'bg' || c === 'sb' || c === 'cc' || c === 'prabhupada') ? 'prabhupada' : c;
+  }
+  function elc(tag, cls) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    return e;
+  }
+  function groupCount(gi) {
+    var n = 0, k;
+    for (k in gSel[gi]) { if (Object.prototype.hasOwnProperty.call(gSel[gi], k)) n++; }
+    return n;
+  }
+  function baseGi() {
+    for (var i = 0; i < TREE.length; i++) { if (TREE[i].scope_key === BASE_KEY) return i; }
+    return -1;
+  }
+
+  function fetchTree() {
+    if (!treeReq) treeReq = api('/api/corpus-tree').then(function (d) { return d || {}; });
+    return treeReq;
+  }
+
+  // Точка входа селектора: дерево авторизованным, чипы — всем остальным сценариям.
+  function loadCorpusSelector() {
+    if (!authed()) { loadScopes(); return; }
+    if (TREE) { syncCorpusUI(); return; }
+    fetchTree().then(function (d) {
+      if (!d || !Array.isArray(d.tree) || !d.tree.length) throw new Error('дерево пустое');
+      TREE = d.tree;
+      BASE_KEY = d.base_key || 'prabhupada';
+      TREE_HINTS = d.hints || {};
+      // черновик, если он был; иначе дефолт сервера (основа + канон парампары)
+      applySelection(pendingSel || { all: d.default_keys || ['prabhupada'], books: [] });
+      renderTree();
+      $('scopeList').hidden = true;
+      $('scopeState').hidden = true;
+      $('corpusTree').hidden = false;
+      syncResearchNote();
+    }).catch(function () {
+      treeReq = null;          // неудачу не кэшируем: следующий заход попробует снова
+      loadScopes();
+    });
+  }
+
+  // sel = {all: [ключи групп целиком], books: [{corpus, title|prefix} частичных]}
+  function applySelection(sel) {
+    gSel = TREE.map(function () { return {}; });
+    var all = {};
+    (sel.all || []).forEach(function (k) { all[k] = 1; });
+    TREE.forEach(function (g, gi) {
+      if (g.disabled || all[g.scope_key] !== 1) return;
+      g.books.forEach(function (leaf, bi) { gSel[gi][bi] = 1; });
+    });
+    (sel.books || []).forEach(function (b) {
+      if (!b || !b.corpus) return;
+      var key = corpusToKey(b.corpus);
+      TREE.forEach(function (g, gi) {
+        if (g.scope_key !== key || g.disabled) return;
+        g.books.forEach(function (leaf, bi) {
+          if (leaf.corpus !== b.corpus) return;
+          // лист совпал, если совпали оба селектора (у листа «корпус целиком» их нет)
+          if ((b.title || null) === (leaf.title || null) &&
+              (b.prefix || null) === (leaf.prefix || null)) gSel[gi][bi] = 1;
+        });
+      });
+    });
+    syncScopeKeysFromTree();
+  }
+
+  // scopeSel/baseOn — общий язык формы (валидация, черновик, payload):
+  // дерево лишь наполняет их своим состоянием.
+  function syncScopeKeysFromTree() {
+    scopeSel = [];
+    TREE.forEach(function (g, gi) {
+      if (g.disabled || g.scope_key === BASE_KEY) return;
+      if (groupCount(gi) > 0 && scopeSel.indexOf(g.scope_key) < 0) scopeSel.push(g.scope_key);
+    });
+    var b = baseGi();
+    if (b >= 0) baseOn = groupCount(b) > 0;
+  }
+
+  function fullKeys() {
+    var out = [];
+    TREE.forEach(function (g, gi) {
+      if (g.disabled) return;
+      if (g.books.length && groupCount(gi) === g.books.length) out.push(g.scope_key);
+    });
+    return out;
+  }
+
+  // Сужение для сервера: ТОЛЬКО частично выбранные группы (целиком = corpora-ключ).
+  function collectBooks() {
+    if (!TREE) return [];
+    var out = [];
+    TREE.forEach(function (g, gi) {
+      var total = g.books.length, n = groupCount(gi);
+      if (n === 0 || n === total) return;
+      g.books.forEach(function (leaf, bi) {
+        if (!gSel[gi][bi]) return;
+        var s = { corpus: leaf.corpus };
+        if (leaf.title) s.title = leaf.title;
+        else if (leaf.prefix) s.prefix = leaf.prefix;
+        out.push(s);     // без title/prefix — лист «корпус целиком» (bg/sb/cc)
+      });
+    });
+    return out;
+  }
+
+  function renderTree() {
+    var box = $('corpusTree');
+    box.textContent = '';
+    TREE.forEach(function (g, gi) {
+      var node = elc('div', 'cg' + (g.disabled ? ' cg-off' : ''));
+      var head = elc('div', 'cg-head');
+      var arrow = elc('button', 'cg-arrow');
+      arrow.type = 'button';
+      arrow.textContent = '▸';
+      arrow.setAttribute('aria-expanded', 'false');
+      arrow.setAttribute('aria-label', 'Раскрыть состав: ' + g.label);
+      var lab = elc('label', 'cg-check');
+      var cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.disabled = !!g.disabled;
+      var nm = elc('span', 'cg-name');
+      nm.textContent = g.label;
+      lab.appendChild(cb);
+      lab.appendChild(nm);
+      var meta = elc('span', 'cg-meta');
+      var tier = elc('span', 'ctier t-' + (g.tier || 'pending'));
+      tier.textContent = TIER_TMA[g.tier] || g.tier_label || '';
+      var cnt = elc('span', 'cg-cnt mono');
+      meta.appendChild(tier);
+      meta.appendChild(cnt);
+      var hint = TREE_HINTS[g.scope_key];
+      if (hint) head.title = hint;
+      head.appendChild(arrow);
+      head.appendChild(lab);
+      head.appendChild(meta);
+      var kids = elc('div', 'cg-kids');
+      kids.hidden = true;
+      g.books.forEach(function (leaf, bi) {
+        var l = elc('label', 'cl');
+        var lcb = document.createElement('input');
+        lcb.type = 'checkbox';
+        lcb.disabled = !!g.disabled;
+        lcb.dataset.gi = String(gi);
+        lcb.dataset.bi = String(bi);
+        var n2 = elc('span', 'cl-nm');
+        n2.textContent = leaf.label;
+        var c2 = elc('span', 'cl-cnt mono');
+        c2.textContent = fmtN(leaf.count);
+        l.appendChild(lcb);
+        l.appendChild(n2);
+        l.appendChild(c2);
+        kids.appendChild(l);
+        lcb.addEventListener('change', function () { onLeafToggle(gi, bi, lcb); });
+      });
+      arrow.addEventListener('click', function () {
+        var open = kids.hidden;
+        kids.hidden = !open;
+        arrow.textContent = open ? '▾' : '▸';
+        arrow.setAttribute('aria-expanded', String(open));
+        haptic('select');
+      });
+      cb.addEventListener('change', function () { onGroupToggle(gi, cb); });
+      node.appendChild(head);
+      node.appendChild(kids);
+      box.appendChild(node);
+      g._ui = { cb: cb, cnt: cnt, kids: kids, node: node };
+    });
+    syncCorpusUI();
+  }
+
+  function onGroupToggle(gi, cb) {
+    var g = TREE[gi];
+    if (cb.checked) {
+      gSel[gi] = {};
+      g.books.forEach(function (_, bi) { gSel[gi][bi] = 1; });
+      afterTreeChange();
+      haptic('select');
+      return;
+    }
+    if (g.scope_key === BASE_KEY) {
+      // снятие основы: сперва честный вопрос, потом состояние (как у чипа)
+      cb.checked = true;
+      askConfirm(RESEARCH_CONFIRM, function (ok) {
+        if (!ok) { syncCorpusUI(); return; }
+        gSel[gi] = {};
+        afterTreeChange();
+        haptic('warning');
+      });
+      return;
+    }
+    gSel[gi] = {};
+    afterTreeChange();
+    haptic('select');
+  }
+
+  function onLeafToggle(gi, bi, lcb) {
+    var g = TREE[gi];
+    if (lcb.checked) {
+      gSel[gi][bi] = 1;
+      afterTreeChange();
+      haptic('select');
+      return;
+    }
+    // снятие ПОСЛЕДНЕГО листа основы = снятие основы: тот же честный вопрос
+    if (g.scope_key === BASE_KEY && groupCount(gi) === 1 && gSel[gi][bi]) {
+      lcb.checked = true;
+      askConfirm(RESEARCH_CONFIRM, function (ok) {
+        if (!ok) { syncCorpusUI(); return; }
+        delete gSel[gi][bi];
+        afterTreeChange();
+        haptic('warning');
+      });
+      return;
+    }
+    delete gSel[gi][bi];
+    afterTreeChange();
+    haptic('select');
+  }
+
+  function afterTreeChange() {
+    syncScopeKeysFromTree();
+    saveScopesDraft();
+    syncCorpusUI();
+    syncResearchNote();
+  }
+
+  function syncTreeUI() {
+    TREE.forEach(function (g, gi) {
+      var ui = g._ui;
+      if (!ui) return;
+      var total = g.books.length, n = groupCount(gi);
+      ui.cb.checked = total > 0 && n === total;
+      ui.cb.indeterminate = n > 0 && n < total;
+      // счётчик честный: целиком — объём корпуса, частично — «выбрано из»
+      ui.cnt.textContent = (n === 0 || n === total)
+        ? fmtN(g.count) + ' док.'
+        : n + ' из ' + total;
+      ui.node.classList.toggle('on', n > 0);
+      Array.prototype.forEach.call(ui.kids.querySelectorAll('input'), function (inp) {
+        inp.checked = !!gSel[gi][inp.dataset.bi];
+      });
+    });
+  }
+
+  // Один синхронизатор на оба вида селектора: дерево или чипы.
+  function syncCorpusUI() {
+    if (TREE) { syncTreeUI(); return; }
+    syncScopeChips();
+  }
+
+  // Черновик: v2 (JSON с книгами) для дерева, легаси-CSV — для чипов.
+  function parseDraftScopes(s) {
+    if (!s) return null;
+    if (s.charAt(0) === '{') {
+      try {
+        var d = JSON.parse(s);
+        if (d && d.v === 2) return { all: d.all || [], books: d.books || [] };
+      } catch (e) {}
+      return null;
+    }
+    var keys = s.split(',').filter(Boolean);
+    var noBase = keys.indexOf(NO_BASE) >= 0;
+    keys = keys.filter(function (k) { return k !== NO_BASE; });
+    if (!noBase) keys.push('prabhupada');
+    return { all: keys, books: [] };
   }
 
   function loadScopes() {
@@ -1508,6 +1814,9 @@
         // Контракт v6.0: основа передаётся ЯВНО. corpora без «prabhupada» —
         // исследовательский режим (сервер ставит заявке флаг research_mode).
         corpora: (baseOn ? ['prabhupada'] : []).concat(scopeSel),
+        // v6.1: точечный выбор из дерева — только ЧАСТИЧНО выбранные группы;
+        // пустой список = сужения нет (сервер трактует так же)
+        books: collectBooks(),
         show_name: !!$('showName').checked
       }
     }).then(function (res) {
@@ -1517,7 +1826,12 @@
       // Исследовательский режим — решение на КОНКРЕТНУЮ заявку, не «раз и навсегда»:
       // после отправки основа возвращается (та же логика, что у согласия на имя).
       baseOn = true;
-      syncScopeChips();
+      if (TREE) {
+        var b = baseGi();
+        if (b >= 0) TREE[b].books.forEach(function (_, bi) { gSel[b][bi] = 1; });
+        syncScopeKeysFromTree();
+      }
+      syncCorpusUI();
       syncResearchNote();
       syncCount();
       showDone(res);

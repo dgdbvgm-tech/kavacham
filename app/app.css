@@ -849,6 +849,119 @@ body.tma {
 #scopeState { margin-top: 0.7rem; font-size: 0.86rem; }
 #scopeState[hidden] { display: none; }
 
+/* ── Дерево корпусов: группа → книги, как в пульте песочницы ──
+   Группа: стрелка-раскрытие + чекбокс (indeterminate при частичном выборе) +
+   тир-бейдж + счётчик. Книги — компактные строки с чекбоксами. */
+.ctree {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 0.7rem;
+}
+.ctree[hidden] { display: none; }
+.cg {
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  background: var(--panel);
+  overflow: hidden;
+}
+.cg.on { border-color: var(--accent-2); }
+.cg-off { opacity: 0.55; }
+.cg-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.6rem;
+  min-height: 44px; /* тач-мишень */
+}
+.cg-arrow {
+  flex: 0 0 auto;
+  width: 1.7rem;
+  height: 1.7rem;
+  border: 0;
+  background: none;
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 7px;
+}
+.cg-arrow:hover { color: var(--text); background: var(--ground); }
+.cg-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  cursor: pointer;
+}
+.cg-check input,
+.cl input {
+  accent-color: var(--gold);
+  width: 1.05rem;
+  height: 1.05rem;
+  flex: 0 0 auto;
+  margin: 0;
+}
+.cg-name {
+  font-weight: 600;
+  font-size: 0.93rem;
+  overflow-wrap: anywhere;
+}
+.cg-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex: 0 0 auto;
+}
+.cg-cnt {
+  font-size: 0.76rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.ctier {
+  font-size: 0.66rem;
+  padding: 0.14rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid var(--rule);
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.ctier.t-trusted { color: var(--gold-hi); border-color: var(--gold); }
+.ctier.t-grey { border-style: dashed; }
+.cg-kids {
+  border-top: 1px dashed var(--rule);
+  padding: 0.35rem 0.6rem 0.5rem 2.55rem;
+  display: grid;
+  gap: 0.1rem;
+}
+.cg-kids[hidden] { display: none; }
+.cl {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.25rem;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 0.87rem;
+  min-height: 36px;
+}
+.cl:hover { background: var(--ground); }
+.cl-nm {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--text-2);
+  overflow-wrap: anywhere;
+}
+.cl input:checked ~ .cl-nm { color: var(--text); }
+.cl-cnt {
+  font-size: 0.74rem;
+  color: var(--text-dim);
+}
+/* узкие экраны: бейдж тира уходит, счётчик остаётся */
+@media (max-width: 420px) {
+  .ctier { display: none; }
+}
+
 .switch {
   display: flex;
   align-items: center;
