@@ -957,6 +957,16 @@ body.tma {
   font-size: 0.74rem;
   color: var(--text-dim);
 }
+/* супер-раздел каталога («Гуру ИСККОН») и вложенные группы */
+.cg-parent {
+  margin: 0.35rem 0 -0.1rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.cg-child { margin-left: 0.8rem; }
+
 /* лист операторского контура (только у главного оператора) и права на текст */
 .cl-private .cl-nm { color: var(--text-dim); }
 .cl-tier { font-size: 0.6rem; flex: 0 0 auto; }
@@ -1932,3 +1942,77 @@ body.tma-in-telegram .tabbar {
 .hq-reject:hover { border-color: #C0705B; filter: brightness(1.1); }
 .hq-err { margin-top: 0.7rem; }
 .hq-err[hidden] { display: none; }
+
+/* ═══ Лог событий и доски (v6.3) ═══════════════════════════════════ */
+
+/* конверт в шапке: та же кнопка, что тема, + позиционный якорь для счётчика */
+.tma-bell { position: relative; }
+.bell-n {
+  position: absolute;
+  top: 0.1rem;
+  right: 0.05rem;
+  min-width: 1rem;
+  padding: 0 0.2rem;
+  border-radius: 0.5rem;
+  background: var(--accent);
+  color: var(--ground);
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  line-height: 1rem;
+  text-align: center;
+}
+.bell-n[hidden] { display: none; }
+
+/* лента сообщений */
+.msgs { list-style: none; margin: 0 0 1.4rem; padding: 0; }
+.msg {
+  border: 1px solid var(--rule);
+  border-radius: 0.6rem;
+  padding: 0.7rem 0.85rem;
+  margin-top: 0.6rem;
+  background: var(--panel);
+}
+.msg-mine { border-style: dashed; opacity: 0.92; }
+.msg-new { border-color: var(--accent); }
+.msg-meta { margin: 0 0 0.3rem; font-size: 0.72rem; opacity: 0.75; overflow-wrap: anywhere; }
+.msg-t { margin: 0 0 0.4rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.msg .mini { margin-top: 0.1rem; }
+
+/* канбан: колонки в горизонтальном скролле — простыня из 4 колонок
+   в столбик на 390 px читалась бы хуже очереди в сберкассе */
+.kb-h { margin: 1.2rem 0 0.5rem; font-size: 0.95rem; }
+.kb {
+  display: flex;
+  gap: 0.6rem;
+  overflow-x: auto;
+  padding-bottom: 0.6rem;
+  -webkit-overflow-scrolling: touch;
+}
+.kb-col {
+  flex: 0 0 14rem;
+  min-width: 0;
+  border: 1px solid var(--rule);
+  border-radius: 0.6rem;
+  padding: 0.6rem;
+  background: var(--panel);
+}
+.kb-col-h { margin: 0 0 0.5rem; font-size: 0.72rem; opacity: 0.75; }
+.kb-card {
+  border: 1px solid var(--rule);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.6rem;
+  margin-top: 0.45rem;
+  font-size: 0.84rem;
+  overflow-wrap: anywhere;
+}
+.kb-card:first-of-type { margin-top: 0; }
+.kb-mine { border-color: var(--accent); }
+.kb-kind { margin: 0; font-size: 0.7rem; opacity: 0.75; }
+.kb-text { margin: 0.25rem 0 0; }
+.kb-date { margin: 0.25rem 0 0; font-size: 0.72rem; opacity: 0.6; }
+.kb-card .cite { display: inline-block; margin-top: 0.3rem; font-size: 0.8rem; }
+
+/* форма личного ответа в консоли Штаба */
+.hq-reply { margin-top: 0.7rem; padding-top: 0.7rem; border-top: 1px solid var(--rule); }
+.hq-reply .field-t { width: 100%; }
+.hq-reply .btn { margin-top: 0.5rem; }

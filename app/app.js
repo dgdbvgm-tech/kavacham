@@ -246,7 +246,9 @@
     reading:  { el: 'screen-reading',  tab: 'polygon',  back: true  },
     enrich:   { el: 'screen-enrich',   tab: 'enrich',   back: false },
     about:    { el: 'screen-about',    tab: 'about',    back: false },
-    hq:       { el: 'screen-hq',       tab: 'hq',       back: false }
+    hq:       { el: 'screen-hq',       tab: 'hq',       back: false },
+    // Лог событий (v6.3): вкладки не имеет, вход с конверта в шапке
+    log:      { el: 'screen-log',      tab: 'terminal', back: true  }
   };
 
   var SEGS = { razbory: 'pane-razbory', sri: 'pane-sri', corpus: 'pane-corpus' };
@@ -427,6 +429,7 @@
     else if (r.name === 'terminal') enterTerminal(r);
     else if (r.name === 'enrich') enterEnrich();
     else if (r.name === 'hq') enterHq();
+    else if (r.name === 'log') enterLog();
   }
 
   function goBack() {
@@ -1538,8 +1541,19 @@
   function renderTree() {
     var box = $('corpusTree');
     box.textContent = '';
+    var lastParent = null;
     TREE.forEach(function (g, gi) {
-      var node = elc('div', 'cg' + (g.disabled ? ' cg-off' : ''));
+      // супер-раздел («Гуру ИСККОН») — визуальная секция, не выбираемая единица
+      var par = g.parent || null;
+      if (par !== lastParent) {
+        lastParent = par;
+        if (par) {
+          var ph = elc('div', 'cg-parent');
+          ph.textContent = par;
+          box.appendChild(ph);
+        }
+      }
+      var node = elc('div', 'cg' + (g.disabled ? ' cg-off' : '') + (par ? ' cg-child' : ''));
       var head = elc('div', 'cg-head');
       var arrow = elc('button', 'cg-arrow');
       arrow.type = 'button';
@@ -2708,6 +2722,7 @@
     // Вне Telegram честно говорим, что форм здесь нет, и называем команды бота.
     $('enrichGate').hidden = authed();
     closeContrib();            // возвращаясь на вкладку, не оставляем раскрытую форму
+    loadBoards();              // v6.3: доски Лаборатории (свой TTL внутри)
   }
 
   function contribErr(msg) {
@@ -2994,6 +3009,7 @@
     loadHqStats();
     loadHqRequests();
     loadHqContribs();
+    loadHqMessages();          // v6.3: сигналы связи (консоль Оператора)
   }
 
   function loadHqStats() {
@@ -3361,6 +3377,387 @@
     loadHq();
   });
 
+  /* ══════════════════════════════════════════════════════════════════
+     ЛОГ СОБЫТИЙ (v6.3) — лента: 📡 рассылки Штаба, 👨‍💻 ответы Оператора,
+     ⚙️ движение заявок по конвейеру, плюс мои сообщения Оператору.
+     Счётчик непрочитанного живёт на конверте в шапке; открытие ленты
+     отмечает всё прочитанным на сервере (отметка «до id включительно»).
+     ══════════════════════════════════════════════════════════════════ */
+
+  var logReplyTo = null;     // id сообщения, на которое отвечаем (null — простое письмо)
+  var logSending = false;
+  var logLastRead = 0;
+
+  function fmtDT(iso) {
+    var d = fmtDay(iso);
+    var m = /T(\d{2}):(\d{2})/.exec(iso || '');
+    return d + (m ? ' · ' + m[1] + ':' + m[2] : '');
+  }
+
+  function bellSet(n) {
+    var b = $('bellN');
+    if (n > 0) { b.textContent = n > 9 ? '9+' : String(n); b.hidden = false; }
+    else b.hidden = true;
+  }
+
+  // Тихая проверка почты на старте: один GET, без повторов по таймеру —
+  // лента обновляется при каждом заходе на экран, этого достаточно.
+  function bellSync() {
+    if (!authed()) return;
+    api('/api/messages').then(function (d) {
+      bellSet((d && d.unread) || 0);
+    }).catch(function () { /* молча: конверт без цифры, не ошибка экрана */ });
+  }
+
+  $('btnBell').addEventListener('click', function () {
+    haptic('light');
+    location.hash = '#/log';
+  });
+
+  function enterLog() {
+    var gate = $('logGate'), body = $('logBody');
+    if (!authed()) { gate.hidden = false; body.hidden = true; return; }
+    gate.hidden = true;
+    body.hidden = false;
+    loadLog();
+  }
+
+  function logSetReply(id) {
+    logReplyTo = id;
+    var note = $('logReplyNote');
+    if (!id) { note.hidden = true; note.textContent = ''; return; }
+    note.textContent = '';
+    note.appendChild(document.createTextNode('↩ Ответ на сообщение Лаборатории. '));
+    var x = document.createElement('button');
+    x.type = 'button';
+    x.className = 'mini';
+    x.textContent = 'Отменить';
+    x.addEventListener('click', function () { logSetReply(null); });
+    note.appendChild(x);
+    note.hidden = false;
+  }
+
+  function loadLog() {
+    var stateEl = $('logState'), listEl = $('logList');
+    listEl.hidden = true;
+    showState(stateEl, 'Загружаю ленту…', false);
+    api('/api/messages').then(function (d) {
+      var items = (d && Array.isArray(d.items)) ? d.items : [];
+      logLastRead = (d && d.last_read) || 0;
+      listEl.textContent = '';
+      if (!items.length) {
+        showState(stateEl, '<span class="state-h">Пока тихо</span>' +
+          'Здесь появятся новости Штаба и движение ваших заявок.', false);
+      } else {
+        items.forEach(function (m) {
+          var li = document.createElement('li');
+          li.className = 'msg' + (m.mine ? ' msg-mine' : '') +
+            (!m.mine && m.id > logLastRead ? ' msg-new' : '');
+          var meta = document.createElement('p');
+          meta.className = 'msg-meta mono';
+          meta.textContent = (m.mine ? '✉️ Вы — Оператору' : m.mark + ' [' + m.label + ']') +
+            ' · ' + fmtDT(m.created_at);
+          li.appendChild(meta);
+          var p = document.createElement('p');
+          p.className = 'msg-t';
+          p.textContent = m.text || '';
+          li.appendChild(p);
+          if (!m.mine) {
+            var rb = document.createElement('button');
+            rb.type = 'button';
+            rb.className = 'mini';
+            rb.textContent = '↩ Ответить';
+            rb.addEventListener('click', function () {
+              haptic('light');
+              logSetReply(m.id);
+              $('logText').focus();
+            });
+            li.appendChild(rb);
+          }
+          listEl.appendChild(li);
+        });
+        stateEl.hidden = true;
+        listEl.hidden = false;
+        // прочитано «до последнего» — сервер не даст откатить отметку назад
+        var maxId = items.reduce(function (a, m) { return Math.max(a, m.id || 0); }, 0);
+        if (maxId > logLastRead) {
+          api('/api/messages/read', { method: 'POST', body: { last_id: maxId } })
+            .catch(function () { /* не критично: отметится при следующем открытии */ });
+        }
+        bellSet(0);
+      }
+    }).catch(function (err) {
+      showState(stateEl, '<span class="state-h">Лента недоступна</span>' +
+        (err && err.message ? err.message : ''), true);
+    });
+  }
+
+  $('logForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (logSending) return;
+    var text = $('logText').value.trim();
+    var errEl = $('logErr');
+    errEl.hidden = true;
+    if (!text) { errEl.textContent = 'Пустое сообщение не отправить.'; errEl.hidden = false; return; }
+    logSending = true;
+    $('logSend').disabled = true;
+    api('/api/messages', { method: 'POST', body: { text: text, reply_to: logReplyTo } })
+      .then(function () {
+        $('logText').value = '';
+        logSetReply(null);
+        haptic('success');
+        showToast('Передано Оператору');
+        loadLog();
+      })
+      .catch(function (err) {
+        errEl.textContent = (err && err.message) || 'Не отправилось — попробуйте ещё раз.';
+        errEl.hidden = false;
+        haptic('error');
+      })
+      .then(function () { logSending = false; $('logSend').disabled = false; });
+  });
+
+  /* ══════════════════════════════════════════════════════════════════
+     ДОСКИ ЛАБОРАТОРИИ (v6.3, вкладка «Обогащение»).
+     «Разработка» — статический снапшот kanban.json рядом с приложением:
+     он пересобирается при каждой публикации кода, токенов в проде нет.
+     «Очередь Узлов» — живая, с сервера; чужие карточки анонимны by design.
+     ══════════════════════════════════════════════════════════════════ */
+
+  var boardsAt = 0;
+  var BOARDS_TTL = 60 * 1000;
+
+  function kbColumn(title, count) {
+    var col = document.createElement('div');
+    col.className = 'kb-col';
+    var h = document.createElement('p');
+    h.className = 'kb-col-h mono';
+    h.textContent = title + ' · ' + count;
+    col.appendChild(h);
+    return col;
+  }
+
+  function loadBoards() {
+    var now = Date.now();
+    if (now - boardsAt < BOARDS_TTL) return;
+    boardsAt = now;
+
+    // — Доска 1: Разработка (статика) —
+    var devState = $('kbDevState'), devEl = $('kbDev');
+    fetch('kanban.json', { cache: 'no-cache' }).then(function (r) {
+      if (!r.ok) throw new Error('нет снапшота');
+      return r.json();
+    }).then(function (d) {
+      var cols = (d && Array.isArray(d.columns)) ? d.columns : [];
+      devEl.textContent = '';
+      cols.forEach(function (c) {
+        var cards = Array.isArray(c.cards) ? c.cards : [];
+        var col = kbColumn(c.title || '', cards.length);
+        cards.forEach(function (card) {
+          var el = document.createElement('div');
+          el.className = 'kb-card';
+          el.textContent = String(card.title || '');
+          col.appendChild(el);
+        });
+        devEl.appendChild(col);
+      });
+      if (d && d.updated) {
+        var u = document.createElement('p');
+        u.className = 'field-h';
+        u.textContent = 'Снапшот от ' + fmtDate(d.updated) + ' — обновляется с каждой публикацией кода.';
+        devEl.appendChild(u);
+      }
+      devState.hidden = true;
+      devEl.hidden = false;
+    }).catch(function () {
+      showState(devState, 'Снапшот доски ещё не выгружен — появится со следующей публикацией кода.', false);
+    });
+
+    // — Доска 2: Очередь Узлов (живая, персональная) —
+    var labState = $('kbLabState'), labEl = $('kbLab');
+    if (!authed()) {
+      showState(labState, 'Живой конвейер виден внутри Telegram: чтобы показать ВАШИ карточки с текстом, нужна подпись аккаунта.', false);
+      labEl.hidden = true;
+      return;
+    }
+    labState.hidden = true;
+    api('/api/kanban').then(function (d) {
+      var cols = (d && Array.isArray(d.columns)) ? d.columns : [];
+      labEl.textContent = '';
+      cols.forEach(function (c) {
+        var cards = Array.isArray(c.cards) ? c.cards : [];
+        var col = kbColumn(c.title || '', cards.length);
+        cards.forEach(function (card) {
+          var el = document.createElement('div');
+          el.className = 'kb-card' + (card.mine ? ' kb-mine' : '');
+          var k = document.createElement('p');
+          k.className = 'kb-kind mono';
+          k.textContent = (card.mine ? '№' + card.id + ' · ' : '') + String(card.kind || '');
+          el.appendChild(k);
+          if (card.mine && card.text) {
+            var t = document.createElement('p');
+            t.className = 'kb-text';
+            t.textContent = card.text;
+            el.appendChild(t);
+          }
+          var dt = document.createElement('p');
+          dt.className = 'kb-date';
+          dt.textContent = fmtDay(card.closed_at || card.created_at);
+          el.appendChild(dt);
+          if (card.post_url && /^https?:\/\//i.test(card.post_url)) {
+            var a = document.createElement('a');
+            a.className = 'cite';
+            a.href = card.post_url;
+            a.target = '_blank';
+            a.rel = 'noopener';
+            a.textContent = 'Открыть разбор';
+            el.appendChild(a);
+          }
+          col.appendChild(el);
+        });
+        labEl.appendChild(col);
+      });
+      labEl.hidden = false;
+    }).catch(function (err) {
+      showState(labState, 'Конвейер сейчас недоступен: ' +
+        (err && err.message ? err.message : ''), true);
+      labEl.hidden = true;
+    });
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     КОНСОЛЬ ОПЕРАТОРА (v6.3, Штаб): сигналы связи + личный ответ + рассылка.
+     ══════════════════════════════════════════════════════════════════ */
+
+  var hqReplyBox = null;     // одна перемещаемая форма ответа (как contribPanel)
+
+  function hqCloseReply() {
+    if (hqReplyBox && hqReplyBox.parentNode) hqReplyBox.parentNode.removeChild(hqReplyBox);
+  }
+
+  function hqOpenReply(li, uid, author) {
+    hqCloseReply();
+    if (!hqReplyBox) {
+      hqReplyBox = document.createElement('div');
+      hqReplyBox.className = 'hq-reply';
+      var ta = document.createElement('textarea');
+      ta.className = 'field-t';
+      ta.rows = 3;
+      ta.maxLength = 3500;
+      hqReplyBox.appendChild(ta);
+      var send = document.createElement('button');
+      send.type = 'button';
+      send.className = 'btn btn-primary';
+      send.textContent = 'Ответить лично';
+      hqReplyBox.appendChild(send);
+      hqReplyBox._ta = ta;
+      hqReplyBox._send = send;
+    }
+    var box = hqReplyBox;
+    box._ta.value = '';
+    box._send.onclick = function () {
+      var text = box._ta.value.trim();
+      if (!text) return;
+      box._send.disabled = true;
+      api('/api/admin/messages/send', { method: 'POST', body: { uid: box._uid, text: text } })
+        .then(function (d) {
+          haptic('success');
+          showToast(d && d.notified ? 'Доставлено в личку' : 'В Лог событий (личка закрыта)');
+          hqCloseReply();
+          loadHqMessages();
+        })
+        .catch(function (err) {
+          haptic('error');
+          showToast((err && err.message) || 'Не отправилось');
+          box._send.disabled = false;
+        });
+    };
+    box._uid = uid;
+    box._ta.placeholder = 'Ответ для ' + (author || ('ID ' + uid)) + '…';
+    box._send.disabled = false;
+    li.appendChild(box);
+    box._ta.focus();
+  }
+
+  function loadHqMessages() {
+    var stateEl = $('hqMsgState'), listEl = $('hqMsgList');
+    listEl.hidden = true;
+    showState(stateEl, 'Загружаю переписку…', false);
+    api('/api/admin/messages').then(function (d) {
+      var items = (d && Array.isArray(d.items)) ? d.items : [];
+      listEl.textContent = '';
+      if (!items.length) {
+        showState(stateEl, '<span class="state-h">Сигналов пока нет</span>' +
+          'Входящие от участников появятся здесь.', false);
+        return;
+      }
+      items.forEach(function (m) {
+        var li = document.createElement('li');
+        li.className = 'req';
+        var meta = document.createElement('p');
+        meta.className = 'req-m mono';
+        var who = m.sender === 'user'
+          ? ('✉️ ' + (m.author || ('ID ' + m.from_uid)))
+          : (m.mark + ' → ID ' + m.to_uid);
+        meta.textContent = '№' + m.id + ' · ' + who + ' · ' + fmtDT(m.created_at);
+        li.appendChild(meta);
+        var p = document.createElement('p');
+        p.className = 'req-t hq-clip';
+        p.textContent = m.text || '';
+        p.addEventListener('click', function () { p.classList.toggle('open'); });
+        li.appendChild(p);
+        if (m.sender === 'user' && m.from_uid) {
+          var rb = document.createElement('button');
+          rb.type = 'button';
+          rb.className = 'mini';
+          rb.textContent = '↩ Ответить лично';
+          rb.addEventListener('click', function () {
+            haptic('light');
+            hqOpenReply(li, m.from_uid, m.author);
+          });
+          li.appendChild(rb);
+        }
+        listEl.appendChild(li);
+      });
+      stateEl.hidden = true;
+      listEl.hidden = false;
+    }).catch(function (err) {
+      showState(stateEl, '<span class="state-h">Переписка недоступна</span>' +
+        (err && err.message ? err.message : ''), true);
+    });
+  }
+
+  $('hqMsgRefresh').addEventListener('click', function () { haptic('light'); loadHqMessages(); });
+
+  var hqCasting = false;
+  $('hqCastForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (hqCasting) return;
+    var text = $('hqCastText').value.trim();
+    var errEl = $('hqCastErr');
+    errEl.hidden = true;
+    if (!text) { errEl.textContent = 'Пустую директиву не отправить.'; errEl.hidden = false; return; }
+    var push = !!$('hqCastPush').checked;
+    askConfirm('Отправить ВСЕМ участникам' + (push ? ' с пушем в лички' : ' (только Лог событий)') + '?',
+      function (ok) {
+        if (!ok) return;
+        hqCasting = true;
+        $('hqCastSend').disabled = true;
+        api('/api/admin/broadcast', { method: 'POST', body: { text: text, sender: 'staff', push: push } })
+          .then(function (d) {
+            haptic('success');
+            $('hqCastText').value = '';
+            showToast('Рассылка ушла' + (push ? ': ' + (d.pushed_ok || 0) + ' в лички' : ''));
+          })
+          .catch(function (err) {
+            errEl.textContent = (err && err.message) || 'Рассылка не отправилась.';
+            errEl.hidden = false;
+            haptic('error');
+          })
+          .then(function () { hqCasting = false; $('hqCastSend').disabled = false; });
+      });
+  });
+
   // ——— Тост (без самописных модалок: для да/нет есть tg.showConfirm) ————
   var toastTimer = null;
   function showToast(msg) {
@@ -3466,4 +3863,7 @@
   // «Штаб»: спрашиваем сервер, админ ли текущий пользователь (/api/me по подписи).
   // До ответа вкладка скрыта; не-админу она не появится вовсе.
   checkAdmin();
+
+  // Почта (v6.3): один тихий запрос на старте — цифра на конверте в шапке.
+  bellSync();
 })();

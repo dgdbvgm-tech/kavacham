@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-07-16",
+ "generated_at": "2026-07-17",
  "rubrics": [
   {
    "key": "razbor",
@@ -28,6 +28,24 @@
   }
  ],
  "items": [
+  {
+   "slug": "devlog-upravlenie-i-svyaz",
+   "kind": "devlog",
+   "rubric": "devlog",
+   "title": "Заявка под вашим контролем, режимы запроса и Лог событий",
+   "subtitle": "Правка и отмена заявок, Архив черновиков, чипы-шаблоны качества запроса, двусторонний Лог событий и прозрачные доски Лаборатории.",
+   "date": "2026-07-17",
+   "pramanas": 0,
+   "source_links": 0,
+   "tags": [
+    "build in public",
+    "приложение",
+    "прозрачность"
+   ],
+   "excerpt": "Три обновления приложения «KAVACHAM Lab» за последние два дня — все три выросли из принципа «ноль энтропии»: у человека должен быть контроль над своим вкладом, у вопроса — точная форма, у процесса — прозрачность.",
+   "reading_url": "data/reading/devlog-upravlenie-i-svyaz.json",
+   "pages_url": "../reading/devlog-upravlenie-i-svyaz.html"
+  },
   {
    "slug": "razbor-poryadok-chteniya-nop",
    "kind": "razbor",

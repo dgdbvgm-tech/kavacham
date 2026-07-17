@@ -43,6 +43,11 @@
       <span aria-hidden="true">←</span>
     </button>
     <a class="tma-brand" href="#/terminal">КАВАЧАМ<span class="tma-brand-lab">LAB</span></a>
+    <!-- Лог событий (v6.3): конверт + счётчик непрочитанного. Текстовый рендер
+         глифа (U+FE0E) — в ряду с монохромом шапки. -->
+    <button class="tma-theme tma-bell" id="btnBell" type="button" aria-label="Лог событий" title="Лог событий">
+      <span aria-hidden="true">✉&#xFE0E;</span><span class="bell-n" id="bellN" hidden>0</span>
+    </button>
     <button class="tma-theme" id="btnTheme" type="button" aria-label="Переключить тему" title="Переключить тему">
       <span aria-hidden="true" id="themeGlyph">◐</span>
     </button>
@@ -346,6 +351,24 @@
         </li>
       </ul>
 
+      <!-- Доски Лаборатории (v6.3): прозрачный процесс перед со-создателями.
+           Доска разработки — статический снапшот рядом с приложением (kanban.json,
+           обновляется при каждой публикации кода); доска конвейера — живая, с
+           сервера, и персональная: свои карточки видны с текстом, чужие — только
+           видом испытания и стадией (анонимность заявителей — правило проекта). -->
+      <section class="block" id="boardsBlock" aria-labelledby="boardsH">
+        <h2 class="block-h" id="boardsH">Доски Лаборатории</h2>
+        <p class="screen-sub">Карточки двигаются по мере реальной работы — это витрина процесса, а не декорация.</p>
+
+        <h3 class="kb-h">🛠 Разработка</h3>
+        <div class="state" id="kbDevState" role="status" aria-live="polite">Загружаю доску…</div>
+        <div class="kb" id="kbDev" hidden></div>
+
+        <h3 class="kb-h">📚 Очередь Узлов</h3>
+        <div class="state" id="kbLabState" role="status" aria-live="polite" hidden></div>
+        <div class="kb" id="kbLab" hidden></div>
+      </section>
+
       <!-- Одна форма на все векторы. Скрипт переносит её в раскрытую карточку и
            переподписывает поля; галочка имени сбрасывается при КАЖДОМ открытии. -->
       <div class="panel enr-panel" id="contribPanel" hidden>
@@ -473,6 +496,71 @@
           <div class="state" id="hqContribState" role="status" aria-live="polite">Загружаю вклады…</div>
           <ul class="reqs" id="hqContribList" hidden></ul>
         </section>
+
+        <!-- Сигналы связи (v6.3): входящие от людей + личные ответы Оператора.
+             Ответ уходит в Лог событий получателя и пушем в его личку. -->
+        <section class="block" aria-labelledby="hqMsgH">
+          <div class="block-top">
+            <h2 class="block-h" id="hqMsgH">Сигналы связи</h2>
+            <button class="mini" id="hqMsgRefresh" type="button">Обновить</button>
+          </div>
+          <div class="state" id="hqMsgState" role="status" aria-live="polite">Загружаю переписку…</div>
+          <ul class="reqs" id="hqMsgList" hidden></ul>
+        </section>
+
+        <!-- Рассылка Штаба (v6.3): всем, от лица 📡 [Штаб Лаборатории].
+             Личные ответы — кнопкой «Ответить» на сигнале выше (👨‍💻 Оператор). -->
+        <section class="block" aria-labelledby="hqCastH">
+          <h2 class="block-h" id="hqCastH">Рассылка Штаба</h2>
+          <form class="form" id="hqCastForm" novalidate>
+            <div class="field">
+              <label class="field-l" for="hqCastText">📡 Директива всем участникам</label>
+              <textarea id="hqCastText" class="field-t" rows="3" maxlength="3500"
+                        placeholder="Обновление, релиз, новость Лаборатории…"></textarea>
+              <label class="switch">
+                <input type="checkbox" id="hqCastPush" checked>
+                <span>Пуш в лички (иначе — только Лог событий)</span>
+              </label>
+            </div>
+            <p class="form-err" id="hqCastErr" role="alert" hidden></p>
+            <div class="form-actions">
+              <button class="btn btn-primary" id="hqCastSend" type="submit">Отправить всем</button>
+            </div>
+          </form>
+        </section>
+      </div>
+    </section>
+
+    <!-- ═══ 6. ЛОГ СОБЫТИЙ (v6.3; вкладки не имеет — вход с колокольчика
+         в шапке). Директивы Штаба, ответы Оператора, движение заявок по
+         конвейеру + прямой канал «Передать сообщение Оператору». ═══ -->
+    <section class="screen" id="screen-log" hidden>
+      <h1 class="screen-h">Лог событий</h1>
+      <p class="screen-sub">Директивы Штаба, ответы Оператора и движение ваших заявок по конвейеру.</p>
+
+      <div class="stub" id="logGate" hidden>
+        <p class="stub-badge">Лог работает внутри Telegram</p>
+        <p>Лента персональная: чтобы показать именно ваши события, нужна подпись вашего аккаунта Telegram — вне приложения её нет.</p>
+        <button class="btn btn-primary" data-open-bot type="button">Открыть бота</button>
+      </div>
+
+      <div id="logBody" hidden>
+        <div class="state" id="logState" role="status" aria-live="polite">Загружаю ленту…</div>
+        <ul class="msgs" id="logList" hidden></ul>
+
+        <form class="form" id="logForm" novalidate>
+          <div class="field">
+            <label class="field-l" for="logText">✉️ Передать сообщение Оператору</label>
+            <p class="field-h" id="logReplyNote" hidden></p>
+            <textarea id="logText" class="field-t" rows="3" maxlength="2000"
+                      placeholder="Вопрос, наводка или отклик — это прямой канал, а не «техподдержка»."></textarea>
+            <p class="field-h">Ответ придёт сюда и в личку от бота. Не больше 10 сообщений в сутки.</p>
+          </div>
+          <p class="form-err" id="logErr" role="alert" hidden></p>
+          <div class="form-actions">
+            <button class="btn btn-primary" id="logSend" type="submit">Передать Оператору</button>
+          </div>
+        </form>
       </div>
     </section>
 

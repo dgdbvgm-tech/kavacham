@@ -1,0 +1,41 @@
+{
+ "slug": "devlog-upravlenie-i-svyaz",
+ "title": "Заявка под вашим контролем, режимы запроса и Лог событий",
+ "subtitle": "Правка и отмена заявок, Архив черновиков, чипы-шаблоны качества запроса, двусторонний Лог событий и прозрачные доски Лаборатории.",
+ "meta": {
+  "date": "2026-07-17",
+  "kind": "devlog",
+  "rubric": "devlog",
+  "pramanas": 0,
+  "source_links": 0,
+  "number": null
+ },
+ "toc": [
+  {
+   "id": "s-1-zayavka-bolshe-ne-uletaet-v-nikuda",
+   "text": "1. Заявка больше не «улетает в никуда»",
+   "level": 2
+  },
+  {
+   "id": "s-2-tochnyy-vopros-tochnyy-otvet",
+   "text": "2. Точный вопрос = точный ответ",
+   "level": 2
+  },
+  {
+   "id": "s-3-log-sobytiy-svyaz-stala-dvustoronney",
+   "text": "3. Лог событий: связь стала двусторонней",
+   "level": 2
+  },
+  {
+   "id": "s-4-doski-laboratorii-process-na-vidu",
+   "text": "4. Доски Лаборатории: процесс на виду",
+   "level": 2
+  },
+  {
+   "id": "s-pod-kapotom",
+   "text": "Под капотом",
+   "level": 2
+  }
+ ],
+ "html": "<style>\n.rd-pramana.rd-pramana{border-left:2px solid var(--accent-2)}\n.rd-pramana-nolink.rd-pramana-nolink{border-left-style:dotted}\np.rd-quote.rd-quote{font-family:var(--serif);line-height:1.64;margin:0}\np.rd-src.rd-src{margin:.6rem 0 0;font-size:.82rem;line-height:1.7;color:var(--text-dim);\n  display:flex;flex-wrap:wrap;gap:.35rem;align-items:baseline}\np.rd-note-in.rd-note-in{margin:.6rem 0 0;font-size:.86rem;line-height:1.6;color:var(--text-2)}\n/* .cite в общей системе — короткая сноска (white-space:nowrap); у праманы источник\n   длинный, разрешаем перенос, иначе страница поедет вбок. */\n.rd-src .cite{white-space:normal;overflow-wrap:anywhere}\n.rd-dot{opacity:.55}\n.rd-badge{display:inline-block;font-size:.7rem;line-height:1.5;padding:.05rem .55rem;\n  border-radius:999px;border:1px solid var(--rule);white-space:nowrap}\n.rd-tier-t1{color:var(--accent);border-color:var(--accent-2)}\n.rd-tier-t2{color:var(--text-2)}\n.rd-tier-grey{opacity:.8}\n.rd-sri{white-space:normal;color:var(--text-2)}\n.rd-gap{font-size:.76rem;border-bottom:1px dotted currentColor}\n.rd-tooltip{position:relative;border-bottom:1px dashed var(--deep-dim);cursor:help;outline:none;color:var(--text);padding-bottom:1px}\n.rd-tooltip::after{content:\" ⓘ\";font-size:.75em;vertical-align:super;opacity:.5;color:var(--text);transition:opacity .2s,color .2s}\n.rd-tooltip:focus,.rd-tooltip:hover{border-bottom-color:var(--gold)}\n.rd-tooltip:focus::after,.rd-tooltip:hover::after{opacity:1;color:var(--gold)}\n.rd-tooltip:focus .rd-tooltip-box,.rd-tooltip:hover .rd-tooltip-box{visibility:visible;opacity:1;pointer-events:auto}\n.rd-tooltip-box{visibility:hidden;position:absolute;z-index:100;bottom:100%;left:0;width:280px;max-width:85vw;margin-bottom:8px;padding:.75rem 1rem;border-radius:8px;background:var(--panel);border:1px solid var(--rule);box-shadow:0 8px 24px rgba(0,0,0,.2);color:var(--text);font-size:.85rem;line-height:1.5;font-family:system-ui,sans-serif;font-weight:400;opacity:0;transition:opacity .2s;pointer-events:none;text-indent:0;white-space:normal}\n.rd-tablewrap{overflow-x:auto;overscroll-behavior-x:contain}\n.rd-tablewrap table{border-collapse:collapse;min-width:100%}\n.rd-tablewrap th,.rd-tablewrap td{border:1px solid var(--rule);padding:.5rem .65rem;\n  text-align:left;font-size:.9rem;vertical-align:top}\n</style>\n<p>Три обновления приложения «KAVACHAM Lab» за последние два дня — все три выросли из принципа «ноль энтропии»: у человека должен быть контроль над своим вкладом, у вопроса — точная форма, у процесса — прозрачность.</p>\n<h2 id=\"s-1-zayavka-bolshe-ne-uletaet-v-nikuda\">1. Заявка больше не «улетает в никуда»</h2>\n<p>Раньше отправленная заявка жила своей жизнью: опечатку не исправить, передумать нельзя. Теперь — можно, и без потерь:</p>\n<ul><li><strong>✎ Изменить</strong> — пока заявка в очереди, текст, глубину поиска и корпуса можно править. Место в очереди при этом сохраняется: правка — не новая заявка.</li><li><strong>✖ Отменить</strong> — с выбором: удалить насовсем или отложить текст в черновики.</li><li><strong>💾 Архив черновиков</strong> — сложный узел можно «припарковать»: текст сохранится на сервере целиком и дождётся, пока вы его дозреете. До десяти черновиков, вкладка «Черновики» — в «Моих испытаниях».</li></ul>\n<p>Очередь при отмене пересобирается сама: никаких «дыр» и зависших номеров.</p>\n<h2 id=\"s-2-tochnyy-vopros-tochnyy-otvet\">2. Точный вопрос = точный ответ</h2>\n<p>Над полем заявки появились чипы-шаблоны: <strong>🛡 Разбор софизма</strong>, <strong>🔍 Проверка цитаты</strong>, <strong>📚 Учебный узел</strong> (с выбором ступени — от Бхакти-шастри до Бхакти-сарвабхаумы). Чип вставляет в заявку каркас — движку остаётся ваш вопрос, а не догадки о том, что вы имели в виду.</p>\n<p>Там же — честный предохранитель: КАВАЧАМ — аналитик, а не писатель. Просьбы «напиши эссе» форма мягко останавливает ещё до отправки: мы проверяем праманы, а не сочиняем тексты.</p>\n<h2 id=\"s-3-log-sobytiy-svyaz-stala-dvustoronney\">3. Лог событий: связь стала двусторонней</h2>\n<p>В шапке приложения появился конверт со счётчиком. Внутри — «Лог событий»:</p>\n<ul><li><strong>📡 [Штаб Лаборатории]</strong> — новости и релизы (как этот).</li><li><strong>⚙️ [Служба Калибровки]</strong> — автоматические отметки о движении ваших заявок по конвейеру: взяли в разведку, ушла на сверку, опубликована.</li><li><strong>👨‍💻 [Главный Оператор]</strong> — личные ответы.</li></ul>\n<p>И главное — кнопка <strong>«✉️ Передать сообщение Оператору»</strong>: прямой канал вместо классической «техподдержки». Вопрос, наводка, замечание — ответ придёт в тот же лог и в личку от бота.</p>\n<h2 id=\"s-4-doski-laboratorii-process-na-vidu\">4. Доски Лаборатории: процесс на виду</h2>\n<p>Во вкладке «Обогащение» — две канбан-доски. <strong>«Разработка»</strong>: что в бэклоге, что в работе, что готово — карточки двигаются по мере реальной работы, снапшот обновляется с каждой публикацией кода. <strong>«Очередь Узлов»</strong>: живой конвейер исследований. Свои карточки вы видите с текстом и номером, чужие — только видом испытания и стадией: анонимность заявителей — правило проекта, и доска его наследует.</p>\n<h2 id=\"s-pod-kapotom\">Под капотом</h2>\n<p>Поисковый индекс ядра вырос до <strong>400 000+ фрагментов</strong> — библиотека пополнилась крупными сводами, о составе расскажем отдельно после ратификации их статуса в доверенном контуре. Правило неизменно: движок собирает черновик, сверку праман делает человек, наружу без проверки не выходит ничего.</p>\n<hr>\n<p>Это обновление — во многом ответ на ваши идеи из «Обогащения». Воронка работает: идея → бэклог → карточка на доске → фича в приложении. Присылайте следующие.</p>"
+}
