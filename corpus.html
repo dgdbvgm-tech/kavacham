@@ -33,6 +33,17 @@
   h1.title{font-weight:700;font-size:clamp(1.8rem,6vw,2.6rem);margin:.5rem 0 .5rem;text-wrap:balance}
   .tot{font-family:var(--sans);font-size:.9rem;color:var(--dim)}
   .tot b{color:var(--gold-hi);font-variant-numeric:tabular-nums}
+  .supergroup{font-family:var(--sans);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--gold-hi);margin:2rem 0 .3rem;padding-top:.6rem;border-top:1px solid var(--rule)}
+  .tier-badge{font-family:var(--sans);font-size:.6rem;padding:.1rem .4rem;border-radius:999px;border:1px solid var(--rule);color:var(--dim);vertical-align:middle;margin-left:.4rem}
+  .stage{font-family:var(--sans);font-size:.66rem;color:var(--dim);border:1px dashed var(--rule);border-radius:999px;padding:.05rem .4rem;margin-left:.4rem}
+  .corp.showcase{opacity:.85}
+  .corp.showcase h2{color:var(--dim)}
+  .w-group>details>summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:.6rem}
+  .w-group>details>summary::-webkit-details-marker{display:none}
+  .w-group>details>summary::before{content:"▸ ";color:var(--gold)}
+  .w-group>details[open]>summary::before{content:"▾ "}
+  ul.works.sub{margin:.3rem 0 .5rem 1rem;border-left:1px solid var(--rule);padding-left:.7rem}
   .banner{margin:1.3rem auto 0;max-width:44rem;font-family:var(--sans);font-size:.88rem;line-height:1.5;color:var(--dim);
     border:1px solid var(--rule);border-radius:12px;padding:.8rem 1rem;background:rgba(201,162,75,0.05)}
   .banner b{color:var(--gold-hi)}
@@ -98,7 +109,7 @@
   <header class="doc">
     <p class="eyebrow">Что внутри библиотеки</p>
     <h1 class="title">Каталог корпуса</h1>
-    <p class="tot"><b>35 940</b> документов · <b>377 711</b> фрагментов · <b>11</b> корпусов</p>
+    <p class="tot"><b>36 165</b> документов · <b>404 242</b> фрагментов · <b>11</b> корпусов</p>
     <div class="banner">Каталог отражает то, что уже проиндексировано и доступно поиску. Пополнение идёт по мере вычитки источников — непроверенное в поиск не попадает.</div>
   </header>
   <hr class="thread">
@@ -113,327 +124,596 @@
   </details>
   <section class="corp">
   <div class="corp-head">
-    <h2>Шрила Прабхупада</h2>
-    <div class="corp-meta"><b>11 804</b> док. · 79 519 фрагм.</div>
+    <h2>Шрила Прабхупада <span class="tier-badge t-trusted">✅ Проверен</span></h2>
+    <div class="corp-meta"><b>33 517</b> док.</div>
   </div>
-  <p class="corp-sub">Книги, лекции, беседы и письма — корпус вани</p>
-  <p class="corp-src">Источник текста: Vanisource (Vanipedia/BLS)</p>
+  <p class="corp-sub">Основа (Линза сиддханты) — включена по умолчанию. Снять можно — включится исследовательский режим: поиск пойдёт без корпуса основы, согласование выводов по призме останется за человеком на сверке.</p>
   <ul class="works">
+      <li><span class="w-name">Бхагавад-гита как она есть</span><span class="w-num">653 док.</span></li>
+      <li><span class="w-name">Шримад-Бхагаватам</span><span class="w-num">9 983 док.</span></li>
+      <li><span class="w-name">Чайтанья-чаритамрита</span><span class="w-num">11 329 док.</span></li>
+    <li class="w-group"><details><summary><span class="w-name">Книги (помимо БГ, ШБ и ЧЧ; англ.)</span><span class="w-num">35 книг · 675 док.</span></summary><ul class="works sub">
+      <li><span class="w-name">Krsna Book</span><span class="w-num">94 док.</span></li>
+      <li><span class="w-name">Nectar of Devotion</span><span class="w-num">55 док.</span></li>
+      <li><span class="w-name">In Search of the Ultimate Goal of Life</span><span class="w-num">50 док.</span></li>
+      <li><span class="w-name">Light of the Bhagavata</span><span class="w-num">48 док.</span></li>
+      <li><span class="w-name">The Science of Self-Realization</span><span class="w-num">47 док.</span></li>
+      <li><span class="w-name">Renunciation Through Wisdom</span><span class="w-num">37 док.</span></li>
+      <li><span class="w-name">Teachings of Lord Caitanya</span><span class="w-num">36 док.</span></li>
+      <li><span class="w-name">Teachings of Queen Kunti</span><span class="w-num">27 док.</span></li>
+      <li><span class="w-name">A Second Chance</span><span class="w-num">22 док.</span></li>
+      <li><span class="w-name">Sri Isopanisad</span><span class="w-num">20 док.</span></li>
+      <li><span class="w-name">Teachings of Lord Kapila</span><span class="w-num">19 док.</span></li>
+      <li><span class="w-name">Gitar Gan</span><span class="w-num">18 док.</span></li>
+      <li><span class="w-name">Life Comes From Life</span><span class="w-num">18 док.</span></li>
+      <li><span class="w-name">Dharma - The Way of Transcendence</span><span class="w-num">16 док.</span></li>
+      <li><span class="w-name">Narada Bhakti Sutra</span><span class="w-num">16 док.</span></li>
+      <li><span class="w-name">Beyond Illusion &amp; Doubt</span><span class="w-num">15 док.</span></li>
+      <li><span class="w-name">Civilization and Transcendence</span><span class="w-num">14 док.</span></li>
+      <li><span class="w-name">The Nectar of Instruction</span><span class="w-num">12 док.</span></li>
+      <li><span class="w-name">Perfect Questions Perfect Answers</span><span class="w-num">11 док.</span></li>
+      <li><span class="w-name">The Path of Perfection</span><span class="w-num">11 док.</span></li>
+      <li><span class="w-name">Topmost Yoga System</span><span class="w-num">9 док.</span></li>
+      <li><span class="w-name">Mukunda-mala-stotra</span><span class="w-num">8 док.</span></li>
+      <li><span class="w-name">Raja-Vidya</span><span class="w-num">8 док.</span></li>
+      <li><span class="w-name">The Journey of Self-Discovery</span><span class="w-num">8 док.</span></li>
+      <li><span class="w-name">The Perfection of Yoga</span><span class="w-num">8 док.</span></li>
+      <li><span class="w-name">The Quest for Enlightenment</span><span class="w-num">8 док.</span></li>
+      <li><span class="w-name">The Matchless Gift</span><span class="w-num">7 док.</span></li>
+      <li><span class="w-name">Elevation to Krsna Consciousness</span><span class="w-num">6 док.</span></li>
+      <li><span class="w-name">Transcendental Teachings of Prahlada Maharaja</span><span class="w-num">6 док.</span></li>
+      <li><span class="w-name">Beyond Birth and Death</span><span class="w-num">5 док.</span></li>
+      <li><span class="w-name">On the Way to Krsna</span><span class="w-num">5 док.</span></li>
+      <li><span class="w-name">The Laws of Nature</span><span class="w-num">4 док.</span></li>
+      <li><span class="w-name">Easy Journey to Other Planets</span><span class="w-num">3 док.</span></li>
+      <li><span class="w-name">Message of Godhead</span><span class="w-num">3 док.</span></li>
+      <li><span class="w-name">Krsna the Reservoir of Pleasure</span><span class="w-num">1 док.</span></li>
+    </ul></details></li>
       <li><span class="w-name">Письма (1947–1977, англ.)</span><span class="w-num">7 139 док.</span></li>
       <li><span class="w-name">Лекции (1966–1977, англ.)</span><span class="w-num">2 136 док.</span></li>
       <li><span class="w-name">Беседы и интервью (англ.)</span><span class="w-num">1 600 док.</span></li>
-      <li><span class="w-name">Книги (помимо БГ, ШБ и ЧЧ; англ.)</span><span class="w-num">675 док.</span></li>
-      <li><span class="w-name">Прабхупада-шикшамрита (рус.)</span><span class="w-num">252 док.</span></li>
+    <li class="w-group"><details><summary><span class="w-name">Книги (помимо БГ, ШБ и ЧЧ; рус.)</span><span class="w-num">2 книг · 2 док.</span></summary><ul class="works sub">
       <li><span class="w-name">«Путешествие вглубь себя» (рус.)</span><span class="w-num">1 док.</span></li>
       <li><span class="w-name">«Веда: тайны Востока» (рус.)</span><span class="w-num">1 док.</span></li>
+    </ul></details></li>
   </ul>
 </section>
 
 <section class="corp">
   <div class="corp-head">
-    <h2>Бхагавад-гита как она есть</h2>
-    <div class="corp-meta"><b>653</b> док. · 2 334 фрагм.</div>
+    <h2>Книги о Шриле Прабхупаде <span class="tier-badge t-pending">📋 В очереди</span></h2>
+    <div class="corp-meta"><b>260</b> док.</div>
   </div>
-  <p class="corp-sub">Стихи с дословным переводом (Vedabase)</p>
-  <p class="corp-src">Источник текста: Vedabase (через vaniDB)</p>
-  <details class="works-wrap">
-    <summary>18 разделов — раскрыть список</summary>
-    <ul class="works">
-      <li><span class="w-name">Гл. 1. Обзор «Бхагавад-гиты»</span><span class="w-num">39 док.</span></li>
-      <li><span class="w-name">Гл. 2. Краткое изложение «Гиты»</span><span class="w-num">71 док.</span></li>
-      <li><span class="w-name">Гл. 3. Карма-йога</span><span class="w-num">43 док.</span></li>
-      <li><span class="w-name">Гл. 4. Божественное знание</span><span class="w-num">42 док.</span></li>
-      <li><span class="w-name">Гл. 5. Карма-йога в сознании Кришны</span><span class="w-num">27 док.</span></li>
-      <li><span class="w-name">Гл. 6. Дхьяна-йога</span><span class="w-num">42 док.</span></li>
-      <li><span class="w-name">Гл. 7. Знание об Абсолюте</span><span class="w-num">30 док.</span></li>
-      <li><span class="w-name">Гл. 8. Достижение обители Всевышнего</span><span class="w-num">28 док.</span></li>
-      <li><span class="w-name">Гл. 9. Самое сокровенное знание</span><span class="w-num">34 док.</span></li>
-      <li><span class="w-name">Гл. 10. Великолепие Абсолюта</span><span class="w-num">40 док.</span></li>
-      <li><span class="w-name">Гл. 11. Вселенская форма</span><span class="w-num">52 док.</span></li>
-      <li><span class="w-name">Гл. 12. Преданное служение</span><span class="w-num">16 док.</span></li>
-      <li><span class="w-name">Гл. 13. Природа, наслаждающийся и сознание</span><span class="w-num">29 док.</span></li>
-      <li><span class="w-name">Гл. 14. Три гуны материальной природы</span><span class="w-num">24 док.</span></li>
-      <li><span class="w-name">Гл. 15. Пурушоттама-йога</span><span class="w-num">19 док.</span></li>
-      <li><span class="w-name">Гл. 16. Божественные и демонические натуры</span><span class="w-num">19 док.</span></li>
-      <li><span class="w-name">Гл. 17. Разновидности веры</span><span class="w-num">24 док.</span></li>
-      <li><span class="w-name">Гл. 18. Совершенство отречения</span><span class="w-num">74 док.</span></li>
-    </ul>
-  </details>
-</section>
-
-<section class="corp">
-  <div class="corp-head">
-    <h2>Шримад-Бхагаватам</h2>
-    <div class="corp-meta"><b>9 983</b> док. · 31 930 фрагм.</div>
-  </div>
-  <p class="corp-sub">Стихи с дословным переводом (Vedabase)</p>
-  <p class="corp-src">Источник текста: Vedabase (через vaniDB); Песни 11, 12 — Vanisource (BLS)</p>
-  <details class="works-wrap">
-    <summary>12 разделов — раскрыть список</summary>
-    <ul class="works">
-      <li><span class="w-name">Песнь 1. Творение</span><span class="w-num">779 док.</span></li>
-      <li><span class="w-name">Песнь 2. Космическое проявление</span><span class="w-num">371 док.</span></li>
-      <li><span class="w-name">Песнь 3. Статус-кво</span><span class="w-num">1 386 док.</span></li>
-      <li><span class="w-name">Песнь 4. Творение четвёртого порядка</span><span class="w-num">1 390 док.</span></li>
-      <li><span class="w-name">Песнь 5. Творческий импульс</span><span class="w-num">650 док.</span></li>
-      <li><span class="w-name">Песнь 6. Предписанные обязанности</span><span class="w-num">760 док.</span></li>
-      <li><span class="w-name">Песнь 7. Наука о Боге</span><span class="w-num">676 док.</span></li>
-      <li><span class="w-name">Песнь 8. Сворачивание творения</span><span class="w-num">848 док.</span></li>
-      <li><span class="w-name">Песнь 9. Освобождение</span><span class="w-num">846 док.</span></li>
-      <li><span class="w-name">Песнь 10. Summum Bonum</span><span class="w-num">554 док.</span></li>
-      <li><span class="w-name">Песнь 11. Всеобщая история</span><span class="w-num">1 244 док.</span></li>
-      <li><span class="w-name">Песнь 12. Век деградации</span><span class="w-num">479 док.</span></li>
-    </ul>
-  </details>
-</section>
-
-<section class="corp">
-  <div class="corp-head">
-    <h2>Чайтанья-чаритамрита</h2>
-    <div class="corp-meta"><b>11 329</b> док. · 25 962 фрагм.</div>
-  </div>
-  <p class="corp-sub">Стихи с дословным переводом (Vedabase)</p>
-  <p class="corp-src">Источник текста: Vedabase (через vaniDB)</p>
+  <p class="corp-sub">Наставления из писем и жизнеописания: Прабхупада-шикшамрита, Лиламрита, Трансцендентный дневник. Слой справочный.</p>
   <ul class="works">
-      <li><span class="w-name">Ади-лила</span><span class="w-num">2 245 док.</span></li>
-      <li><span class="w-name">Мадхья-лила</span><span class="w-num">5 918 док.</span></li>
-      <li><span class="w-name">Антья-лила</span><span class="w-num">3 166 док.</span></li>
+      <li><span class="w-name">Прабхупада-шикшамрита (рус.)</span><span class="w-num">252 док.</span></li>
+      <li><span class="w-name">Прабхупада-лиламрита, том 1</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Прабхупада-лиламрита, том 2</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Трансцендентный дневник, том 1</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Трансцендентный дневник, том 2.1</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Трансцендентный дневник, том 2.2</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Трансцендентный дневник, том 3</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Трансцендентный дневник, том 4</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Трансцендентный дневник, том 5</span><span class="w-num">1 док.</span></li>
   </ul>
 </section>
 
 <section class="corp">
   <div class="corp-head">
-    <h2>Е.С. Бхакти Вигьяна Госвами</h2>
-    <div class="corp-meta"><b>1 660</b> док. · 218 464 фрагм.</div>
+    <h2>Госвами Вриндавана <span class="tier-badge t-grey">🔬 Песочница</span></h2>
+    <div class="corp-meta"><b>139</b> док.</div>
   </div>
-  <p class="corp-sub">Лекции, семинары, ответы и статьи</p>
-  <details class="works-wrap">
-    <summary>36 разделов — раскрыть список</summary>
-    <ul class="works">
+  <p class="corp-sub">Шесть Госвами Вриндавана и своды школы — первоисточники санскритской традиции. Серый список: тексты в вычитке, точность каждой ссылки проверяет человек на сверке.</p>
+  <ul class="works">
+    <li class="w-group"><details><summary><span class="w-name">Санатана Госвами</span><span class="w-num">43 произведений · 43 док.</span></summary><ul class="works sub">
+      <li><span class="w-name">Brhad-Bhagavatamrta</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Bs01</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Bs02</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Bs039</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Bs07</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Bs18</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Bs23</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Bs30</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Bs32</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Bs33</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Bs35</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Bs36</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Bs37</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Bs38</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Bs40</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Bs41</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Damodarastakam etc</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Dig-Darsini-Tika</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Digdarsini-tika</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">БBГ o Caнaтaнe Гocвaми</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Брихад-бхаг.(вся)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Брх-бхгвтмр</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">ДДТ Диг-даршана-тика (НМ)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">ДДТ НМ 01</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">ДДТ НМ 02</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">ДДТ НМ 03</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">ДДТ НМ 04</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">ДДТ НМ 05</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">ДДТ НМ 06</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">ДДТ НМ 07</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">ДДТ НМ 08</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Дам. с комм.Санатаны Г.</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Диг-даршана-тика (Фолио)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Из Хари-бх.-виласы</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Мадана-Мохан и Сан Г</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Прославление ШБ</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Санатана Госв.(биогр.)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Санатана Госвами (Ф)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Санатана Госвами (Фолио)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Шpи Paдxикa Cтaвa.</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Шри Бхагаватамр</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Шри Санатана Госвами</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Этикет</span><span class="w-num">1 док.</span></li>
+    </ul></details></li>
+    <li class="w-group"><details><summary><span class="w-name">Джива Госвами</span><span class="w-num">39 произведений · 39 док.</span></summary><ul class="works sub">
+      <li><span class="w-name">BS01</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">BS02</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">BS07</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">BS10</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">BS12</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">BS13</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">BS18</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">BS21</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">BS22</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">BS23</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">BS24</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">BS25</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">BS27</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">BS30</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">BS31</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">BS32</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">BS33</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">BS34</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">BS35</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">BS36</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">BS37</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">BS38</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">BS39</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">BS40</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">BS41</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">BS42</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">BS43</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Brahma samhita Commentary</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Gopal-campu</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Джива Госвами</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Sankalpa-kalpadruma (Jiva Gosw)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Бxaгaвaтa-caндapбxa(вcё).</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Бхакти-сандарбха</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Дживa Г. 400-лeт co дня yx</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Мадхава-махотсава (Фолио)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Мадхава-махотсава</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">О Дживе Госвами</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Таттва-сандарбха (Фолио)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Шри Таттва-сандарбха</span><span class="w-num">1 док.</span></li>
+    </ul></details></li>
+    <li class="w-group"><details><summary><span class="w-name">Рупа Госвами</span><span class="w-num">26 произведений · 26 док.</span></summary><ul class="works sub">
+      <li><span class="w-name">Хамсадута (Фолио)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Cампрадия рупанугов (ББГС)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Excerpts from Stava-mala</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Govinda Virudavali</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Namastaka</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Nikunja-rahasya-stava</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Padyavali</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Prathama Kunja</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Stavamala</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">The Blazing Sapphire</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Utkalika-vallari</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Vraja-navina-yuva-dvandvastaka</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Видагха-мадх.(eng)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Игривый  Мадхава</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Игривый Мадхава (Р)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Йугала-кишорaштака</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Лалита  и  лебедь</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Лалита Мадхава (Фолио)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Намаштакам (Рупа Госвами)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Обращение к Шримати Радхарани</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Радха  Кришна  ганнодеша  дипика</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Рупа Госвами (биография)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Стихи из БРС</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Удхава сандеш (Фолио)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Удхава сандеша</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Шри Намаштака (Фолио)</span><span class="w-num">1 док.</span></li>
+    </ul></details></li>
+    <li class="w-group"><details><summary><span class="w-name">Рагхунатха дас Госвами</span><span class="w-num">19 произведений · 19 док.</span></summary><ul class="works sub">
+      <li><span class="w-name">Mukta carita</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Vilapa Kusumanjali</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">ГП Грантхакартух Прартхана (Рагхунатха дас Госвами)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Манах-шикша (Нараяна Мах)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Манах-шикша (С комм.Бх.Тх)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Манах-шикша 01 (ИСККОН)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Манах-шикша 02 (ИСККОН)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">ППС Према Пурабхидха стотрам (Рагхунатха дас Госвами)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Прартхана (Рагхунатха дас Госвами)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Рагхунатха Бхатта Госвами (Ф)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">СНД Сва Нийама Дашака (Рагхунатха дас Госвами)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">ШГВПД Шри Говардхана Васа Прартхана Дашакам (Рагхунатха дас Госвами)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">ШГСК Шри Гауранга Става Калпатару (Рагхунатха дас Госвами)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">ШМШ Шри Манах-шикша (Рагхунатха дас Госвами)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">ШРК Шри Шри Радха-кундаштакам (Рагхунатха дас Госвами)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">ШШГД Шри Шри Говардханашрая Дашакам (Рагхунатха дас Госвами)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">ШШЧ Шри Шри Чайтаньяаштакам (Рагхунатха дас Госвами)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Шиварама Свами (Семенар)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Шридхар Мах.о Госвами</span><span class="w-num">1 док.</span></li>
+    </ul></details></li>
+      <li><span class="w-name">Жизнеописания святых вайшнавов</span><span class="w-num">9 док.</span></li>
+      <li><span class="w-name">Гопала Бхатта Госвами (жизнеописания)</span><span class="w-num">3 док.</span></li>
+  </ul>
+</section>
+
+<section class="corp">
+  <div class="corp-head">
+    <h2>Ачарьи парампары <span class="tier-badge t-trusted">✅ Проверен</span></h2>
+    <div class="corp-meta"><b>345</b> док.</div>
+  </div>
+  <p class="corp-sub">Ачарьи линии — от Госвами до Бхактивиноды и Вишванатхи. Сиддханта-вывод строится на этом слое и на Прабхупаде.</p>
+  <ul class="works">
+    <li class="w-group"><details><summary><span class="w-name">Бхактивинода Тхакур (англ.)</span><span class="w-num">37 произведений · 300 док.</span></summary><ul class="works sub">
+      <li><span class="w-name">Jaiva Dharma</span><span class="w-num">41 док.</span></li>
+      <li><span class="w-name">Bhagavad-gītā</span><span class="w-num">24 док.</span></li>
+      <li><span class="w-name">Śrī Navadvīpa-dhāma Māhātmya</span><span class="w-num">19 док.</span></li>
+      <li><span class="w-name">Śrī Hari-nāma Cintāmaṇi</span><span class="w-num">16 док.</span></li>
+      <li><span class="w-name">Śrī Kṛṣṇa Saṁhitā</span><span class="w-num">15 док.</span></li>
+      <li><span class="w-name">Vaiṣṇava Siddhānta Māla</span><span class="w-num">15 док.</span></li>
+      <li><span class="w-name">Śrī Nāma Pracāra</span><span class="w-num">13 док.</span></li>
+      <li><span class="w-name">Prema Pradipa (The Lamp of Divine Love)</span><span class="w-num">11 док.</span></li>
+      <li><span class="w-name">Śrī Nāma Mahimā</span><span class="w-num">11 док.</span></li>
+      <li><span class="w-name">Śrīman Mahāprabhura Śikṣā</span><span class="w-num">11 док.</span></li>
+      <li><span class="w-name">Datta Kaustubham</span><span class="w-num">10 док.</span></li>
+      <li><span class="w-name">Garbha Stotra (Prayers to Kṛṣṇa in the Womb)</span><span class="w-num">10 док.</span></li>
+      <li><span class="w-name">Manaḥ Śikṣā by Raghunātha Dāsa Goswāmī</span><span class="w-num">10 док.</span></li>
+      <li><span class="w-name">Bhajana Rahasya</span><span class="w-num">9 док.</span></li>
+      <li><span class="w-name">Śrī Śīkṣāṣṭakam</span><span class="w-num">8 док.</span></li>
+      <li><span class="w-name">Caitanya-caritamṛta</span><span class="w-num">7 док.</span></li>
+      <li><span class="w-name">Śrī Śrī Brahma-saṁhitā</span><span class="w-num">7 док.</span></li>
+      <li><span class="w-name">Śrī Kṛṣṇa Bhajanāmṛtam</span><span class="w-num">7 док.</span></li>
+      <li><span class="w-name">Bhāgavatārka Marīci Mālā</span><span class="w-num">6 док.</span></li>
+      <li><span class="w-name">Sri Navadvipa Bhava Taranga</span><span class="w-num">6 док.</span></li>
+      <li><span class="w-name">Śrī Caitanya Śikṣāmṛta</span><span class="w-num">6 док.</span></li>
+      <li><span class="w-name">Gauranga Lila Smarana Mangala Stotram</span><span class="w-num">5 док.</span></li>
+      <li><span class="w-name">Śrī Godruma Kalpāṭavī</span><span class="w-num">5 док.</span></li>
+      <li><span class="w-name">Tattva Sūtra</span><span class="w-num">5 док.</span></li>
+      <li><span class="w-name">Bhakti Tattva Viveka</span><span class="w-num">4 док.</span></li>
+      <li><span class="w-name">Chaitanya Mahaprabhu – His Life and Precepts</span><span class="w-num">4 док.</span></li>
+      <li><span class="w-name">Datta Vaṁśa Mālā</span><span class="w-num">3 док.</span></li>
+      <li><span class="w-name">Tattva Viveka</span><span class="w-num">2 док.</span></li>
+      <li><span class="w-name">Śrī Upadeśāmṛta of Śrīla Rūpa Goswāmī</span><span class="w-num">2 док.</span></li>
+      <li><span class="w-name">A Discourse on the Muts in Orrissa</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Bhakti-siddhāntāmṛtam (The Nectar of Devotional Conclusions)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Īśopaniṣad with Vedārka-dīdhiti</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Our Wants</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Śrī Caitanya Upaniṣad</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Śrī Hari-Nāma</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Śrī Śikṣāṣṭakam</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">The Poriade – Adventures of Porus</span><span class="w-num">1 док.</span></li>
+    </ul></details></li>
+    <li class="w-group"><details><summary><span class="w-name">Бхактивинода Тхакур (рус.)</span><span class="w-num">5 книг · 5 док.</span></summary><ul class="works sub">
+      <li><span class="w-name">Шри Чайтанья-шикшамрита</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Даша-мула-таттва</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Шри Харинама-чинтамани</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Джайва-дхарма, том 1</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Джайва-дхарма, том 2</span><span class="w-num">1 док.</span></li>
+    </ul></details></li>
+      <li><span class="w-name">Вишванатха Чакраварти Тхакур</span><span class="w-num">1 док.</span></li>
+    <li class="w-group"><details><summary><span class="w-name">Мадхвачарья (англ.)</span><span class="w-num">4 томов · 4 док.</span></summary><ul class="works sub">
+      <li><span class="w-name">Мадхвачарья — Махабхарата-татпарья-нирная, том 1 (EN)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Мадхвачарья — Махабхарата-татпарья-нирная, том 2 (EN)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Мадхвачарья — Махабхарата-татпарья-нирная, том 3 (EN)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Мадхвачарья — Махабхарата-татпарья-нирная, том 4 (EN)</span><span class="w-num">1 док.</span></li>
+    </ul></details></li>
+    <li class="w-group"><details><summary><span class="w-name">Нароттама дас Тхакур</span><span class="w-num">27 произведений · 27 док.</span></summary><ul class="works sub">
+      <li><span class="w-name">Hapoттaм Д. Tx. Гл 2.</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">А00 Нароттам дас</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">А01 Hароттам дас</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">А02 Hароттам дас</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">А03 Нароттам дас</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">А04 Нароттам дас</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">А05 Нароттам дас</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Вайшнаве вигьяпти</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Жизнь и времена НДТх</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Ишта-деве вигьяпти</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Лаласамайи прартхана</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Манах-шикша</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">НДТх (Биография.2 варианта)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">НДТх (Из према-виласы)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">НДТх. (Биография)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Нама-санкиртана</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Нароттам Дас Тхакур</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Песни НДТх</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Плач в разлуке с Господом и Его спутниками</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Прартхана</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Према-бхакти-чандрика (Без санскрита)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Саварана-шри-гаура-махима</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Саварана-шри-гаура-пада-падме прартхана</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Сакхи-вриндне вигьяпти</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Святой Нароттам Дас Тхакур (Всё)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Шри Гуру-вандана</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Шри Рупа Манджари пада</span><span class="w-num">1 док.</span></li>
+    </ul></details></li>
+    <li class="w-group"><details><summary><span class="w-name">Баладева Видьябхушана</span><span class="w-num">8 произведений · 8 док.</span></summary><ul class="works sub">
+      <li><span class="w-name">Sri Aisvarya</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Б_Ђ.В__мп_еги___ (Б_Ѓ_а_д_п) 01</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">БaЂ.B__мп_xyиa_a (Б_o_paд_п) 02</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Г_г__п Ґ____в_бв</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Ка_в__п Б_Ѓ_а_д_п (_І _____ С_ђ__е_)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Па_ђ_п</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Па_ђ_п-а_в__Ґ_Ђ_</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">ШБВБе. __Ѓ __І_м _ гз</span><span class="w-num">1 док.</span></li>
+    </ul></details></li>
+  </ul>
+</section>
+
+<h2 class="supergroup">Гуру ИСККОН</h2>
+<section class="corp">
+  <div class="corp-head">
+    <h2>Е.С. Бхакти Вигьяна Госвами <span class="tier-badge t-trusted">✅ Проверен</span></h2>
+    <div class="corp-meta"><b>1 660</b> док.</div>
+  </div>
+  <p class="corp-sub">Учитель в линии Прабхупады. Слой справочный: читается через Линзу и сиддханту не определяет.</p>
+  <ul class="works">
+      <li><span class="w-name">Книги — полные тексты</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Ответы на вопросы</span><span class="w-num">52 док.</span></li>
+      <li><span class="w-name">Статьи</span><span class="w-num">21 док.</span></li>
+      <li><span class="w-name">Обращения и программные документы</span><span class="w-num">6 док.</span></li>
+      <li><span class="w-name">Заметки к «Бхагават-сандарбхе»</span><span class="w-num">8 док.</span></li>
+      <li><span class="w-name">Лекции и семинары · 2026</span><span class="w-num">21 док.</span></li>
+      <li><span class="w-name">Лекции и семинары · 2025</span><span class="w-num">38 док.</span></li>
+      <li><span class="w-name">Лекции и семинары · 2024</span><span class="w-num">51 док.</span></li>
+      <li><span class="w-name">Лекции и семинары · 2023</span><span class="w-num">39 док.</span></li>
+      <li><span class="w-name">Лекции и семинары · 2022</span><span class="w-num">21 док.</span></li>
+      <li><span class="w-name">Лекции и семинары · 2021</span><span class="w-num">16 док.</span></li>
+      <li><span class="w-name">Лекции и семинары · 2020</span><span class="w-num">55 док.</span></li>
+      <li><span class="w-name">Лекции и семинары · 2019</span><span class="w-num">41 док.</span></li>
+      <li><span class="w-name">Лекции и семинары · 2018</span><span class="w-num">24 док.</span></li>
+      <li><span class="w-name">Лекции и семинары · 2017</span><span class="w-num">32 док.</span></li>
+      <li><span class="w-name">Лекции и семинары · 2016</span><span class="w-num">47 док.</span></li>
+      <li><span class="w-name">Лекции и семинары · 2015</span><span class="w-num">44 док.</span></li>
+      <li><span class="w-name">Лекции и семинары · 2014</span><span class="w-num">68 док.</span></li>
+      <li><span class="w-name">Лекции и семинары · 2013</span><span class="w-num">58 док.</span></li>
+      <li><span class="w-name">Лекции и семинары · 2012</span><span class="w-num">53 док.</span></li>
+      <li><span class="w-name">Лекции и семинары · 2011</span><span class="w-num">102 док.</span></li>
+      <li><span class="w-name">Лекции и семинары · 2010</span><span class="w-num">16 док.</span></li>
       <li><span class="w-name">Лекции и семинары · 2009</span><span class="w-num">253 док.</span></li>
       <li><span class="w-name">Лекции и семинары · 2008</span><span class="w-num">217 док.</span></li>
       <li><span class="w-name">Лекции и семинары · 2007</span><span class="w-num">145 док.</span></li>
-      <li><span class="w-name">Лекции и семинары · 2011</span><span class="w-num">102 док.</span></li>
-      <li><span class="w-name">Лекции и семинары · 2005</span><span class="w-num">80 док.</span></li>
       <li><span class="w-name">Лекции и семинары · 2006</span><span class="w-num">71 док.</span></li>
-      <li><span class="w-name">Лекции и семинары · 2014</span><span class="w-num">68 док.</span></li>
-      <li><span class="w-name">Лекции и семинары · 2013</span><span class="w-num">58 док.</span></li>
-      <li><span class="w-name">Лекции и семинары · 2020</span><span class="w-num">55 док.</span></li>
-      <li><span class="w-name">Лекции и семинары · 2012</span><span class="w-num">53 док.</span></li>
-      <li><span class="w-name">Ответы на вопросы</span><span class="w-num">52 док.</span></li>
-      <li><span class="w-name">Лекции и семинары · 2024</span><span class="w-num">51 док.</span></li>
-      <li><span class="w-name">Лекции и семинары · 2016</span><span class="w-num">47 док.</span></li>
-      <li><span class="w-name">Лекции и семинары · 2015</span><span class="w-num">44 док.</span></li>
-      <li><span class="w-name">Лекции и семинары · 2019</span><span class="w-num">41 док.</span></li>
-      <li><span class="w-name">Лекции и семинары · 2023</span><span class="w-num">39 док.</span></li>
-      <li><span class="w-name">Лекции и семинары · 2025</span><span class="w-num">38 док.</span></li>
-      <li><span class="w-name">Лекции и семинары · 2017</span><span class="w-num">32 док.</span></li>
-      <li><span class="w-name">Лекции и семинары · 2018</span><span class="w-num">24 док.</span></li>
-      <li><span class="w-name">Лекции и семинары · 2022</span><span class="w-num">21 док.</span></li>
-      <li><span class="w-name">Лекции и семинары · 2026</span><span class="w-num">21 док.</span></li>
-      <li><span class="w-name">Статьи</span><span class="w-num">21 док.</span></li>
-      <li><span class="w-name">Лекции и семинары · 1995</span><span class="w-num">18 док.</span></li>
-      <li><span class="w-name">Лекции и семинары · 1999</span><span class="w-num">16 док.</span></li>
-      <li><span class="w-name">Лекции и семинары · 2010</span><span class="w-num">16 док.</span></li>
-      <li><span class="w-name">Лекции и семинары · 2021</span><span class="w-num">16 док.</span></li>
-      <li><span class="w-name">Лекции и семинары · 2001</span><span class="w-num">15 док.</span></li>
-      <li><span class="w-name">Заметки к «Бхагават-сандарбхе»</span><span class="w-num">8 док.</span></li>
-      <li><span class="w-name">Лекции и семинары · 1994</span><span class="w-num">7 док.</span></li>
-      <li><span class="w-name">Лекции и семинары · 1997</span><span class="w-num">7 док.</span></li>
-      <li><span class="w-name">Лекции и семинары · 2000</span><span class="w-num">7 док.</span></li>
+      <li><span class="w-name">Лекции и семинары · 2005</span><span class="w-num">80 док.</span></li>
       <li><span class="w-name">Лекции и семинары · 2004</span><span class="w-num">7 док.</span></li>
-      <li><span class="w-name">Обращения и программные документы</span><span class="w-num">6 док.</span></li>
-      <li><span class="w-name">Лекции и семинары · 1996</span><span class="w-num">2 док.</span></li>
+      <li><span class="w-name">Лекции и семинары · 2001</span><span class="w-num">15 док.</span></li>
+      <li><span class="w-name">Лекции и семинары · 2000</span><span class="w-num">7 док.</span></li>
+      <li><span class="w-name">Лекции и семинары · 1999</span><span class="w-num">16 док.</span></li>
       <li><span class="w-name">Лекции и семинары · 1998</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Книги — полные тексты</span><span class="w-num">1 док.</span></li>
-    </ul>
-  </details>
-</section>
-
-<section class="corp">
-  <div class="corp-head">
-    <h2>Ачарьи парампары</h2>
-    <div class="corp-meta"><b>310</b> док. · 8 441 фрагм.</div>
-  </div>
-  <p class="corp-sub">Труды ачарьёв гаудия-сампрадаи (пополняется)</p>
-  <details class="works-wrap">
-    <summary>44 произведений — раскрыть список</summary>
-    <ul class="works">
-      <li><span class="w-name">Мадхвачарья</span><span class="w-num">4 док.</span></li>
-      <li><span class="w-name">Jaiva Dharma</span><span class="w-num">41 док.</span></li>
-      <li><span class="w-name">Bhagavad-gītā</span><span class="w-num">24 док.</span></li>
-      <li><span class="w-name">Śrī Hari-nāma Cintāmaṇi</span><span class="w-num">16 док.</span></li>
-      <li><span class="w-name">Джайва-дхарма, том 1</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Tattva Sūtra</span><span class="w-num">5 док.</span></li>
-      <li><span class="w-name">Śrī Kṛṣṇa Saṁhitā</span><span class="w-num">15 док.</span></li>
-      <li><span class="w-name">Джайва-дхарма, том 2</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Шри Чайтанья-шикшамрита</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Caitanya-caritamṛta</span><span class="w-num">7 док.</span></li>
-      <li><span class="w-name">Śrīman Mahāprabhura Śikṣā</span><span class="w-num">11 док.</span></li>
-      <li><span class="w-name">Śrī Navadvīpa-dhāma Māhātmya</span><span class="w-num">19 док.</span></li>
-      <li><span class="w-name">Bhajana Rahasya</span><span class="w-num">9 док.</span></li>
-      <li><span class="w-name">Prema Pradipa (The Lamp of Divine Love)</span><span class="w-num">11 док.</span></li>
-      <li><span class="w-name">Śrī Śrī Brahma-saṁhitā</span><span class="w-num">7 док.</span></li>
-      <li><span class="w-name">Vaiṣṇava Siddhānta Māla</span><span class="w-num">15 док.</span></li>
-      <li><span class="w-name">Garbha Stotra (Prayers to Kṛṣṇa in the Womb)</span><span class="w-num">10 док.</span></li>
-      <li><span class="w-name">Bhāgavatārka Marīci Mālā</span><span class="w-num">6 док.</span></li>
-      <li><span class="w-name">Śrī Caitanya Śikṣāmṛta</span><span class="w-num">6 док.</span></li>
-      <li><span class="w-name">Bhakti Tattva Viveka</span><span class="w-num">4 док.</span></li>
-      <li><span class="w-name">Шри Харинама-чинтамани</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Datta Kaustubham</span><span class="w-num">10 док.</span></li>
-      <li><span class="w-name">Chaitanya Mahaprabhu – His Life and Precepts</span><span class="w-num">4 док.</span></li>
-      <li><span class="w-name">Tattva Viveka</span><span class="w-num">2 док.</span></li>
-      <li><span class="w-name">Мадхурья-кадамбини (Облако нектара)</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Manaḥ Śikṣā by Raghunātha Dāsa Goswāmī</span><span class="w-num">10 док.</span></li>
-      <li><span class="w-name">Śrī Śīkṣāṣṭakam</span><span class="w-num">8 док.</span></li>
-      <li><span class="w-name">Даша-мула-таттва</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Śrī Kṛṣṇa Bhajanāmṛtam</span><span class="w-num">7 док.</span></li>
-      <li><span class="w-name">Gauranga Lila Smarana Mangala Stotram</span><span class="w-num">5 док.</span></li>
-      <li><span class="w-name">Śrī Nāma Pracāra</span><span class="w-num">13 док.</span></li>
-      <li><span class="w-name">Sri Navadvipa Bhava Taranga</span><span class="w-num">6 док.</span></li>
-      <li><span class="w-name">Śrī Godruma Kalpāṭavī</span><span class="w-num">5 док.</span></li>
-      <li><span class="w-name">Śrī Nāma Mahimā</span><span class="w-num">11 док.</span></li>
-      <li><span class="w-name">Our Wants</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Bhakti-siddhāntāmṛtam (The Nectar of Devotional Conclusions)</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">A Discourse on the Muts in Orrissa</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Śrī Śikṣāṣṭakam</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Śrī Upadeśāmṛta of Śrīla Rūpa Goswāmī</span><span class="w-num">2 док.</span></li>
-      <li><span class="w-name">Datta Vaṁśa Mālā</span><span class="w-num">3 док.</span></li>
-      <li><span class="w-name">Śrī Hari-Nāma</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Īśopaniṣad with Vedārka-dīdhiti</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">The Poriade – Adventures of Porus</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Śrī Caitanya Upaniṣad</span><span class="w-num">1 док.</span></li>
-    </ul>
-  </details>
-</section>
-
-<section class="corp">
-  <div class="corp-head">
-    <h2>Образовательные материалы</h2>
-    <div class="corp-meta"><b>102</b> док. · 1 822 фрагм.</div>
-  </div>
-  <p class="corp-sub">Курсы и пособия</p>
-  <ul class="works">
-      <li><span class="w-name">Министерство образования ИСККОН (англ.+рус.)</span><span class="w-num">90 док.</span></li>
-      <li><span class="w-name">Вайшнавский этикет</span><span class="w-num">12 док.</span></li>
+      <li><span class="w-name">Лекции и семинары · 1997</span><span class="w-num">7 док.</span></li>
+      <li><span class="w-name">Лекции и семинары · 1996</span><span class="w-num">2 док.</span></li>
+      <li><span class="w-name">Лекции и семинары · 1995</span><span class="w-num">18 док.</span></li>
+      <li><span class="w-name">Лекции и семинары · 1994</span><span class="w-num">7 док.</span></li>
   </ul>
 </section>
 
 <section class="corp">
   <div class="corp-head">
-    <h2>Резолюции и протоколы GBC</h2>
-    <div class="corp-meta"><b>87</b> док. · 4 228 фрагм.</div>
+    <h2>Е.С. Шиварама Свами <span class="tier-badge t-pending">📋 В очереди</span></h2>
+    <div class="corp-meta"><b>46</b> док.</div>
   </div>
-  <p class="corp-sub">Руководящие документы (с 1975 года)</p>
-  <details class="works-wrap">
-    <summary>60 разделов — раскрыть список</summary>
-    <ul class="works">
+  <p class="corp-sub">Учитель линии. Права на текст у издателя: в опубликованном разборе — указатель на официальное издание, не цитата.</p>
+  <p class="corp-src">⚖ только указатель: права на текст у издателя</p>
+  <ul class="works">
+      <li><span class="w-name">Varnasrama Compendium — том 1 (англ.)</span><span class="w-num">46 док.</span></li>
+  </ul>
+</section>
+
+<section class="corp">
+  <div class="corp-head">
+    <h2>Руководство ИСККОН — GBC <span class="tier-badge t-trusted">✅ Проверен</span></h2>
+    <div class="corp-meta"><b>87</b> док.</div>
+  </div>
+  <p class="corp-sub">Документы и резолюции GBC — институциональный слой.</p>
+  <ul class="works">
       <li><span class="w-name">Документы (рус.)</span><span class="w-num">16 док.</span></li>
       <li><span class="w-name">Документы</span><span class="w-num">13 док.</span></li>
-      <li><span class="w-name">Резолюции · 1975</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 1976</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 1977</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 1978</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 1979</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 1980</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 1981</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 1982</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 1983</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 1984</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 1985</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 1986</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 1987</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 1988</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 1989</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 1990</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 1991</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 1992</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 1993</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 1994</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 1995</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 1996</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 1997</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 1998</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 1999</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 2000</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 2001</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 2002</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 2003</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 2004</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 2005</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 2006</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 2007</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 2008</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 2009</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 2010</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 2011</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 2012</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 2013</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 2014</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 2015</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 2016</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 2017</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 2017 (промежуточные)</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 2018</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 2018 (промежуточные)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 2026</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 2025</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 2024</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 2023</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 2022</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 2021</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 2020</span><span class="w-num">1 док.</span></li>
       <li><span class="w-name">Резолюции · 2019</span><span class="w-num">1 док.</span></li>
       <li><span class="w-name">Резолюции · 2019 (промежуточные)</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 2020</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 2021</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 2022</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 2023</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 2024</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 2025</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Резолюции · 2026</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 2018</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 2018 (промежуточные)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 2017</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 2017 (промежуточные)</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 2016</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 2015</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 2014</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 2013</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 2012</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 2011</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 2010</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 2009</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 2008</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 2007</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 2006</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 2005</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 2004</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 2003</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 2002</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 2001</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 2000</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 1999</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 1998</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 1997</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 1996</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 1995</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 1994</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 1993</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 1992</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 1991</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 1990</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 1989</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 1988</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 1987</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 1986</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 1985</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 1984</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 1983</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 1982</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 1981</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 1980</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 1979</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 1978</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 1977</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 1976</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Резолюции · 1975</span><span class="w-num">1 док.</span></li>
       <li><span class="w-name">Документ GBC о Гаудия-матхе</span><span class="w-num">1 док.</span></li>
       <li><span class="w-name">Кодекс этического поведения</span><span class="w-num">1 док.</span></li>
       <li><span class="w-name">Свод законов ИСККОН (рус.)</span><span class="w-num">1 док.</span></li>
-    </ul>
-  </details>
-</section>
-
-<section class="corp">
-  <div class="corp-head">
-    <h2>Апологетика</h2>
-    <div class="corp-meta"><b>2</b> док. · 200 фрагм.</div>
-  </div>
-  <p class="corp-sub">Полемические и разъясняющие тексты — защита учения</p>
-  <ul class="works">
-      <li><span class="w-name">Парипрашна. Искусство задавать вопросы (Гуру-таттва таранга, том 1)</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Ложь бывших кришнаитов, или как придать известным фактам подвижный смысл</span><span class="w-num">1 док.</span></li>
   </ul>
 </section>
 
 <section class="corp">
   <div class="corp-head">
-    <h2>Биографии и хроники</h2>
-    <div class="corp-meta"><b>9</b> док. · 4 656 фрагм.</div>
+    <h2>Жизнеописания и история ИСККОН <span class="tier-badge t-pending">📋 В очереди</span></h2>
+    <div class="corp-meta"><b>1</b> док.</div>
   </div>
-  <p class="corp-sub">Жизнь Шрилы Прабхупады и история движения</p>
-  <details class="works-wrap">
-    <summary>9 произведений — раскрыть список</summary>
-    <ul class="works">
-      <li><span class="w-name">Прабхупада-лиламрита, том 1</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Трансцендентный дневник, том 1</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Прабхупада-лиламрита, том 2</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Трансцендентный дневник, том 5</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Трансцендентный дневник, том 4</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Трансцендентный дневник, том 3</span><span class="w-num">1 док.</span></li>
+  <p class="corp-sub">Хроники движения (напр. «Взрыв Харе Кришна»). Слой справочный.</p>
+  <ul class="works">
+    <li class="w-group"><details><summary><span class="w-name">Биографии и история ИСККОН</span><span class="w-num">1 книг · 1 док.</span></summary><ul class="works sub">
       <li><span class="w-name">Взрыв Харе Кришна</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Трансцендентный дневник, том 2.2</span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Трансцендентный дневник, том 2.1</span><span class="w-num">1 док.</span></li>
-    </ul>
-  </details>
+    </ul></details></li>
+  </ul>
 </section>
 
 <section class="corp">
   <div class="corp-head">
-    <h2>Практика преданности</h2>
-    <div class="corp-meta"><b>1</b> док. · 155 фрагм.</div>
+    <h2>Апологетика и статьи <span class="tier-badge t-pending">📋 В очереди</span></h2>
+    <div class="corp-meta"><b>3</b> док.</div>
   </div>
-  <p class="corp-sub">Садхана и забота о вайшнавах</p>
+  <p class="corp-sub">Полемические и разъясняющие тексты. Слой вспомогательный, на вычитке.</p>
   <ul class="works">
-      <li><span class="w-name">Скрытые препятствия на пути бхакти</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Апологетика</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Бхакти и садхана</span><span class="w-num">2 док.</span></li>
+  </ul>
+</section>
+
+<section class="corp">
+  <div class="corp-head">
+    <h2>Образовательные материалы <span class="tier-badge t-pending">📋 В очереди</span></h2>
+    <div class="corp-meta"><b>102</b> док.</div>
+  </div>
+  <p class="corp-sub">Образовательные и учебные материалы. Слой вспомогательный, на вычитке.</p>
+  <ul class="works">
+      <li><span class="w-name">Вайшнавский этикет</span><span class="w-num">12 док.</span></li>
+    <li class="w-group"><details><summary><span class="w-name">Министерство образования ИСККОН (англ.+рус.)</span><span class="w-num">90 материалов · 90 док.</span></summary><ul class="works sub">
+      <li><span class="w-name">Towards Principles and Values</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">«К принципам и ценностям» -</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">A Bhāgavata Philosophy of Education</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Философия образования Бхагаваты</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">A Case for Village Pedagogy</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Пример сельской педагогики</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">A Taste for the Lord’s Name</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Вкус к имени Господа</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Accepting a Spiritual Master</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Принятие духовного учителя</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">An Offering of Love</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Подношение любви</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Crack in the Universe</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Трещина во Вселенной</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Detachment from Children</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Непривязанность к детям</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Divine Consciousness Of a Previous Life</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Божественное сознание из предыдущей жизни</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">“Do You Force Your Children?”</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Принуждаете ли вы своих детей?</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Foundations of School Administration</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Основы школьного администрирования</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Higher Education in Relation to Other Aspects of ISKCON Education</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Высшее образование в связи с другими аспектами образования ИСККОН</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Higher Vocations</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Высшие профессии</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Is Experience the Best Teacher?</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Является ли опыт лучшим учителем?</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Is University Education A Sin?</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Является ли высшее образование в университете грехом?</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Just Say No to No</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Просто скажите Нет</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Kick Out Darwin</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Выгони Дарвина</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Loving Our Children</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Любовь к детям</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Methods of Teaching and Evaluating</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Методы преподавания и оценивания</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Motivation for Obedience</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Мотивация к послушанию</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Names and Dates</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Имена и даты</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Nursery Nectar</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Сладость детского сада</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Pay the Price</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Заплатить свою цену</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Philosophy of Education of the Sri Isopanisad of the Yajur Veda with references to Bhagavad-gita</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Философия образования основанная на</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Prepared for Death</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Готовность к смерти</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Real Education, from the Very Beginning</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Настоящее образование с первых дней</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Revolutionary Cleanliness</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Революция чистоты</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Srila Prabhupada On Education By Personal Example</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Шрила Прабхупада об образовании на личном примере</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Srila Prabhupada’s Words On Higher Education</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Слова Шрилы Прабхупады о высшем образовании</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Standards and Indicators</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Стандарты и показатели</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Starting a Sunday School</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Открытие воскресной школы</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Stepping Out</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Выход на улицу</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Teens and Celibacy</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Подростки и целебат</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">The Company We Keep</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Компания, в которой мы живем</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">The Creative Urge</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Творческие порывы</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">The Parent-Teacher Partnership</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Сотрудничество между родителями и преподавателями</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">The Playful Mood</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Игровое настроение</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">The Return of the One-Room Schoolhouse</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Возвращение однокомнатных школ</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">The Test of Education</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Тест на образованность</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">The Western Educationalists’ Perspective on the Vedic Tradition</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Взгляд западных преподавателей на ведическую традицию</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Training Through The Stages of Childhood</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Обучение на протяжении всех этапов детства</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Varnasrama Education In The Modern World</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Образование варнашрамы в современном мире</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Vedic Education</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Ведическое образование</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">What’s a Child to Read?</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Что может почитать ребёнок?</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Your Kids And the One-Eyed Guru</span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Дети и «одноглазый гуру».</span><span class="w-num">1 док.</span></li>
+    </ul></details></li>
+  </ul>
+</section>
+
+<section class="corp showcase">
+  <div class="corp-head">
+    <h2>Не разобрано <span class="tier-badge t-pending">📋 В очереди</span></h2>
+    <div class="corp-meta"><b>5</b> док.</div>
+  </div>
+  <p class="corp-sub">Материал ещё не разобран — виден для прозрачности, в поиск не входит. У каждого пункта — этап разбора.</p>
+  <ul class="works">
+      <li><span class="w-name">Махабхарата (пер. Гангули, англ.)</span><span class="w-num">3 док. <span class="stage">⏳ экспертная сверка</span></span></li>
+      <li><span class="w-name">Махабхарата (пересказ Кришна-дхармы, англ.)</span><span class="w-num">1 док. <span class="stage">⏳ экспертная сверка</span></span></li>
+      <li><span class="w-name">Документы</span><span class="w-num">1 док. <span class="stage">⏳ экспертная сверка</span></span></li>
   </ul>
 </section>
 
@@ -479,7 +759,7 @@
   </section>
   <footer class="doc">
     <p>Каталог отражает выверенную библиотеку — «указатель, не переиздатель». <a href="./">На главную →</a></p>
-    <p class="when">Обновлено автоматически из векторного индекса · 2026-07-17 06:14</p>
+    <p class="when">Обновлено автоматически из векторного индекса · 2026-07-17 14:37</p>
     <p class="sign">KAVACHAM · DGD · ZERO ENTROPY</p>
   </footer>
 </div>

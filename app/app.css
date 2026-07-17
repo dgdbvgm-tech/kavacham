@@ -957,6 +957,36 @@ body.tma {
   font-size: 0.74rem;
   color: var(--text-dim);
 }
+/* третий уровень: раскрытие супер-раздела на книги/произведения */
+.cl-arrow {
+  flex: 0 0 auto;
+  width: 1.4rem; height: 1.4rem;
+  border: 0; background: none; color: var(--text-dim);
+  font-size: 0.8rem; line-height: 1; cursor: pointer; border-radius: 6px;
+}
+.cl-arrow:hover { color: var(--text); background: var(--ground); }
+.cl-kids {
+  padding: 0.15rem 0.2rem 0.3rem 2.6rem;
+  display: grid; gap: 0.05rem;
+}
+.cl-kids[hidden] { display: none; }
+.cs {
+  display: flex; align-items: center; gap: 0.45rem;
+  padding: 0.25rem 0.2rem; border-radius: 6px; cursor: pointer;
+  font-size: 0.82rem; min-height: 32px;
+}
+.cs:hover { background: var(--ground); }
+.cs input { accent-color: var(--gold); width: 0.95rem; height: 0.95rem; flex: 0 0 auto; margin: 0; }
+.cs-nm { flex: 1 1 auto; min-width: 0; color: var(--text-2); overflow-wrap: anywhere; }
+.cs-cnt { font-size: 0.72rem; color: var(--text-dim); }
+/* витрина «Не разобрано»: видна, но без чекбоксов; этап разбора */
+.cg-showcase .cg-name { color: var(--text-dim); }
+.cl-showcase { cursor: default; opacity: 0.85; }
+.cl-stage {
+  font-size: 0.64rem; padding: 0.12rem 0.4rem; border-radius: 999px;
+  border: 1px dashed var(--rule); color: var(--text-dim); white-space: nowrap;
+}
+
 /* супер-раздел каталога («Гуру ИСККОН») и вложенные группы */
 .cg-parent {
   margin: 0.35rem 0 -0.1rem;
