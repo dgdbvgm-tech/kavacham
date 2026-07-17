@@ -4239,7 +4239,7 @@
     var text = $('hqCastText').value.trim();
     var errEl = $('hqCastErr');
     errEl.hidden = true;
-    if (!text) { errEl.textContent = 'Пустую директиву не отправить.'; errEl.hidden = false; return; }
+    if (!text) { errEl.textContent = 'Пустое сообщение не отправить.'; errEl.hidden = false; return; }
     var push = !!$('hqCastPush').checked;
     askConfirm('Отправить ВСЕМ участникам' + (push ? ' с пушем в лички' : ' (только Лог событий)') + '?',
       function (ok) {
