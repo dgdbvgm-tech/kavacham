@@ -2086,3 +2086,7 @@ body.tma-in-telegram .tabbar {
   font-size: 0.8rem;
   opacity: 0.85;
 }
+
+/* селектор глубины поиска (ТЗ «Мега-разборы») */
+.depth-range { width: 100%; margin: 0.5rem 0 0.6rem; accent-color: var(--accent); }
+.depth-presets { margin-bottom: 0.3rem; }

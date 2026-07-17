@@ -152,6 +152,7 @@
             <div class="field-info" id="reqInfoBody" hidden>
               <p>КАВАЧАМ — аналитик, а не писатель. Мы проверяем праманы, а не сочиняем тексты: точный вопрос = точный ответ.</p>
               <p>Скриншот в это поле не вложить — здесь только текст. Изображение принимает бот: пришлите картинку туда, подпись к ней станет текстом заявки.</p>
+              <p>Каким методом работает разбор — версии режимов и журнал изменений в <a href="#/prompts">Панели прозрачности</a>.</p>
             </div>
           </div>
 
@@ -166,6 +167,22 @@
             <p class="research-note" id="researchNote" role="status" hidden>🔬 <strong>Исследовательский режим:</strong> поиск пойдёт без корпуса основы (Шрилы Прабхупады). Согласование выводов по призме ачарьи-основателя — на этапе сверки человеком.</p>
             <p class="state" id="scopeState" role="status" aria-live="polite">Загружаю список корпусов…</p>
           </fieldset>
+
+          <!-- Глубина поиска (ТЗ «Мега-разборы»): сколько цитат соберёт разведка.
+               Порог 108 — «Мега-разбор»: заявка идёт в открытый пул еженедельного
+               голосования, а не в моментальную очередь. -->
+          <div class="field">
+            <label class="field-l" for="depthRange">Глубина поиска: <b class="mono" id="depthVal">20</b> цитат</label>
+            <input type="range" id="depthRange" class="depth-range" min="10" max="200" step="1" value="20"
+                   aria-describedby="megaNote">
+            <div class="chips depth-presets" role="group" aria-label="Пресеты глубины">
+              <button class="chip on" type="button" data-depth="20">Стандарт · 20</button>
+              <button class="chip" type="button" data-depth="50">Глубокий · 50</button>
+              <button class="chip" type="button" data-depth="108">Расширенный · 108</button>
+              <button class="chip" type="button" data-depth="200">🌌 Мега · 200</button>
+            </div>
+            <p class="field-h" id="megaNote" role="status" hidden>🌌 <strong>Мега-разбор.</strong> Глубина больше 108 цитат — заявка идёт не в моментальную очередь, а в открытый пул еженедельного голосования: <strong>тема будет видна участникам Лаборатории</strong> (автор — по-прежнему аноним, если не разрешите имя ниже).</p>
+          </div>
 
           <div class="field">
             <label class="switch">
@@ -210,6 +227,19 @@
 
         <div class="state" id="profileState" role="status" aria-live="polite" hidden></div>
         <ul class="reqs" id="profileList" hidden></ul>
+
+        <!-- 🌌 Пул мега-разборов (ТЗ «Мега-разборы»): открытая витрина заявок
+             глубиной >108 + голосование. Раз в неделю тема-победитель уходит
+             оператором в тяжёлый процессинг. -->
+        <section class="block" id="megaBlock" aria-labelledby="megaH" hidden>
+          <div class="block-top">
+            <h2 class="block-h" id="megaH">🌌 Пул мега-разборов</h2>
+            <button class="mini" id="megaRefresh" type="button">Обновить</button>
+          </div>
+          <p class="field-h">Фундаментальные исследования (глубина больше 108 цитат) копятся здесь и не стопорят основную очередь. Раз в неделю тема с наибольшей поддержкой уходит в тяжёлый процессинг.</p>
+          <div class="state" id="megaState" role="status" aria-live="polite" hidden></div>
+          <ul class="reqs" id="megaList" hidden></ul>
+        </section>
 
         <!-- Конвейер: маршрут заявки + кто именно ставит подпись под разбором -->
         <p class="foot-note">
@@ -443,6 +473,7 @@
         <li><strong>Заземление.</strong> Каждое утверждение привязано к проверяемой цитате. Нет опоры в тексте — нет слова в ответе.</li>
         <li><strong>Глубина.</strong> Поиск по 37 000+ выверенных документов. Столько проходов по базе, сколько нужно для точного разбора. Точность превыше скорости.</li>
         <li><strong>Право молчать.</strong> Где опоры нет — движок выдаёт честное «в моих источниках нет основания» вместо правдоподобной догадки. Молчание не вносит искажения.</li>
+        <li><strong>Прозрачная методика.</strong> Режимы разбора и версии их инструкций открыты: что изменилось и почему — в <a href="#/prompts">Панели прозрачности</a>. Калибровка идёт постоянно, молчаливых правок нет.</li>
       </ul>
       <p class="about-p">Так это выглядит на практике — цитата дословно и со ссылкой, которую можно открыть и проверить:</p>
       <blockquote class="about-q">
@@ -576,6 +607,38 @@
             <button class="btn btn-primary" id="logSend" type="submit">Передать Оператору</button>
           </div>
         </form>
+      </div>
+    </section>
+
+    <!-- ═══ 7. ПАНЕЛЬ ПРОЗРАЧНОСТИ (v6.5; вкладки не имеет). Версии инжектов
+         режимов: лаборант видит, каким методом и какой редакции работает
+         конвейер. Полные тексты инжектов не публикуются — решение автора
+         проекта отдельно (см. дисклеймер на экране). ═══ -->
+    <section class="screen" id="screen-prompts" hidden>
+      <h1 class="screen-h">Панель прозрачности</h1>
+      <p class="screen-sub">Методика «под капотом»: режимы разбора, версии их инструкций и журнал изменений. Калибровка идёт постоянно — и каждая правка оставляет след.</p>
+
+      <div class="stub" id="promptsGate" hidden>
+        <p class="stub-badge">Панель работает внутри Telegram</p>
+        <p>Данные приходят с сервера Лаборатории по подписи аккаунта — вне приложения Telegram подписи нет.</p>
+        <button class="btn btn-primary" data-open-bot type="button">Открыть бота</button>
+      </div>
+
+      <div id="promptsBody" hidden>
+        <div class="state" id="promptsState" role="status" aria-live="polite">Загружаю реестр…</div>
+        <ul class="reqs" id="promptsList" hidden></ul>
+
+        <section class="block" id="promptsLogBlock" hidden aria-labelledby="promptsLogH">
+          <h2 class="block-h" id="promptsLogH">Журнал изменений</h2>
+          <ul class="reqs" id="promptsLog"></ul>
+        </section>
+
+        <p class="foot-note">
+          Открыто публикуются название, версия, дата и суть изменений; sha256-отпечаток подтверждает,
+          что текст инструкции не менялся без следа. Полные тексты инструкций не публикуются —
+          открытый промпт облегчил бы целенаправленный подбор обходов. Это осознанный компромисс
+          прозрачности и устойчивости; решение о полной публикации — за автором проекта.
+        </p>
       </div>
     </section>
 

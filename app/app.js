@@ -248,7 +248,9 @@
     about:    { el: 'screen-about',    tab: 'about',    back: false },
     hq:       { el: 'screen-hq',       tab: 'hq',       back: false },
     // Лог событий (v6.3): вкладки не имеет, вход с конверта в шапке
-    log:      { el: 'screen-log',      tab: 'terminal', back: true  }
+    log:      { el: 'screen-log',      tab: 'terminal', back: true  },
+    // Панель прозрачности (v6.5): версии инжектов; вход из формы и «О проекте»
+    prompts:  { el: 'screen-prompts',  tab: 'about',    back: true  }
   };
 
   var SEGS = { razbory: 'pane-razbory', sri: 'pane-sri', corpus: 'pane-corpus' };
@@ -430,6 +432,7 @@
     else if (r.name === 'enrich') enterEnrich();
     else if (r.name === 'hq') enterHq();
     else if (r.name === 'log') enterLog();
+    else if (r.name === 'prompts') enterPrompts();
   }
 
   function goBack() {
@@ -528,6 +531,7 @@
     if (r.form) { formOpen = true; doneShown = false; }
     syncInit();
     mountProfile();
+    loadMega();               // 🌌 пул мега-разборов (свой TTL внутри)
     syncTerminalMain();
 
     if (r.focus === 'mine') scrollToEl($('mineBlock'));
@@ -1453,86 +1457,159 @@
     });
   }
 
-  // sel = {all: [ключи групп целиком], books: [{corpus, title|prefix} частичных]}
+  // ── ТРЁХУРОВНЕВАЯ МОДЕЛЬ ВЫБОРА (v3) ──
+  // gSel[gi][bi] = true (лист/супер-раздел выбран ЦЕЛИКОМ) либо {ci:1,…} (супер-
+  // раздел выбран частично — подмножество детей). Некликабельные листья (корзина
+  // «Не разобрано», selectable:false) в выборе не участвуют.
+  function isExpand(leaf) { return !!(leaf && leaf.expand && leaf.children && leaf.children.length); }
+  function isSelectable(g, leaf) {
+    if (g.selectable === false || (leaf && leaf.selectable === false)) return false;
+    return !g.disabled;
+  }
+  function leafUnits(leaf) { return isExpand(leaf) ? leaf.children.length : 1; }
+  function selCount(gi, bi) {          // сколько единиц листа выбрано
+    var v = gSel[gi] && gSel[gi][bi];
+    if (v === true) return leafUnits(TREE[gi].books[bi]);
+    if (v && typeof v === 'object') { var n = 0, c; for (c in v) if (v.hasOwnProperty(c)) n++; return n; }
+    return 0;
+  }
+  function childSelected(gi, bi, ci) {
+    var v = gSel[gi] && gSel[gi][bi];
+    return v === true || (v && typeof v === 'object' && !!v[ci]);
+  }
+  function setLeafFull(gi, bi, on) {
+    if (on) gSel[gi][bi] = true; else delete gSel[gi][bi];
+  }
+  function setChild(gi, bi, ci, on) {
+    var leaf = TREE[gi].books[bi], v = gSel[gi][bi];
+    if (v === true) {                 // разворачиваем «всё» в явный набор, чтобы снять одного
+      v = {}; leaf.children.forEach(function (_, i) { v[i] = 1; });
+      gSel[gi][bi] = v;
+    }
+    if (!v || typeof v !== 'object') { v = {}; gSel[gi][bi] = v; }
+    if (on) v[ci] = 1; else delete v[ci];
+    if (selCount(gi, bi) === leaf.children.length) gSel[gi][bi] = true;  // снова всё
+    else if (selCount(gi, bi) === 0) delete gSel[gi][bi];
+  }
+  // выбранные ЕДИНИЦЫ группы (лист = 1, супер-раздел = число детей)
+  function groupSelUnits(gi) {
+    var g = TREE[gi], n = 0;
+    g.books.forEach(function (leaf, bi) { if (isSelectable(g, leaf)) n += selCount(gi, bi); });
+    return n;
+  }
+  function groupTotalUnits(gi) {
+    var g = TREE[gi], n = 0;
+    g.books.forEach(function (leaf) { if (isSelectable(g, leaf)) n += leafUunits(leaf); });
+    return n;
+  }
+  function leafUunits(leaf) { return leafUnits(leaf); }   // алиас (опечатко-стойкость)
+
+  // sel = {all: [label/ключ групп целиком], books: [{corpus, prefix|title|book}]}
   function applySelection(sel) {
     gSel = TREE.map(function () { return {}; });
     var all = {};
     (sel.all || []).forEach(function (k) { all[k] = 1; });
     TREE.forEach(function (g, gi) {
-      // совпадение по label (черновик v6.2) ИЛИ по scope_key (дефолты сервера
-      // и черновики v6.1) — scope_key не уникален, label стабилен
-      if (g.disabled || (all[g.label] !== 1 && all[g.scope_key] !== 1)) return;
-      g.books.forEach(function (leaf, bi) { gSel[gi][bi] = 1; });
+      if (!isSelectable(g, null)) return;
+      if (all[g.label] !== 1 && all[g.scope_key] !== 1) return;
+      g.books.forEach(function (leaf, bi) { if (isSelectable(g, leaf)) gSel[gi][bi] = true; });
     });
     (sel.books || []).forEach(function (b) {
       if (!b || !b.corpus) return;
-      var key = corpusToKey(b.corpus);
       TREE.forEach(function (g, gi) {
-        if (g.scope_key !== key || g.disabled) return;
+        if (!isSelectable(g, null)) return;
         g.books.forEach(function (leaf, bi) {
-          if (leaf.corpus !== b.corpus) return;
-          // лист совпал, если совпали оба селектора (у листа «корпус целиком» их нет)
-          if ((b.title || null) === (leaf.title || null) &&
-              (b.prefix || null) === (leaf.prefix || null)) gSel[gi][bi] = 1;
+          if (leaf.corpus !== b.corpus || !isSelectable(g, leaf)) return;
+          if (isExpand(leaf)) {
+            leaf.children.forEach(function (ch, ci) {
+              var mB = (b.book || null) === (ch.book || null);
+              var mT = (b.title || null) === (ch.title || null);
+              var mP = !b.prefix || b.prefix === leaf.prefix;
+              // {corpus,prefix} без book/title = весь супер-раздел
+              if (b.book ? (mB && mP) : b.title ? mT : (b.prefix === leaf.prefix)) {
+                if (b.book || b.title) setChild(gi, bi, ci, true);
+                else gSel[gi][bi] = true;
+              }
+            });
+          } else if ((b.title || null) === (leaf.title || null) &&
+                     (b.prefix || null) === (leaf.prefix || null)) {
+            gSel[gi][bi] = true;
+          }
         });
       });
     });
     syncScopeKeysFromTree();
   }
 
-  // Учёт по СКОУП-КЛЮЧАМ поверх групп (v6.2): куратор ядра может переместить
-  // лист в чужую группу (Нароттама живёт у «Ачарьев», но corpus=goswamis) и
-  // разложить один корпус на две группы («Апология» и «Жизнеописания» = books).
-  // Сужение и ключи считаем честно ПО КОРПУСУ листа, а не по группе.
+  // Учёт по СКОУП-КЛЮЧАМ (v6.2): куратор переносит листья между группами и делит
+  // корпус на группы. Считаем по КОРПУСУ листа в ЕДИНИЦАХ (лист=1, раздел=дети).
   function keyStats() {
     var per = {};
     TREE.forEach(function (g, gi) {
       g.books.forEach(function (leaf, bi) {
+        if (!isSelectable(g, leaf)) return;
         var k = corpusToKey(leaf.corpus);
-        per[k] = per[k] || { sel: [], total: 0 };
-        per[k].total++;
-        if (gSel[gi][bi]) per[k].sel.push(leaf);
+        per[k] = per[k] || { sel: 0, total: 0, leaves: [] };
+        per[k].total += leafUnits(leaf);
+        per[k].sel += selCount(gi, bi);
+        per[k].leaves.push({ gi: gi, bi: bi, leaf: leaf });
       });
     });
     return per;
   }
 
-  // scopeSel/baseOn — общий язык формы (валидация, черновик, payload):
-  // дерево лишь наполняет их своим состоянием.
   function syncScopeKeysFromTree() {
     var per = keyStats();
     scopeSel = [];
     Object.keys(per).forEach(function (k) {
-      if (k === BASE_KEY || !per[k].sel.length) return;
+      if (k === BASE_KEY || !per[k].sel) return;
       if (scopeSel.indexOf(k) < 0) scopeSel.push(k);
     });
-    baseOn = !!(per[BASE_KEY] && per[BASE_KEY].sel.length);
+    baseOn = !!(per[BASE_KEY] && per[BASE_KEY].sel);
   }
 
-  // Черновик: группы, выбранные ЦЕЛИКОМ, — по label (scope_key не уникален:
-  // «Апология» и «Жизнеописания» делят корпус books).
+  // Черновик: группы, выбранные ЦЕЛИКОМ, — по label.
   function fullGroupLabels() {
     var out = [];
     TREE.forEach(function (g, gi) {
-      if (g.disabled) return;
-      if (g.books.length && groupCount(gi) === g.books.length) out.push(g.label);
+      if (!isSelectable(g, null)) return;
+      var tot = groupTotalUnits(gi);
+      if (tot > 0 && groupSelUnits(gi) === tot) out.push(g.label);
     });
     return out;
   }
 
-  // Сужение для сервера: по СКОУП-КЛЮЧУ — только частично выбранные
-  // (ключ целиком = corpora-ключ без books, как раньше).
+  // Сужение для сервера по СКОУП-КЛЮЧУ: корпус целиком → ничего; частично →
+  // селекторы выбранных единиц (супер-раздел целиком = {corpus,prefix}; часть
+  // детей = {corpus,book|title[,prefix]}; обычный лист = {corpus,title|prefix|∅}).
   function collectBooks() {
     if (!TREE) return [];
     var per = keyStats(), out = [];
     Object.keys(per).forEach(function (k) {
       var st = per[k];
-      if (!st.sel.length || st.sel.length === st.total) return;
-      st.sel.forEach(function (leaf) {
-        var s = { corpus: leaf.corpus };
-        if (leaf.title) s.title = leaf.title;
-        else if (leaf.prefix) s.prefix = leaf.prefix;
-        out.push(s);     // без title/prefix — лист «корпус целиком» (bg/sb/cc)
+      if (!st.sel || st.sel === st.total) return;   // пусто или весь корпус
+      st.leaves.forEach(function (rec) {
+        var gi = rec.gi, bi = rec.bi, leaf = rec.leaf, sc = selCount(gi, bi);
+        if (!sc) return;
+        if (isExpand(leaf)) {
+          if (sc === leaf.children.length) {         // весь супер-раздел
+            out.push({ corpus: leaf.corpus, prefix: leaf.prefix });
+          } else {                                   // отдельные дети
+            leaf.children.forEach(function (ch, ci) {
+              if (!childSelected(gi, bi, ci)) return;
+              var s = { corpus: ch.corpus };
+              if (ch.book) { s.book = ch.book; if (ch.prefix) s.prefix = ch.prefix; }
+              else if (ch.title) s.title = ch.title;
+              else if (ch.prefix) s.prefix = ch.prefix;
+              out.push(s);
+            });
+          }
+        } else {
+          var s = { corpus: leaf.corpus };
+          if (leaf.title) s.title = leaf.title;
+          else if (leaf.prefix) s.prefix = leaf.prefix;
+          out.push(s);        // без title/prefix — «корпус целиком» (bg/sb/cc)
+        }
       });
     });
     return out;
@@ -1553,20 +1630,25 @@
           box.appendChild(ph);
         }
       }
-      var node = elc('div', 'cg' + (g.disabled ? ' cg-off' : '') + (par ? ' cg-child' : ''));
+      var selfSelectable = isSelectable(g, null);   // группа-витрина «Не разобрано» — без чекбокса
+      var node = elc('div', 'cg' + (g.disabled ? ' cg-off' : '') + (par ? ' cg-child' : '') +
+                            (selfSelectable ? '' : ' cg-showcase'));
       var head = elc('div', 'cg-head');
       var arrow = elc('button', 'cg-arrow');
       arrow.type = 'button';
       arrow.textContent = '▸';
       arrow.setAttribute('aria-expanded', 'false');
       arrow.setAttribute('aria-label', 'Раскрыть состав: ' + g.label);
-      var lab = elc('label', 'cg-check');
-      var cb = document.createElement('input');
-      cb.type = 'checkbox';
-      cb.disabled = !!g.disabled;
+      var lab = elc(selfSelectable ? 'label' : 'div', 'cg-check');
+      var cb = null;
+      if (selfSelectable) {
+        cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.disabled = !!g.disabled;
+        lab.appendChild(cb);
+      }
       var nm = elc('span', 'cg-name');
       nm.textContent = g.label;
-      lab.appendChild(cb);
       lab.appendChild(nm);
       var meta = elc('span', 'cg-meta');
       var tier = elc('span', 'ctier t-' + (g.tier || 'pending'));
@@ -1579,9 +1661,6 @@
       head.appendChild(arrow);
       head.appendChild(lab);
       head.appendChild(meta);
-      // Права на текст: группа честно объявляет режим «только указатель»
-      // (издательские права) — человек видит ДО выбора, что дословной цитаты
-      // в опубликованном разборе не будет, будет ссылка на издание.
       var kids = elc('div', 'cg-kids');
       kids.hidden = true;
       if (g.rights_notice) {
@@ -1589,29 +1668,75 @@
         rn.textContent = g.rights_notice;
         kids.appendChild(rn);
       }
+      var leafUI = [];
       g.books.forEach(function (leaf, bi) {
-        var l = elc('label', 'cl' + (leaf.private ? ' cl-private' : ''));
-        var lcb = document.createElement('input');
-        lcb.type = 'checkbox';
-        lcb.disabled = !!g.disabled;
-        lcb.dataset.gi = String(gi);
-        lcb.dataset.bi = String(bi);
+        var leafSel = isSelectable(g, leaf);
+        var expandable = isExpand(leaf);
+        var l = elc('label', 'cl' + (leaf.private ? ' cl-private' : '') +
+                              (leafSel ? '' : ' cl-showcase'));
+        var lcb = null;
+        if (leafSel) {
+          lcb = document.createElement('input');
+          lcb.type = 'checkbox';
+          lcb.disabled = !!g.disabled;
+          l.appendChild(lcb);
+        }
+        // стрелка раскрытия супер-раздела (третий уровень)
+        var subArrow = null, subKids = null;
+        if (expandable) {
+          subArrow = elc('button', 'cl-arrow');
+          subArrow.type = 'button';
+          subArrow.textContent = '▸';
+          subArrow.setAttribute('aria-label', 'Раскрыть: ' + leaf.label);
+          l.insertBefore(subArrow, l.firstChild);
+        }
         var n2 = elc('span', 'cl-nm');
         n2.textContent = (leaf.private ? '🔒 ' : '') + leaf.label;
-        l.appendChild(lcb);
         l.appendChild(n2);
-        // лист с СОБСТВЕННЫМ тиром (перемещён куратором из корпуса другого
-        // рубежа — например, Нароттама у «Ачарьев» из серого goswamis)
         if (leaf.tier && leaf.tier !== g.tier) {
           var lt = elc('span', 'ctier cl-tier t-' + leaf.tier);
           lt.textContent = TIER_TMA[leaf.tier] || leaf.tier_label || '';
           l.appendChild(lt);
         }
+        if (leaf.stage_label) {    // этап разбора корзины «Не разобрано»
+          var st = elc('span', 'cl-stage');
+          st.textContent = '⏳ ' + leaf.stage_label;
+          l.appendChild(st);
+        }
         var c2 = elc('span', 'cl-cnt mono');
         c2.textContent = fmtN(leaf.count);
         l.appendChild(c2);
         kids.appendChild(l);
-        lcb.addEventListener('change', function () { onLeafToggle(gi, bi, lcb); });
+        var subUI = [];
+        if (expandable) {
+          subKids = elc('div', 'cl-kids');
+          subKids.hidden = true;
+          leaf.children.forEach(function (ch, ci) {
+            var sl = elc('label', 'cs');
+            var scb = document.createElement('input');
+            scb.type = 'checkbox';
+            scb.disabled = !!g.disabled;
+            var sn = elc('span', 'cs-nm');
+            sn.textContent = ch.label;
+            var sc = elc('span', 'cs-cnt mono');
+            sc.textContent = fmtN(ch.count);
+            sl.appendChild(scb);
+            sl.appendChild(sn);
+            sl.appendChild(sc);
+            subKids.appendChild(sl);
+            scb.addEventListener('change', function () { onChildToggle(gi, bi, ci, scb); });
+            subUI.push(scb);
+          });
+          kids.appendChild(subKids);
+          subArrow.addEventListener('click', function () {
+            var open = subKids.hidden;
+            subKids.hidden = !open;
+            subArrow.textContent = open ? '▾' : '▸';
+            haptic('select');
+          });
+        }
+        if (lcb) lcb.addEventListener('change', function () { onLeafToggle(gi, bi, lcb); });
+        leafUI.push({ lcb: lcb, subUI: subUI, subArrow: subArrow, subKids: subKids });
       });
       arrow.addEventListener('click', function () {
         var open = kids.hidden;
@@ -1620,60 +1745,50 @@
         arrow.setAttribute('aria-expanded', String(open));
         haptic('select');
       });
-      cb.addEventListener('change', function () { onGroupToggle(gi, cb); });
+      if (cb) cb.addEventListener('change', function () { onGroupToggle(gi, cb); });
       node.appendChild(head);
       node.appendChild(kids);
       box.appendChild(node);
-      g._ui = { cb: cb, cnt: cnt, kids: kids, node: node };
+      g._ui = { cb: cb, cnt: cnt, kids: kids, node: node, leafUI: leafUI };
     });
     syncCorpusUI();
   }
 
   function onGroupToggle(gi, cb) {
     var g = TREE[gi];
-    if (cb.checked) {
+    var selectAll = function () {
       gSel[gi] = {};
-      g.books.forEach(function (_, bi) { gSel[gi][bi] = 1; });
-      afterTreeChange();
-      haptic('select');
-      return;
-    }
-    if (g.scope_key === BASE_KEY) {
-      // снятие основы: сперва честный вопрос, потом состояние (как у чипа)
+      g.books.forEach(function (leaf, bi) { if (isSelectable(g, leaf)) gSel[gi][bi] = true; });
+    };
+    if (cb.checked) { selectAll(); afterTreeChange(); haptic('select'); return; }
+    if (g.scope_key === BASE_KEY) {          // снятие основы — честный вопрос
       cb.checked = true;
       askConfirm(RESEARCH_CONFIRM, function (ok) {
         if (!ok) { syncCorpusUI(); return; }
-        gSel[gi] = {};
-        afterTreeChange();
-        haptic('warning');
+        gSel[gi] = {}; afterTreeChange(); haptic('warning');
       });
       return;
     }
-    gSel[gi] = {};
-    afterTreeChange();
-    haptic('select');
+    gSel[gi] = {}; afterTreeChange(); haptic('select');
   }
 
   function onLeafToggle(gi, bi, lcb) {
     var g = TREE[gi];
-    if (lcb.checked) {
-      gSel[gi][bi] = 1;
-      afterTreeChange();
-      haptic('select');
-      return;
-    }
-    // снятие ПОСЛЕДНЕГО листа основы = снятие основы: тот же честный вопрос
-    if (g.scope_key === BASE_KEY && groupCount(gi) === 1 && gSel[gi][bi]) {
+    var isLastBase = g.scope_key === BASE_KEY && groupSelUnits(gi) === selCount(gi, bi) && selCount(gi, bi) > 0;
+    if (lcb.checked) { setLeafFull(gi, bi, true); afterTreeChange(); haptic('select'); return; }
+    if (isLastBase) {                        // снятие последнего листа основы
       lcb.checked = true;
       askConfirm(RESEARCH_CONFIRM, function (ok) {
         if (!ok) { syncCorpusUI(); return; }
-        delete gSel[gi][bi];
-        afterTreeChange();
-        haptic('warning');
+        setLeafFull(gi, bi, false); afterTreeChange(); haptic('warning');
       });
       return;
     }
-    delete gSel[gi][bi];
+    setLeafFull(gi, bi, false); afterTreeChange(); haptic('select');
+  }
+
+  function onChildToggle(gi, bi, ci, scb) {
+    setChild(gi, bi, ci, scb.checked);
     afterTreeChange();
     haptic('select');
   }
@@ -1689,16 +1804,22 @@
     TREE.forEach(function (g, gi) {
       var ui = g._ui;
       if (!ui) return;
-      var total = g.books.length, n = groupCount(gi);
-      ui.cb.checked = total > 0 && n === total;
-      ui.cb.indeterminate = n > 0 && n < total;
-      // счётчик честный: целиком — объём корпуса, частично — «выбрано из»
+      var total = groupTotalUnits(gi), n = groupSelUnits(gi);
+      if (ui.cb) {
+        ui.cb.checked = total > 0 && n === total;
+        ui.cb.indeterminate = n > 0 && n < total;
+      }
       ui.cnt.textContent = (n === 0 || n === total)
         ? fmtN(g.count) + ' док.'
         : n + ' из ' + total;
       ui.node.classList.toggle('on', n > 0);
-      Array.prototype.forEach.call(ui.kids.querySelectorAll('input'), function (inp) {
-        inp.checked = !!gSel[gi][inp.dataset.bi];
+      (ui.leafUI || []).forEach(function (lu, bi) {
+        var sc = selCount(gi, bi), units = leafUnits(g.books[bi]);
+        if (lu.lcb) {
+          lu.lcb.checked = sc > 0 && sc === units;
+          lu.lcb.indeterminate = sc > 0 && sc < units;
+        }
+        (lu.subUI || []).forEach(function (scb, ci) { scb.checked = childSelected(gi, bi, ci); });
       });
     });
   }
@@ -1878,7 +1999,8 @@
     if (editing && editing.status === 'queued') {
       formErr(null);
       sending = true; syncMain(); $('btnSend').disabled = true;
-      api('/api/requests/' + editing.id, { method: 'PATCH', body: { text: rawText.trim() } })
+      api('/api/requests/' + editing.id, { method: 'PATCH',
+          body: { text: rawText.trim(), search_depth: currentDepth() } })
         .then(function () {
           haptic('success');
           var rid = editing.id;
@@ -1918,7 +2040,8 @@
         // v6.1: точечный выбор из дерева — только ЧАСТИЧНО выбранные группы;
         // пустой список = сужения нет (сервер трактует так же)
         books: collectBooks(),
-        show_name: !!$('showName').checked
+        show_name: !!$('showName').checked,
+        search_depth: currentDepth()
       }
     }).then(function (res) {
       haptic('success');
@@ -1940,6 +2063,7 @@
       syncCorpusUI();
       syncResearchNote();
       syncCount();
+      syncDepth(20);          // глубина — решение на конкретную заявку, не «навсегда»
       showDone(res);
     }).catch(function (err) {
       formErr(err && err.message ? err.message : 'Не удалось отправить заявку.');
@@ -1953,15 +2077,47 @@
     });
   }
 
+  // ── Глубина поиска (ТЗ «Мега-разборы»): ползунок + пресеты + порог 108 ──
+  var MEGA_T = 108;
+
+  function currentDepth() {
+    var v = parseInt($('depthRange').value, 10);
+    return Math.max(10, Math.min(200, isNaN(v) ? 20 : v));
+  }
+
+  function syncDepth(v) {
+    if (v != null) $('depthRange').value = String(v);
+    var d = currentDepth();
+    $('depthVal').textContent = String(d);
+    $('megaNote').hidden = d <= MEGA_T;
+    Array.prototype.forEach.call(document.querySelectorAll('.depth-presets [data-depth]'), function (b) {
+      b.classList.toggle('on', parseInt(b.getAttribute('data-depth'), 10) === d);
+    });
+  }
+
+  $('depthRange').addEventListener('input', function () { syncDepth(null); });
+  Array.prototype.forEach.call(document.querySelectorAll('.depth-presets [data-depth]'), function (b) {
+    b.addEventListener('click', function () {
+      haptic('select');
+      syncDepth(parseInt(b.getAttribute('data-depth'), 10));
+    });
+  });
+
   function showDone(res) {
     var id = (res && typeof res.id === 'number') ? res.id : null;
     var pos = (res && typeof res.position === 'number') ? res.position : null;
+    var mega = !!(res && res.is_mega_research);
 
     var html = '<span class="state-h">Заявка' + (id ? ' <b class="mono">№' + id + '</b>' : '') + ' принята</span>';
-    html += pos
-      ? 'Перед вами в очереди ' + (pos - 1) + ' ' + plural(pos - 1, 'заявка', 'заявки', 'заявок') +
-        ' — вы ' + pos + '-й по счёту. Очередь идёт по порядку поступления, без «пропустить вперёд».'
-      : 'Заявка встала в общую очередь. Она идёт по порядку поступления.';
+    if (mega) {
+      html += '🌌 Это мега-разбор: заявка ушла в открытый пул еженедельного голосования, ' +
+        'а не в моментальную очередь. Тема видна участникам; чем больше голосов — тем раньше разбор.';
+    } else {
+      html += pos
+        ? 'Перед вами в очереди ' + (pos - 1) + ' ' + plural(pos - 1, 'заявка', 'заявки', 'заявок') +
+          ' — вы ' + pos + '-й по счёту. Очередь идёт по порядку поступления, без «пропустить вперёд».'
+        : 'Заявка встала в общую очередь. Она идёт по порядку поступления.';
+    }
     html += ' Когда разбор выйдет, бот пришлёт вам ссылку.';
     html += '<br><button class="btn btn-ghost" type="button" data-go-mine>Мои испытания</button>' +
             '<button class="btn btn-ghost" type="button" data-again>Прислать ещё вызов</button>';
@@ -1972,6 +2128,7 @@
 
     mineDirty = true;
     mountProfile();          // новая заявка должна появиться в списке сразу
+    if (mega) { megaAt = 0; loadMega(); }   // пул должен показать новую тему сразу
     syncTerminalMain();
   }
 
@@ -2007,6 +2164,7 @@
     var ta = $('reqText');
     ta.value = String(it.text || '');
     syncCount();
+    syncDepth(it.search_depth || 20);   // глубина заявки — в ползунок (правится PATCH-ем)
     var warn = (it.status === 'queued' && /…\s*$/.test(ta.value))
       ? ' ⚠️ Показана сокращённая версия (превью): сохранив её, вы замените полный текст заявки этим.'
       : '';
@@ -2055,6 +2213,7 @@
             corpora: (baseOn ? ['prabhupada'] : []).concat(scopeSel),
             books: collectBooks(),
             show_name: !!$('showName').checked,
+            search_depth: currentDepth(),
             status: 'draft'
           }
         });
@@ -2089,6 +2248,18 @@
     'T-EDU-VEDANTA': '[T-EDU-VEDANTA] Учебный запрос (Бхакти-веданта): {сформулируйте вопрос}',
     'T-EDU-SARVABHAUMA': '[T-EDU-SARVABHAUMA] Учебный запрос (Бхакти-сарвабхаума): {сформулируйте вопрос}'
   };
+  // Витринные подписи режимов (бейдж на карточке заявки, Панель прозрачности)
+  var QM_LABEL = {
+    'T-SOPHISM': { mark: '🛡', label: 'разбор софизма' },
+    'T-QUOTE': { mark: '🔍', label: 'проверка цитаты' },
+    'T-EDU-SHASTRI': { mark: '📚', label: 'учебный узел · Бхакти-шастри' },
+    'T-EDU-VAIBHAVA': { mark: '📚', label: 'учебный узел · Бхакти-вайбхава' },
+    'T-EDU-VEDANTA': { mark: '📚', label: 'учебный узел · Бхакти-веданта' },
+    'T-EDU-SARVABHAUMA': { mark: '📚', label: 'учебный узел · Бхакти-сарвабхаума' },
+    'T-EDU': { mark: '📚', label: 'учебная база (общая для ступеней)' },
+    'COMMON': { mark: '🧭', label: 'общий блок «умный переспрос»' }
+  };
+
   // Прежний шаблон-префикс заменяется целиком (маркер + вводная фраза шаблона),
   // авторский текст после него бережём.
   var QM_PREFIX_RE = /^\s*\[T-[A-Z-]+\]\s*(?:Аргумент оппонента:|Правда ли, что Шрила Прабхупада говорил:|Учебный запрос \([^)]*\):)?\s*/;
@@ -2154,6 +2325,161 @@
     $('reqInfo').setAttribute('aria-expanded', body.hidden ? 'false' : 'true');
     haptic('light');
   });
+
+  /* ══════════════════════════════════════════════════════════════════
+     🌌 ПУЛ МЕГА-РАЗБОРОВ (ТЗ «Мега-разборы»): открытая витрина заявок
+     глубиной > 108 + голосование (toggle). Раз в неделю тему-победителя
+     оператор уводит в тяжёлый процессинг обычным «в разведку».
+     ══════════════════════════════════════════════════════════════════ */
+
+  var megaAt = 0;
+  var MEGA_TTL = 60 * 1000;
+
+  function loadMega(force) {
+    var block = $('megaBlock');
+    if (!authed()) { block.hidden = true; return; }
+    if (!force && Date.now() - megaAt < MEGA_TTL) return;
+    megaAt = Date.now();
+    var stateEl = $('megaState'), listEl = $('megaList');
+    api('/api/mega-pool').then(function (d) {
+      var items = (d && Array.isArray(d.items)) ? d.items : [];
+      if (!items.length) {
+        // пустой пул блок не занимает: 390×600 дороже пустой витрины
+        block.hidden = true;
+        return;
+      }
+      block.hidden = false;
+      listEl.textContent = '';
+      items.forEach(function (it) {
+        var li = document.createElement('li');
+        li.className = 'req' + (it.mine ? ' kb-mine' : '');
+        var head = document.createElement('p');
+        head.className = 'req-m mono';
+        head.textContent = '🌌 ' + it.kind + ' · глубина ' + it.search_depth +
+          (it.created_at ? ' · ' + fmtDay(it.created_at) : '');
+        li.appendChild(head);
+        var p = document.createElement('p');
+        p.className = 'req-t';
+        p.textContent = it.preview || '';
+        li.appendChild(p);
+        var a = document.createElement('p');
+        a.className = 'req-f';
+        a.textContent = 'Автор: ' + (it.author || 'участник Лаборатории');
+        li.appendChild(a);
+        var vb = document.createElement('button');
+        vb.type = 'button';
+        vb.className = 'chip' + (it.my_vote ? ' on' : '');
+        vb.textContent = '🗳 ' + it.votes + ' · ' + (it.my_vote ? 'ваш голос учтён' : 'поддержать');
+        vb.addEventListener('click', function () {
+          haptic('select');
+          vb.disabled = true;
+          api('/api/mega-pool/' + it.key + '/vote', { method: 'POST', body: {} })
+            .then(function (r) {
+              vb.classList.toggle('on', !!(r && r.voted));
+              vb.textContent = '🗳 ' + ((r && r.votes) || 0) + ' · ' +
+                (r && r.voted ? 'ваш голос учтён' : 'поддержать');
+            })
+            .catch(function (err) { showToast((err && err.message) || 'Голос не сохранился'); })
+            .then(function () { vb.disabled = false; });
+        });
+        li.appendChild(vb);
+        listEl.appendChild(li);
+      });
+      stateEl.hidden = true;
+      listEl.hidden = false;
+    }).catch(function (err) {
+      block.hidden = false;
+      listEl.hidden = true;
+      showState(stateEl, 'Пул сейчас недоступен: ' + (err && err.message ? err.message : ''), true);
+    });
+  }
+
+  $('megaRefresh').addEventListener('click', function () { haptic('light'); loadMega(true); });
+
+  /* ══════════════════════════════════════════════════════════════════
+     ПАНЕЛЬ ПРОЗРАЧНОСТИ (v6.5): версии инжектов режимов + журнал изменений.
+     Данные — GET /api/prompt-registry (метаданные, без текстов инструкций).
+     ══════════════════════════════════════════════════════════════════ */
+
+  var promptsAt = 0;
+  var PROMPTS_TTL = 5 * 60 * 1000;   // реестр меняется редко (только с релизом методики)
+
+  function enterPrompts() {
+    var gate = $('promptsGate'), body = $('promptsBody');
+    if (!authed()) { gate.hidden = false; body.hidden = true; return; }
+    gate.hidden = true;
+    body.hidden = false;
+    if (Date.now() - promptsAt < PROMPTS_TTL) return;
+    loadPrompts();
+  }
+
+  // порядок блоков на панели — от общего к ступеням (в объекте порядок не гарантирован)
+  var PROMPTS_ORDER = ['COMMON', 'T-SOPHISM', 'T-QUOTE', 'T-EDU',
+                       'T-EDU-SHASTRI', 'T-EDU-VAIBHAVA', 'T-EDU-VEDANTA', 'T-EDU-SARVABHAUMA'];
+
+  function loadPrompts() {
+    var stateEl = $('promptsState'), listEl = $('promptsList');
+    listEl.hidden = true;
+    $('promptsLogBlock').hidden = true;
+    showState(stateEl, 'Загружаю реестр…', false);
+    api('/api/prompt-registry').then(function (d) {
+      promptsAt = Date.now();
+      var injects = (d && d.injects) || {};
+      var keys = PROMPTS_ORDER.filter(function (k) { return injects[k]; })
+        .concat(Object.keys(injects).filter(function (k) { return PROMPTS_ORDER.indexOf(k) < 0; }));
+      listEl.textContent = '';
+      keys.forEach(function (k) {
+        var it = injects[k];
+        var li = document.createElement('li');
+        li.className = 'req';
+        var head = document.createElement('p');
+        head.className = 'req-m';
+        var meta = QM_LABEL[k] || { mark: '🎛', label: it.label || k };
+        head.textContent = meta.mark + ' ' + (it.label || meta.label);
+        li.appendChild(head);
+        var v = document.createElement('p');
+        v.className = 'req-f mono';
+        v.textContent = 'v' + (it.version || '?') + ' · ' + (it.date || '—') +
+          (it.sha256 ? ' · отпечаток ' + String(it.sha256).slice(0, 12) + '…' : '');
+        li.appendChild(v);
+        listEl.appendChild(li);
+      });
+      if (d && d.updated) {
+        var u = document.createElement('li');
+        u.className = 'req';
+        var up = document.createElement('p');
+        up.className = 'req-f';
+        up.textContent = 'Реестр обновлён: ' + fmtDate(d.updated);
+        u.appendChild(up);
+        listEl.appendChild(u);
+      }
+      stateEl.hidden = true;
+      listEl.hidden = false;
+      var log = (d && Array.isArray(d.changelog)) ? d.changelog : [];
+      if (log.length) {
+        var logEl = $('promptsLog');
+        logEl.textContent = '';
+        log.slice().reverse().forEach(function (e) {
+          var li = document.createElement('li');
+          li.className = 'req';
+          var p1 = document.createElement('p');
+          p1.className = 'req-m mono';
+          p1.textContent = (e.block || '') + ' · v' + (e.version || '?') + ' · ' + (e.date || '');
+          li.appendChild(p1);
+          var p2 = document.createElement('p');
+          p2.className = 'req-t';
+          p2.textContent = e.note || '';
+          li.appendChild(p2);
+          logEl.appendChild(li);
+        });
+        $('promptsLogBlock').hidden = false;
+      }
+    }).catch(function (err) {
+      promptsAt = 0;
+      showState(stateEl, '<span class="state-h">Реестр недоступен</span>' +
+        (err && err.message ? err.message : ''), true);
+    });
+  }
 
   // ── v6.2 §2.1: отмена заявки — нативный трёхкнопочный попап Telegram ──
   function askThree(message, onDelete, onDraft) {
@@ -2610,6 +2936,36 @@
         rm.className = 'req-f research-flag';
         rm.textContent = '🔬 исследовательский режим: без корпуса основы';
         li.appendChild(rm);
+      }
+
+      // бейдж режима запроса + версия инжекта разведки (прозрачность промптов):
+      // и то и другое — только фактом от сервера
+      var qmMeta = QM_LABEL[it.query_mode || ''];
+      if (qmMeta) {
+        var qb = document.createElement('p');
+        qb.className = 'req-f';
+        qb.textContent = qmMeta.mark + ' ' + qmMeta.label;
+        li.appendChild(qb);
+      }
+      // мега-заявка в очереди живёт в пуле голосования — честно говорим об этом
+      // вместо позиции (позиции у неё нет)
+      if (it.is_mega_research === true && key === 'queued') {
+        var mg = document.createElement('p');
+        mg.className = 'req-f';
+        mg.textContent = '🌌 Мега-разбор · глубина ' + (it.search_depth || '—') +
+          ' · в пуле еженедельного голосования';
+        li.appendChild(mg);
+      }
+
+      var pv = it.prompt_version;
+      if (pv && (pv.inject_v || pv.common_v)) {
+        var pvp = document.createElement('p');
+        pvp.className = 'req-f pv-line';
+        pvp.textContent = '🔬 Разведка велась инжектом ' +
+          (pv.inject_v ? 'v' + pv.inject_v : 'v' + pv.common_v + ' (общий блок)') +
+          (pv.at ? ' · ' + fmtDay(pv.at) : '');
+        pvp.title = 'Версии методики — в Панели прозрачности';
+        li.appendChild(pvp);
       }
 
       var rows = stageRows(it, pipeline);
