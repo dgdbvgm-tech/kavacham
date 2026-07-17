@@ -1274,7 +1274,7 @@
     // Дерево есть → черновик v2 (JSON): группы целиком + точечные книги.
     // Формат обратно совместим: parseDraftScopes читает и v2, и легаси-CSV.
     if (TREE) {
-      draftSave(DRAFT_SCOPES, JSON.stringify({ v: 2, all: fullKeys(), books: collectBooks() }));
+      draftSave(DRAFT_SCOPES, JSON.stringify({ v: 2, all: fullGroupLabels(), books: collectBooks() }));
       return;
     }
     var keys = scopeSel.slice();
@@ -1456,7 +1456,9 @@
     var all = {};
     (sel.all || []).forEach(function (k) { all[k] = 1; });
     TREE.forEach(function (g, gi) {
-      if (g.disabled || all[g.scope_key] !== 1) return;
+      // совпадение по label (черновик v6.2) ИЛИ по scope_key (дефолты сервера
+      // и черновики v6.1) — scope_key не уникален, label стабилен
+      if (g.disabled || (all[g.label] !== 1 && all[g.scope_key] !== 1)) return;
       g.books.forEach(function (leaf, bi) { gSel[gi][bi] = 1; });
     });
     (sel.books || []).forEach(function (b) {
@@ -1475,36 +1477,55 @@
     syncScopeKeysFromTree();
   }
 
+  // Учёт по СКОУП-КЛЮЧАМ поверх групп (v6.2): куратор ядра может переместить
+  // лист в чужую группу (Нароттама живёт у «Ачарьев», но corpus=goswamis) и
+  // разложить один корпус на две группы («Апология» и «Жизнеописания» = books).
+  // Сужение и ключи считаем честно ПО КОРПУСУ листа, а не по группе.
+  function keyStats() {
+    var per = {};
+    TREE.forEach(function (g, gi) {
+      g.books.forEach(function (leaf, bi) {
+        var k = corpusToKey(leaf.corpus);
+        per[k] = per[k] || { sel: [], total: 0 };
+        per[k].total++;
+        if (gSel[gi][bi]) per[k].sel.push(leaf);
+      });
+    });
+    return per;
+  }
+
   // scopeSel/baseOn — общий язык формы (валидация, черновик, payload):
   // дерево лишь наполняет их своим состоянием.
   function syncScopeKeysFromTree() {
+    var per = keyStats();
     scopeSel = [];
-    TREE.forEach(function (g, gi) {
-      if (g.disabled || g.scope_key === BASE_KEY) return;
-      if (groupCount(gi) > 0 && scopeSel.indexOf(g.scope_key) < 0) scopeSel.push(g.scope_key);
+    Object.keys(per).forEach(function (k) {
+      if (k === BASE_KEY || !per[k].sel.length) return;
+      if (scopeSel.indexOf(k) < 0) scopeSel.push(k);
     });
-    var b = baseGi();
-    if (b >= 0) baseOn = groupCount(b) > 0;
+    baseOn = !!(per[BASE_KEY] && per[BASE_KEY].sel.length);
   }
 
-  function fullKeys() {
+  // Черновик: группы, выбранные ЦЕЛИКОМ, — по label (scope_key не уникален:
+  // «Апология» и «Жизнеописания» делят корпус books).
+  function fullGroupLabels() {
     var out = [];
     TREE.forEach(function (g, gi) {
       if (g.disabled) return;
-      if (g.books.length && groupCount(gi) === g.books.length) out.push(g.scope_key);
+      if (g.books.length && groupCount(gi) === g.books.length) out.push(g.label);
     });
     return out;
   }
 
-  // Сужение для сервера: ТОЛЬКО частично выбранные группы (целиком = corpora-ключ).
+  // Сужение для сервера: по СКОУП-КЛЮЧУ — только частично выбранные
+  // (ключ целиком = corpora-ключ без books, как раньше).
   function collectBooks() {
     if (!TREE) return [];
-    var out = [];
-    TREE.forEach(function (g, gi) {
-      var total = g.books.length, n = groupCount(gi);
-      if (n === 0 || n === total) return;
-      g.books.forEach(function (leaf, bi) {
-        if (!gSel[gi][bi]) return;
+    var per = keyStats(), out = [];
+    Object.keys(per).forEach(function (k) {
+      var st = per[k];
+      if (!st.sel.length || st.sel.length === st.total) return;
+      st.sel.forEach(function (leaf) {
         var s = { corpus: leaf.corpus };
         if (leaf.title) s.title = leaf.title;
         else if (leaf.prefix) s.prefix = leaf.prefix;
@@ -1539,26 +1560,41 @@
       var cnt = elc('span', 'cg-cnt mono');
       meta.appendChild(tier);
       meta.appendChild(cnt);
-      var hint = TREE_HINTS[g.scope_key];
+      var hint = g.hint || TREE_HINTS[g.scope_key];
       if (hint) head.title = hint;
       head.appendChild(arrow);
       head.appendChild(lab);
       head.appendChild(meta);
+      // Права на текст: группа честно объявляет режим «только указатель»
+      // (издательские права) — человек видит ДО выбора, что дословной цитаты
+      // в опубликованном разборе не будет, будет ссылка на издание.
       var kids = elc('div', 'cg-kids');
       kids.hidden = true;
+      if (g.rights_notice) {
+        var rn = elc('div', 'cg-rights');
+        rn.textContent = g.rights_notice;
+        kids.appendChild(rn);
+      }
       g.books.forEach(function (leaf, bi) {
-        var l = elc('label', 'cl');
+        var l = elc('label', 'cl' + (leaf.private ? ' cl-private' : ''));
         var lcb = document.createElement('input');
         lcb.type = 'checkbox';
         lcb.disabled = !!g.disabled;
         lcb.dataset.gi = String(gi);
         lcb.dataset.bi = String(bi);
         var n2 = elc('span', 'cl-nm');
-        n2.textContent = leaf.label;
-        var c2 = elc('span', 'cl-cnt mono');
-        c2.textContent = fmtN(leaf.count);
+        n2.textContent = (leaf.private ? '🔒 ' : '') + leaf.label;
         l.appendChild(lcb);
         l.appendChild(n2);
+        // лист с СОБСТВЕННЫМ тиром (перемещён куратором из корпуса другого
+        // рубежа — например, Нароттама у «Ачарьев» из серого goswamis)
+        if (leaf.tier && leaf.tier !== g.tier) {
+          var lt = elc('span', 'ctier cl-tier t-' + leaf.tier);
+          lt.textContent = TIER_TMA[leaf.tier] || leaf.tier_label || '';
+          l.appendChild(lt);
+        }
+        var c2 = elc('span', 'cl-cnt mono');
+        c2.textContent = fmtN(leaf.count);
         l.appendChild(c2);
         kids.appendChild(l);
         lcb.addEventListener('change', function () { onLeafToggle(gi, bi, lcb); });

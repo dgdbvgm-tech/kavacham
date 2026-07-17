@@ -957,6 +957,17 @@ body.tma {
   font-size: 0.74rem;
   color: var(--text-dim);
 }
+/* лист операторского контура (только у главного оператора) и права на текст */
+.cl-private .cl-nm { color: var(--text-dim); }
+.cl-tier { font-size: 0.6rem; flex: 0 0 auto; }
+.cg-rights {
+  font-size: 0.76rem;
+  color: var(--text-dim);
+  padding: 0.25rem 0.2rem 0.35rem;
+  border-bottom: 1px dashed var(--rule);
+  margin-bottom: 0.2rem;
+}
+
 /* узкие экраны: бейдж тира уходит, счётчик остаётся */
 @media (max-width: 420px) {
   .ctier { display: none; }
