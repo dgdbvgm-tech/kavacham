@@ -263,7 +263,7 @@
       <a class="btn btn-ghost" href="#help">Внести книги в корпус</a>
     </div>
     <div class="statstrip reveal">
-      <div class="s"><b>38&nbsp;000+</b><span>документов в библиотеке</span></div>
+      <div class="s"><b>36&nbsp;000+</b><span>документов в каталоге</span></div>
       <div class="s"><b>0</b><span>ошибок валидации</span></div>
       <div class="s"><b>0</b><span>галлюцинаций — только цитаты</span></div>
     </div>
@@ -521,12 +521,12 @@
   <div class="inner">
     <p class="eyebrow reveal">Это не идея — это работающий фундамент</p>
     <h2 class="kicker reveal">Уже собрано и проверено.</h2>
-    <p class="lead reveal" style="color:var(--deep-dim)">Живая витрина проекта: чистая библиотека превращена в смысловой индекс — <span class="m-chunks-txt">404&nbsp;242</span> фрагментов из 38&nbsp;000+ документов, поверх идут открытые испытания в Telegram-лаборатории. Карточки раскрываются по клику — внутри детали и пруфы. Витрина обновляется с каждым релизом.</p>
+    <p class="lead reveal" style="color:var(--deep-dim)">Живая витрина проекта: чистая библиотека превращена в смысловой индекс — <span class="m-chunks-txt">404&nbsp;328</span> фрагментов из 36&nbsp;000+ документов, поверх идут открытые испытания в Telegram-лаборатории. Карточки раскрываются по клику — внутри детали и пруфы. Витрина обновляется с каждым релизом.</p>
     <div class="facts reveal">
       <details class="fact">
         <summary>
-          <div class="big" id="m-docs" data-count="38392" data-suffix="">38&nbsp;390+</div>
-          <div class="lbl">документов в библиотеке · 0 ошибок валидации</div>
+          <div class="big" id="m-docs" data-count="36172" data-suffix="">36&nbsp;172</div>
+          <div class="lbl">документов в каталоге · 0 ошибок валидации</div>
           <div class="sub">Единый открытый формат (OKF): ~24 источника собраны «в одну кнопку»</div>
           <div class="hint"><span class="t-close">подробнее +</span><span class="t-open">свернуть −</span></div>
         </summary>
@@ -543,7 +543,7 @@
       </details>
       <details class="fact">
         <summary>
-          <div class="big" id="m-chunks" data-count="404242" data-suffix="">404&nbsp;242</div>
+          <div class="big" id="m-chunks" data-count="404328" data-suffix="">404&nbsp;328</div>
           <div class="lbl">смысловых фрагментов в гибридном индексе</div>
           <div class="sub" id="m-chunks-sub">Смысл + дословная лексика: русский вопрос находит английский стих</div>
           <div class="hint"><span class="t-close">подробнее +</span><span class="t-open">свернуть −</span></div>
@@ -578,8 +578,8 @@
         </summary>
         <div class="more">Ядро — собственный поисковый движок по выверенной библиотеке (RAG). Он LLM-agnostic: рассуждающую нейросеть можно заменить в любой момент — библиотека, индекс и ссылки остаются.
           <ul class="roadmap">
-            <li class="done"><span class="st">✓</span>Библиотека 38&nbsp;000+ документов в едином формате</li>
-            <li class="done"><span class="st">✓</span>Смысловой индекс <span class="m-chunks-txt">404&nbsp;242</span> фрагментов</li>
+            <li class="done"><span class="st">✓</span>Библиотека 36&nbsp;000+ документов в едином формате</li>
+            <li class="done"><span class="st">✓</span>Смысловой индекс <span class="m-chunks-txt">404&nbsp;328</span> фрагментов</li>
             <li class="done"><span class="st">✓</span>Гибридный ретривер: точность ×4 на эталонных кейсах · глубина поиска до 200 цитат (мега-режим)</li>
             <li class="done"><span class="st">✓</span>Lab-полигон: 10 разборов + мега-разбор, бот-приёмная 24/7</li>
             <li class="done"><span class="st">✓</span>Мини-приложение <b>KAVACHAM Lab</b>: Протоколы Лаборатории, подача заявок с выбором корпусов (дерево до отдельных книг) и шаблонами (софизм · проверка цитаты · учебный узел со ступенями), голосовой ввод, архив черновиков, Лог событий с двусторонней связью с Оператором, доски «Разработка» и «Очередь Узлов», исследовательский режим</li>
@@ -1234,8 +1234,9 @@
       if (!m) return;
       var ch = document.getElementById('m-chunks');
       if (ch && m.chunks) { ch.setAttribute('data-count', m.chunks); if (ch.getAttribute('data-done')) ch.textContent = fmt(m.chunks); }
-      var dc = document.getElementById('m-docs');
-      if (dc && m.docs_total) { dc.setAttribute('data-count', m.docs_total); if (dc.getAttribute('data-done')) dc.textContent = fmt(m.docs_total); }
+      /* m-docs (документов в каталоге) НЕ обновляется из metrics: это структурная величина
+         из каталога, её держит в согласии с corpus.html генератор build_corpus_catalog.py.
+         Живёт по-другому, чем фрагменты (те растут при индексации и тянутся из metrics). */
       var up = document.getElementById('m-updated');
       if (up && m.updated) up.textContent = 'живые данные индекса: ' + m.updated;
       /* число фрагментов в прозе (лид + дорожная карта) — из того же источника, чтобы нигде не расходилось */
