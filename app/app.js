@@ -55,6 +55,87 @@
     } catch (e) { /* тактильная отдача — украшение, не функция */ }
   }
 
+  // ——— Универсальная сортировка списков (адаптивная) ——————————————
+  // Каждый список объявляет ПРИМЕНИМЫЕ режимы: у контента одна дата публикации —
+  // «создан» и «изменён» не различаем (это одно и то же), поэтому даём «дату», а
+  // отдельную «дату изменения» — только там, где она реально есть (заявки); у
+  // сообщений лога нет «имени» — только время. Выбор липнет в localStorage по
+  // ключу списка. По умолчанию везде — НОВЫЕ СВЕРХУ.
+  var SORT_LABEL = {
+    'date-desc': 'Сначала новые',
+    'date-asc':  'Сначала старые',
+    'upd-desc':  'Изменённые: новые сверху',
+    'upd-asc':   'Изменённые: старые сверху',
+    'name-asc':  'Название: А–Я',
+    'name-desc': 'Название: Я–А'
+  };
+  function sortGet(key, def) {
+    try { return localStorage.getItem('kv.sort.' + key) || def; } catch (e) { return def; }
+  }
+  function sortSet(key, mode) {
+    try { localStorage.setItem('kv.sort.' + key, mode); } catch (e) { /* приватный режим — ок */ }
+  }
+  function sortMode(key, modes, def) {
+    var v = sortGet(key, def);
+    return modes.indexOf(v) >= 0 ? v : def;
+  }
+  // ISO-строка / 'YYYY-MM-DD' / unix-число → сортируемое число (пусто → 0, уедет вниз)
+  function sortTime(v) {
+    if (v == null || v === '') return 0;
+    if (typeof v === 'number') return v;
+    var t = Date.parse(v);
+    return isNaN(t) ? 0 : t;
+  }
+  // Компаратор по режиму. acc — {name?:fn, date?:fn, upd?:fn} (аксессоры элемента).
+  function sortCmp(mode, acc) {
+    if (mode === 'name-asc' || mode === 'name-desc') {
+      var ndir = mode === 'name-asc' ? 1 : -1;
+      return function (a, b) {
+        return String(acc.name ? acc.name(a) : '').localeCompare(
+               String(acc.name ? acc.name(b) : ''), 'ru', { sensitivity: 'base', numeric: true }) * ndir;
+      };
+    }
+    var f = (mode === 'upd-desc' || mode === 'upd-asc') ? (acc.upd || acc.date) : acc.date;
+    var tdir = (mode === 'date-asc' || mode === 'upd-asc') ? 1 : -1;
+    return function (a, b) {
+      var va = sortTime(f ? f(a) : null), vb = sortTime(f ? f(b) : null);
+      return va === vb ? 0 : (va < vb ? -tdir : tdir);
+    };
+  }
+  // Отсортированная КОПИЯ (исходный порядок не трогаем — вдруг он значим ещё где-то).
+  function sortedBy(list, key, modes, def, acc) {
+    return list.slice().sort(sortCmp(sortMode(key, modes, def), acc));
+  }
+  // Контрол сортировки (нативный <select>) в container. onChange() перерисовывает
+  // список. Меньше двух режимов — контрол не рисуем.
+  function renderSortControl(container, key, modes, def, onChange) {
+    if (!container) return;
+    container.textContent = '';
+    if (!modes || modes.length < 2) { container.hidden = true; return; }
+    var cur = sortMode(key, modes, def);
+    var cap = document.createElement('span');
+    cap.className = 'sortctl-l';
+    cap.textContent = 'Сортировка';
+    var sel = document.createElement('select');
+    sel.className = 'sortctl-s';
+    sel.setAttribute('aria-label', 'Порядок сортировки');
+    modes.forEach(function (m) {
+      var o = document.createElement('option');
+      o.value = m;
+      o.textContent = SORT_LABEL[m] || m;
+      if (m === cur) o.selected = true;
+      sel.appendChild(o);
+    });
+    sel.addEventListener('change', function () {
+      sortSet(key, sel.value);
+      haptic('select');
+      onChange(sel.value);
+    });
+    container.appendChild(cap);
+    container.appendChild(sel);
+    container.hidden = false;
+  }
+
   // ——— Аутентификация ——————————————————————————————————————
   // Единственный признак «я правда в Telegram и меня можно подписать» — непустая
   // initData. user.id из initDataUnsafe НЕ используется: подписи в нём нет,
@@ -712,6 +793,7 @@
           listEl.hidden = true;
           navEl.hidden = true;
           $('tagFilter').hidden = true;
+          $('feedSort').hidden = true;
           return;
         }
 
@@ -740,10 +822,16 @@
             '<span class="state-h">Ничего не нашлось</span>' + what +
             '<br><a class="btn btn-ghost" href="' + polygonHash('razbory', active, null) + '">Снять фильтр</a>', false);
           listEl.hidden = true;
+          $('feedSort').hidden = true;
           return;
         }
 
-        renderFeed(slice, listEl);
+        var FEED_MODES = ['date-desc', 'date-asc', 'name-asc', 'name-desc'];
+        renderSortControl($('feedSort'), 'feed', FEED_MODES, 'date-desc', function () { loadFeed(rubric, tag); });
+        renderFeed(sortedBy(slice, 'feed', FEED_MODES, 'date-desc', {
+          name: function (it) { return it.title || ''; },
+          date: function (it) { return it.date || ''; }
+        }), listEl);
         stateEl.hidden = true;
         listEl.hidden = false;
       })
@@ -751,6 +839,7 @@
         // упавший промис нельзя кэшировать: иначе «Повторить» переиспользует ту же
         // ошибку и повтора не произойдёт вовсе
         feedPromise = null;
+        $('feedSort').hidden = true;
         showState(stateEl,
           '<span class="state-h">Не удалось загрузить ленту</span>' +
           'Похоже, нет связи. Разборы всегда доступны в боте и на сайте — это и есть запасной путь.' +
@@ -2767,6 +2856,7 @@
       mineItems = items;
       if (!items.length) {
         $('mineTabs').hidden = true;
+        $('mineSort').hidden = true;
         showState(stateEl,
           '<span class="state-h">Испытаний пока нет</span>' +
           'Пришлите вызов — софизм, мем, искажение или сложный вопрос. Разбор придёт сюда и в бота.' +
@@ -2890,7 +2980,13 @@
     $('mineTabReq').setAttribute('aria-selected', mineView === 'req' ? 'true' : 'false');
     $('mineTabDrafts').classList.toggle('on', mineView === 'drafts');
     $('mineTabDrafts').setAttribute('aria-selected', mineView === 'drafts' ? 'true' : 'false');
-    renderMine(mineView === 'drafts' ? drafts : reqs, minePipe);
+    var MINE_MODES = ['date-desc', 'date-asc', 'upd-desc', 'upd-asc', 'name-asc', 'name-desc'];
+    renderSortControl($('mineSort'), 'mine', MINE_MODES, 'date-desc', renderMineView);
+    renderMine(sortedBy(mineView === 'drafts' ? drafts : reqs, 'mine', MINE_MODES, 'date-desc', {
+      name: function (it) { return it.text || ''; },
+      date: function (it) { return it.created_at; },
+      upd: function (it) { return it.updated_at || it.created_at; }
+    }), minePipe);
   }
   $('mineTabReq').addEventListener('click', function () { mineView = 'req'; haptic('select'); renderMineView(); });
   $('mineTabDrafts').addEventListener('click', function () { mineView = 'drafts'; haptic('select'); renderMineView(); });
@@ -3519,6 +3615,7 @@
       ? hqItems.filter(function (it) { return (it.status || 'queued') === hqFilterKey; })
       : hqItems;
     if (!slice.length) {
+      $('hqReqSort').hidden = true;
       var li = document.createElement('li');
       li.className = 'req';
       li.textContent = 'В этой стадии заявок нет.';
@@ -3526,7 +3623,13 @@
       listEl.hidden = false;
       return;
     }
-    slice.forEach(function (it) { listEl.appendChild(renderHqCard(it)); });
+    var HQ_MODES = ['date-desc', 'date-asc', 'upd-desc', 'upd-asc', 'name-asc', 'name-desc'];
+    renderSortControl($('hqReqSort'), 'hqreq', HQ_MODES, 'date-desc', renderHqList);
+    sortedBy(slice, 'hqreq', HQ_MODES, 'date-desc', {
+      name: function (it) { return it.text || ''; },
+      date: function (it) { return it.created_at; },
+      upd: function (it) { return it.updated_at || it.created_at; }
+    }).forEach(function (it) { listEl.appendChild(renderHqCard(it)); });
     listEl.hidden = false;
   }
 
@@ -3856,9 +3959,13 @@
       logLastRead = (d && d.last_read) || 0;
       listEl.textContent = '';
       if (!items.length) {
+        $('logSort').hidden = true;
         showState(stateEl, '<span class="state-h">Пока тихо</span>' +
           'Здесь появятся новости Штаба и движение ваших заявок.', false);
       } else {
+        var LOG_MODES = ['date-desc', 'date-asc'];
+        renderSortControl($('logSort'), 'log', LOG_MODES, 'date-desc', function () { loadLog(); });
+        items = sortedBy(items, 'log', LOG_MODES, 'date-desc', { date: function (m) { return m.created_at; } });
         items.forEach(function (m) {
           var li = document.createElement('li');
           li.className = 'msg' + (m.mine ? ' msg-mine' : '') +
@@ -3897,6 +4004,7 @@
         bellSet(0);
       }
     }).catch(function (err) {
+      $('logSort').hidden = true;
       showState(stateEl, '<span class="state-h">Лента недоступна</span>' +
         (err && err.message ? err.message : ''), true);
     });

@@ -1195,6 +1195,34 @@ body.tma-has-mainbutton .form .btn-primary { display: none; }
   max-width: var(--tma-measure);
   margin: 0 0 1rem;
 }
+.about-cta { margin: -0.2rem 0 1.4rem; }
+
+/* ——— Контрол сортировки списков (лента, лог, «Мои испытания»…) ——— */
+.sortbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.75rem;
+}
+.sortctl-l {
+  font-size: 0.76rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.sortctl-s {
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 0.32rem 0.5rem;
+  max-width: 62vw;
+  cursor: pointer;
+}
+.sortctl-s:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+body.tma .sortctl-s { min-height: 36px; }
 .about-q {
   margin: 1.2rem 0 1.2rem;
   padding: 0.2rem 0 0.2rem 1.1rem;
