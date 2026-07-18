@@ -1,0 +1,61 @@
+{
+ "slug": "onboarding-app",
+ "title": "Приложение «KAVACHAM Lab»: как открыть и что внутри",
+ "subtitle": "Онбординг со скриншотами: четыре вкладки и Штаб — заявки со статусом живьём, лента разборов, Индекс SRI, каталог корпусов и связь с Оператором.",
+ "meta": {
+  "date": "2026-07-19",
+  "kind": "devlog",
+  "rubric": "devlog",
+  "pramanas": 0,
+  "source_links": 0,
+  "number": null
+ },
+ "toc": [
+  {
+   "id": "s-kak-otkryt",
+   "text": "Как открыть",
+   "level": 2
+  },
+  {
+   "id": "s-chto-vnutri-chetyre-vkladki-i-shtab",
+   "text": "Что внутри — четыре вкладки и Штаб",
+   "level": 2
+  },
+  {
+   "id": "s-terminal",
+   "text": "💻 Терминал",
+   "level": 3
+  },
+  {
+   "id": "s-poligon",
+   "text": "📚 Полигон",
+   "level": 3
+  },
+  {
+   "id": "s-obogaschenie",
+   "text": "🔋 Обогащение",
+   "level": 3
+  },
+  {
+   "id": "s-o-proekte",
+   "text": "ℹ️ О проекте",
+   "level": 3
+  },
+  {
+   "id": "s-shtab",
+   "text": "✉️ Штаб",
+   "level": 3
+  },
+  {
+   "id": "s-poprobuyte-za-30-sekund",
+   "text": "Попробуйте за 30 секунд",
+   "level": 2
+  },
+  {
+   "id": "s-chto-vazhno-i-chestno",
+   "text": "Что важно и честно",
+   "level": 2
+  }
+ ],
+ "html": "<style>\n.rd-pramana.rd-pramana{border-left:2px solid var(--accent-2)}\n.rd-pramana-nolink.rd-pramana-nolink{border-left-style:dotted}\np.rd-quote.rd-quote{font-family:var(--serif);line-height:1.64;margin:0}\np.rd-src.rd-src{margin:.6rem 0 0;font-size:.82rem;line-height:1.7;color:var(--text-dim);\n  display:flex;flex-wrap:wrap;gap:.35rem;align-items:baseline}\np.rd-note-in.rd-note-in{margin:.6rem 0 0;font-size:.86rem;line-height:1.6;color:var(--text-2)}\n/* .cite в общей системе — короткая сноска (white-space:nowrap); у праманы источник\n   длинный, разрешаем перенос, иначе страница поедет вбок. */\n.rd-src .cite{white-space:normal;overflow-wrap:anywhere}\n.rd-dot{opacity:.55}\n.rd-badge{display:inline-block;font-size:.7rem;line-height:1.5;padding:.05rem .55rem;\n  border-radius:999px;border:1px solid var(--rule);white-space:nowrap}\n.rd-tier-t1{color:var(--accent);border-color:var(--accent-2)}\n.rd-tier-t2{color:var(--text-2)}\n.rd-tier-grey{opacity:.8}\n.rd-sri{white-space:normal;color:var(--text-2)}\n.rd-gap{font-size:.76rem;border-bottom:1px dotted currentColor}\n.rd-tooltip{position:relative;border-bottom:1px dashed var(--deep-dim);cursor:help;outline:none;color:var(--text);padding-bottom:1px}\n.rd-tooltip::after{content:\" ⓘ\";font-size:.75em;vertical-align:super;opacity:.5;color:var(--text);transition:opacity .2s,color .2s}\n.rd-tooltip:focus,.rd-tooltip:hover{border-bottom-color:var(--gold)}\n.rd-tooltip:focus::after,.rd-tooltip:hover::after{opacity:1;color:var(--gold)}\n.rd-tooltip:focus .rd-tooltip-box,.rd-tooltip:hover .rd-tooltip-box{visibility:visible;opacity:1;pointer-events:auto}\n.rd-tooltip-box{visibility:hidden;position:absolute;z-index:100;bottom:100%;left:0;width:280px;max-width:85vw;margin-bottom:8px;padding:.75rem 1rem;border-radius:8px;background:var(--panel);border:1px solid var(--rule);box-shadow:0 8px 24px rgba(0,0,0,.2);color:var(--text);font-size:.85rem;line-height:1.5;font-family:system-ui,sans-serif;font-weight:400;opacity:0;transition:opacity .2s;pointer-events:none;text-indent:0;white-space:normal}\n.rd-tablewrap{overflow-x:auto;overscroll-behavior-x:contain}\n.rd-tablewrap table{border-collapse:collapse;min-width:100%}\n.rd-tablewrap th,.rd-tablewrap td{border:1px solid var(--rule);padding:.5rem .65rem;\n  text-align:left;font-size:.9rem;vertical-align:top}\n/* Скриншоты в теле (онбординг). Картинка на своей строке, подпись — italic-абзацем\n   сразу под ней (соседний :has). Ширину держим комфортной для чтения на телефоне. */\n.rd-img{display:block;max-width:min(100%,420px);height:auto;margin:1.6rem auto .4rem;\n  border-radius:10px;border:1px solid var(--rule);box-shadow:0 6px 22px rgba(0,0,0,.16)}\np:has(> .rd-img){text-align:center;margin:1.6rem 0 .4rem}\np:has(> .rd-img) + p{text-align:center;font-style:italic;font-size:.82rem;\n  color:var(--text-dim);margin:0 auto 2rem;max-width:32rem}\n</style>\n<p>Часть со-создателей ещё не знает: у Лаборатории есть <strong>приложение прямо в Telegram</strong> — а не только бот и канал. Всё в одном месте: подать вызов и видеть статус своей заявки живьём, лента всех разборов, Индекс SRI, каталог корпусов и прямая связь со Штабом. Этот онбординг показывает, как открыть и что где лежит.</p>\n<h2 id=\"s-kak-otkryt\">Как открыть</h2>\n<p>Два входа ведут в одно и то же приложение:</p>\n<ul><li><strong>Кнопка-меню</strong> слева от поля ввода в чате с <a href=\"https://t.me/kavacham_lab_bot\" target=\"_blank\" rel=\"noopener noreferrer\">ботом КАВАЧАМ</a>.</li><li><strong>Прямая ссылка</strong> — <a href=\"https://t.me/kavacham_lab_bot/reader\" target=\"_blank\" rel=\"noopener noreferrer\">открыть приложение</a>.</li></ul>\n<p>Не открывается мини-приложение? В ряде регионов Telegram их блокирует — тогда ничего не теряете: подать вызов и узнать статус можно прямо в <a href=\"https://t.me/kavacham_lab_bot\" target=\"_blank\" rel=\"noopener noreferrer\">боте</a> (командой <code>/status</code> и другими), а разборы читаются обычными страницами Протоколов Лаборатории. Приложение — это удобство, бот и канал остаются.</p>\n<h2 id=\"s-chto-vnutri-chetyre-vkladki-i-shtab\">Что внутри — четыре вкладки и Штаб</h2>\n<h3 id=\"s-terminal\">💻 Терминал</h3>\n<p>Главный экран: подать вызов — и видеть его статус живьём. Над формой — чипы-шаблоны, чтобы вопрос был точным: разбор софизма, проверка цитаты, учебный узел (по ступеням от Бхакти-шастри до Бхакти-сарвабхаумы).</p>\n<p><img class=\"rd-img\" src=\"https://dgdbvgm-tech.github.io/kavacham/reading/onboarding/1-terminal.png\" alt=\"Экран «Терминал»\" loading=\"lazy\"></p>\n<p><em>Терминал: подать вызов и видеть его статус живьём.</em></p>\n<p>Каждая заявка идёт по конвейеру: в очереди → разведка ядром → сверка праман (человеком) → опубликовано. Пока заявка в очереди, её можно править или отложить в <strong>Архив черновиков</strong> — сложный узел не обязан созревать за один присест.</p>\n<p><img class=\"rd-img\" src=\"https://dgdbvgm-tech.github.io/kavacham/reading/onboarding/2-status.png\" alt=\"Статус заявки по конвейеру\" loading=\"lazy\"></p>\n<p><em>Статус по конвейеру, под вашим контролем. Движок сам себя не публикует — это красная линия проекта.</em></p>\n<h3 id=\"s-poligon\">📚 Полигон</h3>\n<p>Все разборы одной лентой — с фильтрами по рубрикам: Разборы, Учебные узлы, Мега-разборы, Аналитика. Формат выдачи: Проблема (пурвапакша) → Опровержение → Праманы.</p>\n<p><img class=\"rd-img\" src=\"https://dgdbvgm-tech.github.io/kavacham/reading/onboarding/3-polygon.png\" alt=\"Лента разборов\" loading=\"lazy\"></p>\n<p><em>Полигон: все проверенные разборы в одной ленте.</em></p>\n<p>Рядом — <strong>Индекс SRI</strong>: сложные узлы, где две истины шастры стоят рядом. Там движок не выносит вердикт, а прозрачно показывает все уровни цитат, оставляя право на молчание.</p>\n<p><img class=\"rd-img\" src=\"https://dgdbvgm-tech.github.io/kavacham/reading/onboarding/4-sri.png\" alt=\"Индекс SRI\" loading=\"lazy\"></p>\n<p><em>Индекс SRI: сложные узлы — все уровни цитат, без вердикта.</em></p>\n<p>И <strong>каталог корпусов</strong> — видно поимённо, на что опирается движок: у каждого корпуса свой статус (проверен, на вычитке, серый список) и число документов.</p>\n<p><img class=\"rd-img\" src=\"https://dgdbvgm-tech.github.io/kavacham/reading/onboarding/5-korpusa.png\" alt=\"Каталог корпусов\" loading=\"lazy\"></p>\n<p><em>На что опирается движок — видно поимённо, вплоть до отдельной книги.</em></p>\n<h3 id=\"s-obogaschenie\">🔋 Обогащение</h3>\n<p>Для со-создателей: предложить выверенное издание в библиотеку, дать наводку на живую дискуссию, бросить движку вызов, предложить свою компетенцию, сообщить о баге или идее. Каждая идея попадает на публичную доску Лаборатории с сохранением авторства.</p>\n<p><img class=\"rd-img\" src=\"https://dgdbvgm-tech.github.io/kavacham/reading/onboarding/7-obogaschenie.png\" alt=\"Вкладка «Обогащение»\" loading=\"lazy\"></p>\n<p><em>Обогащение: как усилить Лабораторию — книгами, вызовами, компетенцией.</em></p>\n<h3 id=\"s-o-proekte\">ℹ️ О проекте</h3>\n<p>Манифест Лаборатории и архитектура доверия: <strong>Заземление</strong> (нет опоры в тексте — нет слова в ответе), <strong>Глубина</strong>, <strong>Право молчать</strong>.</p>\n<p><img class=\"rd-img\" src=\"https://dgdbvgm-tech.github.io/kavacham/reading/onboarding/8-o-proekte.png\" alt=\"Экран «О проекте»\" loading=\"lazy\"></p>\n<p><em>Манифест: заземление, глубина, право молчать.</em></p>\n<h3 id=\"s-shtab\">✉️ Штаб</h3>\n<p>В шапке приложения — конверт. Связь стала двусторонней: лог событий с новостями Штаба, движение ваших заявок по конвейеру и кнопка «Передать сообщение Оператору» — прямой канал, ответ придёт туда же.</p>\n<p><img class=\"rd-img\" src=\"https://dgdbvgm-tech.github.io/kavacham/reading/onboarding/6-shtab.png\" alt=\"Штаб: лог событий\" loading=\"lazy\"></p>\n<p><em>Штаб: двусторонняя связь — новости, статусы и прямой канал к Оператору.</em></p>\n<h2 id=\"s-poprobuyte-za-30-sekund\">Попробуйте за 30 секунд</h2>\n<ol><li>Откройте приложение (кнопка-меню у <a href=\"https://t.me/kavacham_lab_bot\" target=\"_blank\" rel=\"noopener noreferrer\">бота</a>).</li><li><strong>Терминал</strong> → чип «разбор софизма» → пришлите один софизм, мем или каверзный вопрос, который вам реально попадался.</li><li>Следите за статусом в блоке <strong>«Мои испытания»</strong>.</li></ol>\n<p>Чем сложнее кейс — тем ценнее. «Cool head» рождается в огне тестирования.</p>\n<h2 id=\"s-chto-vazhno-i-chestno\">Что важно и честно</h2>\n<p>Это <strong>полигон в стадии калибровки</strong>, а не витрина «окончательной истины». Движок готовит черновик по праманам — утверждает его человек. КАВАЧАМ — <strong>библиотекарь, а не наставник</strong>: подаёт точную книгу и открывает нужную страницу, но не говорит голосом ачарьи и не заменяет живого общения. Не оракул и не «ИИ-гуру».</p>\n<p>Полная <strong>анонимность</strong>: в публикациях вы — «участник Лаборатории», имя раскрываем только с вашего согласия. Тонкие личные темы — к живым наставникам, а не к машине. Это принцип.</p>"
+}
