@@ -1451,7 +1451,10 @@
       $('scopeState').hidden = true;
       $('corpusTree').hidden = false;
       syncResearchNote();
-    }).catch(function () {
+    }).catch(function (e) {
+      // Деградация дерева на чипы должна быть ВИДИМА: иначе молчаливый откат скрывает
+      // класс ошибок (напр. ReferenceError из опечатки в имени функции — tma-6).
+      try { console.error('corpusTree → чипы (откат):', e); } catch (_) {}
       treeReq = null;          // неудачу не кэшируем: следующий заход попробует снова
       loadScopes();
     });
@@ -1499,10 +1502,9 @@
   }
   function groupTotalUnits(gi) {
     var g = TREE[gi], n = 0;
-    g.books.forEach(function (leaf) { if (isSelectable(g, leaf)) n += leafUunits(leaf); });
+    g.books.forEach(function (leaf) { if (isSelectable(g, leaf)) n += leafUnits(leaf); });
     return n;
   }
-  function leafUunits(leaf) { return leafUnits(leaf); }   // алиас (опечатко-стойкость)
 
   // sel = {all: [label/ключ групп целиком], books: [{corpus, prefix|title|book}]}
   function applySelection(sel) {
@@ -1754,50 +1756,55 @@
     syncCorpusUI();
   }
 
+  // Все три тоглера коммитят изменение через commitTreeChange — он сам решает по
+  // ЕДИНОМУ предикату baseOn, ушла ли основа в ноль, и только тогда спрашивает
+  // RESEARCH_CONFIRM. Раньше каждый решал по g.scope_key===BASE_KEY, из-за чего
+  // onChildToggle не спрашивал вовсе (тихий research-режим), а снятие базовой группы
+  // при живой шикшамрите (corpus=prabhupada вне базовой группы) давало ЛОЖНЫЙ
+  // confirm при остающейся основе (аудит 2026-07-18, tma-1/tma-4).
   function onGroupToggle(gi, cb) {
     var g = TREE[gi];
-    var selectAll = function () {
-      gSel[gi] = {};
-      g.books.forEach(function (leaf, bi) { if (isSelectable(g, leaf)) gSel[gi][bi] = true; });
-    };
-    if (cb.checked) { selectAll(); afterTreeChange(); haptic('select'); return; }
-    if (g.scope_key === BASE_KEY) {          // снятие основы — честный вопрос
-      cb.checked = true;
-      askConfirm(RESEARCH_CONFIRM, function (ok) {
-        if (!ok) { syncCorpusUI(); return; }
-        gSel[gi] = {}; afterTreeChange(); haptic('warning');
+    if (cb.checked) {
+      commitTreeChange(function () {
+        gSel[gi] = {};
+        g.books.forEach(function (leaf, bi) { if (isSelectable(g, leaf)) gSel[gi][bi] = true; });
       });
       return;
     }
-    gSel[gi] = {}; afterTreeChange(); haptic('select');
+    commitTreeChange(function () { gSel[gi] = {}; });
   }
 
   function onLeafToggle(gi, bi, lcb) {
-    var g = TREE[gi];
-    var isLastBase = g.scope_key === BASE_KEY && groupSelUnits(gi) === selCount(gi, bi) && selCount(gi, bi) > 0;
-    if (lcb.checked) { setLeafFull(gi, bi, true); afterTreeChange(); haptic('select'); return; }
-    if (isLastBase) {                        // снятие последнего листа основы
-      lcb.checked = true;
-      askConfirm(RESEARCH_CONFIRM, function (ok) {
-        if (!ok) { syncCorpusUI(); return; }
-        setLeafFull(gi, bi, false); afterTreeChange(); haptic('warning');
-      });
-      return;
-    }
-    setLeafFull(gi, bi, false); afterTreeChange(); haptic('select');
+    commitTreeChange(function () { setLeafFull(gi, bi, lcb.checked); });
   }
 
   function onChildToggle(gi, bi, ci, scb) {
-    setChild(gi, bi, ci, scb.checked);
-    afterTreeChange();
-    haptic('select');
+    commitTreeChange(function () { setChild(gi, bi, ci, scb.checked); });
   }
 
-  function afterTreeChange() {
+  // Единый коммит изменения дерева. Сравнивает baseOn ДО и ПОСЛЕ пересчёта
+  // per[BASE_KEY].sel (учитывает ЛЮБОЙ лист корпуса основы, вкл. шикшамриту вне
+  // базовой группы). Переход true→false = основа уходит в ноль → RESEARCH_CONFIRM
+  // с ОТКАТОМ при отказе; иначе — обычное применение.
+  function commitTreeChange(mutate) {
+    var wasBase = baseOn;
+    var snap = JSON.stringify(gSel);
+    mutate();
     syncScopeKeysFromTree();
-    saveScopesDraft();
-    syncCorpusUI();
-    syncResearchNote();
+    if (wasBase && !baseOn) {
+      askConfirm(RESEARCH_CONFIRM, function (ok) {
+        if (!ok) {                       // отказ — основу возвращаем, черновик не трогаем
+          gSel = JSON.parse(snap);
+          syncScopeKeysFromTree();
+          syncCorpusUI();
+          syncResearchNote();
+          return;
+        }
+        saveScopesDraft(); syncCorpusUI(); syncResearchNote(); haptic('warning');
+      });
+      return;
+    }
+    saveScopesDraft(); syncCorpusUI(); syncResearchNote(); haptic('select');
   }
 
   function syncTreeUI() {
