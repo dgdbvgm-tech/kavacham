@@ -1047,7 +1047,154 @@
     return scopesReq;
   }
 
+  // «Доверенный контур»: статическое дерево (data/corpus_tree.json) — ТОТ ЖЕ
+  // источник, что corpus.html и форма заявки (правило идентичности каталога).
+  // Собирается сборкой каталога (build_corpus_catalog.py) → живёт как corpus.html.
+  // Файла нет (старый деплой) — честный откат на плоский /api/scopes.
   function loadCorpus() {
+    var stateEl = $('corpState'), listEl = $('corpList'), treeEl = $('corpTree');
+    if (!treeEl) { loadCorpusScopes(); return; }   // нет разметки дерева (старый деплой) → плоский список
+    listEl.hidden = true;
+    treeEl.hidden = true;
+    showState(stateEl, 'Загружаю корпуса…', false);
+
+    fetch('data/corpus_tree.json', { cache: 'no-cache' })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (payload) {
+        if (!payload || !Array.isArray(payload.tree) || !payload.tree.length) throw new Error('дерево пустое');
+        renderCorpusTree(payload);
+        if (typeof payload.docs === 'number' && payload.docs > 0) $('corpDocs').textContent = fmtN(payload.docs);
+        var upd = $('corpUpdated');
+        if (upd) upd.textContent = payload.updated ? ('Обновлено: ' + payload.updated) : '';
+        stateEl.hidden = true;
+        treeEl.hidden = false;
+      })
+      .catch(function (err) {
+        // старый деплой без снапшота дерева → честный откат на плоские слои
+        try { console.warn('corpTree → /api/scopes (откат):', err && err.message); } catch (_) {}
+        loadCorpusScopes();
+      });
+  }
+
+  // Read-only рендер дерева. Тир-бейджи — те же .ctier, что в форме заявки.
+  function renderCorpusTree(payload) {
+    var tree = (payload && Array.isArray(payload.tree)) ? payload.tree : [];
+    var box = $('corpTree');
+    box.textContent = '';
+    var lastParent = null;
+    tree.forEach(function (g) {
+      var par = g.parent || null;
+      if (par !== lastParent) {
+        lastParent = par;
+        if (par) {
+          var ph = document.createElement('h3');
+          ph.className = 'rc-parent';
+          ph.textContent = par;
+          box.appendChild(ph);
+        }
+      }
+      var showcase = g.selectable === false;   // группа-витрина «Не разобрано»
+      var sec = document.createElement('section');
+      sec.className = 'rc-g' + (showcase ? ' rc-showcase' : '') + (par ? ' rc-child' : '');
+
+      var head = document.createElement('div');
+      head.className = 'rc-head';
+      var nm = document.createElement('span');
+      nm.className = 'rc-name';
+      nm.textContent = g.label;
+      head.appendChild(nm);
+      var tlabel = g.tier_label || TIER_TMA[g.tier] || '';
+      if (tlabel) {
+        var tb = document.createElement('span');
+        tb.className = 'ctier t-' + (g.tier || 'pending');
+        tb.textContent = tlabel;
+        head.appendChild(tb);
+      }
+      var cnt = document.createElement('span');
+      cnt.className = 'rc-cnt mono';
+      cnt.textContent = fmtN(g.count) + ' док.';
+      head.appendChild(cnt);
+      sec.appendChild(head);
+
+      var hint = showcase
+        ? 'Материал ещё не разобран — виден для прозрачности, в поиск не входит. У каждого пункта — этап разбора.'
+        : (g.hint || '');
+      if (hint) {
+        var sub = document.createElement('p');
+        sub.className = 'rc-sub';
+        sub.textContent = hint;
+        sec.appendChild(sub);
+      }
+      if (g.rights_notice) {
+        var rn = document.createElement('p');
+        rn.className = 'rc-src';
+        rn.textContent = g.rights_notice;
+        sec.appendChild(rn);
+      }
+
+      var ul = document.createElement('ul');
+      ul.className = 'rc-books';
+      (g.books || []).forEach(function (leaf) { ul.appendChild(corpLeaf(leaf, g)); });
+      sec.appendChild(ul);
+      box.appendChild(sec);
+    });
+  }
+
+  function corpLeaf(leaf, g) {
+    var li = document.createElement('li');
+    li.className = 'rc-book';
+    // супер-раздел (expand) — сворачиваемый нативным <details>
+    if (leaf.expand && leaf.children && leaf.children.length) {
+      var det = document.createElement('details');
+      det.className = 'rc-work';
+      var sm = document.createElement('summary');
+      var nmw = document.createElement('span');
+      nmw.className = 'rc-bname';
+      nmw.textContent = leaf.label;
+      sm.appendChild(nmw);
+      var mtw = document.createElement('span');
+      mtw.className = 'rc-bcnt mono';
+      mtw.textContent = leaf.children.length + ' ' + (leaf.unit || 'разделов') + ' · ' + fmtN(leaf.count) + ' док.';
+      sm.appendChild(mtw);
+      det.appendChild(sm);
+      var subUl = document.createElement('ul');
+      subUl.className = 'rc-books rc-subbooks';
+      leaf.children.forEach(function (c) {
+        var cli = document.createElement('li');
+        cli.className = 'rc-book';
+        var cn = document.createElement('span'); cn.className = 'rc-bname'; cn.textContent = c.label;
+        var cc = document.createElement('span'); cc.className = 'rc-bcnt mono'; cc.textContent = fmtN(c.count) + ' док.';
+        cli.appendChild(cn); cli.appendChild(cc);
+        subUl.appendChild(cli);
+      });
+      det.appendChild(subUl);
+      li.appendChild(det);
+      return li;
+    }
+    var n2 = document.createElement('span');
+    n2.className = 'rc-bname';
+    n2.textContent = (leaf.private ? '🔒 ' : '') + leaf.label;
+    li.appendChild(n2);
+    if (leaf.tier && g && leaf.tier !== g.tier) {   // лист выбивается из тира группы
+      var lt = document.createElement('span');
+      lt.className = 'ctier cl-tier t-' + leaf.tier;
+      lt.textContent = leaf.tier_label || TIER_TMA[leaf.tier] || '';
+      if (lt.textContent) li.appendChild(lt);
+    }
+    if (leaf.stage_label) {   // этап разбора корзины «Не разобрано»
+      var st = document.createElement('span');
+      st.className = 'rc-stage';
+      st.textContent = '⏳ ' + leaf.stage_label;
+      li.appendChild(st);
+    }
+    var c2 = document.createElement('span');
+    c2.className = 'rc-bcnt mono';
+    c2.textContent = fmtN(leaf.count) + ' док.';
+    li.appendChild(c2);
+    return li;
+  }
+
+  function loadCorpusScopes() {
     var stateEl = $('corpState'), listEl = $('corpList');
     listEl.hidden = true;
     showState(stateEl, 'Загружаю корпуса…', false);

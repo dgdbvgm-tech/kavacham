@@ -1223,6 +1223,54 @@ body.tma-has-mainbutton .form .btn-primary { display: none; }
 }
 .sortctl-s:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
 body.tma .sortctl-s { min-height: 36px; }
+
+/* ——— «Доверенный контур»: read-only дерево (тот же источник, что corpus.html) ——— */
+.corp-tree { margin: 0 0 1.1rem; }
+.rc-parent {
+  margin: 1.5rem 0 0.5rem;
+  font-family: var(--serif);
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.rc-g { padding: 0.8rem 0; border-top: 1px solid var(--rule); }
+.rc-g:first-child { border-top: 0; }
+.rc-child { padding-left: 0.75rem; }
+.rc-head { display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; }
+.rc-name { font-weight: 600; color: var(--text); }
+.rc-cnt { margin-left: auto; font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; }
+.rc-sub { margin: 0.35rem 0 0; font-size: 0.84rem; line-height: 1.5; color: var(--text-2); }
+.rc-src { margin: 0.3rem 0 0; font-size: 0.78rem; color: var(--text-dim); }
+.rc-books { list-style: none; margin: 0.5rem 0 0; padding: 0; }
+.rc-book {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.28rem 0;
+  font-size: 0.9rem;
+  color: var(--text-2);
+}
+.rc-bname { overflow-wrap: anywhere; }
+.rc-bcnt { margin-left: auto; font-size: 0.78rem; color: var(--text-dim); white-space: nowrap; }
+.rc-stage { font-size: 0.74rem; color: var(--text-dim); border-bottom: 1px dotted currentColor; }
+.rc-work { width: 100%; }
+.rc-work > summary {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  cursor: pointer;
+  list-style: none;
+  padding: 0.28rem 0;
+}
+.rc-work > summary::-webkit-details-marker { display: none; }
+.rc-work > summary::before { content: "▸"; color: var(--text-dim); font-size: 0.8rem; }
+.rc-work[open] > summary::before { content: "▾"; }
+.rc-subbooks { margin: 0.15rem 0 0.4rem 1rem; }
+.rc-showcase { opacity: 0.92; }
+.rc-showcase .rc-name { color: var(--text-dim); }
+.rc-upd { display: block; margin-top: 0.4rem; font-size: 0.74rem; color: var(--text-dim); }
+body.tma .rc-work > summary { min-height: 32px; }
 .about-q {
   margin: 1.2rem 0 1.2rem;
   padding: 0.2rem 0 0.2rem 1.1rem;

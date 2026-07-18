@@ -300,12 +300,13 @@
       <div class="pane" id="pane-corpus" hidden>
         <p class="kpi">
           <span class="kpi-l">В ядре</span>
-          <span class="kpi-v mono">37 000+</span>
+          <span class="kpi-v mono" id="corpDocs">36 000+</span>
           <span class="kpi-u">документов</span>
         </p>
-        <p class="pane-sub">На что опирается разбор. Корпуса ниже — те же, что предлагает форма заявки: список приходит с сервера, а не записан в приложении.</p>
+        <p class="pane-sub">На что опирается разбор. Ниже — та же таксономия корпусов, что в форме заявки и в публичном каталоге: одно дерево, собранное из единого источника.</p>
 
         <div class="state" id="corpState" role="status" aria-live="polite">Загружаю корпуса…</div>
+        <div class="corp-tree" id="corpTree" hidden></div>
         <ul class="corp" id="corpList" hidden></ul>
 
         <p class="pane-links">
@@ -314,8 +315,8 @@
         </p>
 
         <p class="foot-note">
-          Селектор-дерево (выбор отдельных книг и сводов внутри корпуса) — следующий этап.
-          Сейчас корпус выбирается целиком, как в боте.
+          Каталог, форма заявки и публичная страница собираются из одного дерева — разойтись они не могут.
+          <span id="corpUpdated" class="corp-upd"></span>
         </p>
       </div>
     </section>
