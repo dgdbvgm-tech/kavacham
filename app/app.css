@@ -2047,6 +2047,17 @@ body.tma-in-telegram .tabbar {
 .hq-reject { border-color: #C0705B; color: #C0705B; }
 .hq-reject:hover { border-color: #C0705B; filter: brightness(1.1); }
 .hq-err { margin-top: 0.7rem; }
+/* умный переспрос заявителю (не выводит заявку из очереди) */
+.hq-ask-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  flex: 1 1 100%;
+  align-items: flex-start;
+}
+.hq-ask-inp { flex: 1 1 12rem; min-width: 0; resize: vertical; }
+.hq-ask-row .btn { flex: none; }
+.hq-await { color: #B07A2E; font-weight: 600; }
 .hq-err[hidden] { display: none; }
 
 /* ═══ Лог событий и доски (v6.3) ═══════════════════════════════════ */

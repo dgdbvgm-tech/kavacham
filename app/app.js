@@ -3859,6 +3859,15 @@
       (it.scope ? ' · ' + it.scope : '');
     li.appendChild(meta);
 
+    // Заявке отправлен уточняющий вопрос и ждём ответа заявителя (метка снимается
+    // автоматически, как только он ответит — в боте или здесь, в приложении).
+    if (it.awaiting_reply) {
+      var aw = document.createElement('p');
+      aw.className = 'req-f hq-await';
+      aw.textContent = '💬 ждём ответа на переспрос' + (it.awaiting_reply ? ' · с ' + fmtDay(it.awaiting_reply) : '');
+      li.appendChild(aw);
+    }
+
     if (it.research_mode === true) {
       var rm = document.createElement('p');
       rm.className = 'req-f research-flag';
@@ -3944,6 +3953,34 @@
       urlRow.appendChild(urlInp);
       urlRow.appendChild(doneBtn);
       actions.appendChild(urlRow);
+    }
+
+    // ——— умный переспрос: уточнить у заявителя, не выводя заявку из очереди ———
+    if (!terminal) {
+      var askRow = document.createElement('div');
+      askRow.className = 'hq-ask-row';
+      var askInp = document.createElement('textarea');
+      askInp.className = 'field-i hq-ask-inp';
+      askInp.rows = 2;
+      askInp.placeholder = it.awaiting_reply
+        ? 'Задать ещё один уточняющий вопрос…'
+        : 'Уточняющий вопрос заявителю (одна гипотеза, не веер)…';
+      var askBtn = document.createElement('button');
+      askBtn.type = 'button';
+      askBtn.className = 'btn btn-ghost hq-ask';
+      askBtn.textContent = 'Переспросить';
+      askBtn.addEventListener('click', function () {
+        var t = askInp.value.trim();
+        if (t.length < 2) {
+          hqCardErr(li, 'Сформулируйте вопрос — пустой переспрос не отправляем.');
+          return;
+        }
+        haptic('medium');
+        hqAction(li, it, '/ask', { text: t });
+      });
+      askRow.appendChild(askInp);
+      askRow.appendChild(askBtn);
+      actions.appendChild(askRow);
     }
 
     if (!terminal) {
