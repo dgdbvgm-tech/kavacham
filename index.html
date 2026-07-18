@@ -942,6 +942,7 @@
     function add(cls, html) { var d = document.createElement('div'); d.className = 'ask-msg ' + cls; d.innerHTML = html; log.appendChild(d); log.scrollTop = log.scrollHeight; return d; }
     function addAnswer(s) { add('a', '<span class="t">' + esc(s.title) + '</span>' + richFmt(s.body) + '<div class="src">✦ из базы знаний проекта — без домыслов</div>'); }
     function notFoundHtml() { return '<span class="t">Не нашёл точного ответа</span>Чтобы не выдумывать — напишите оператору прямо здесь (кнопка ✉ внизу) или автору проекта напрямую: ' + TG + ' · ' + MAIL + '. Это тот же принцип, что и у KAVACHAM: право молчать вместо фабрикации.'; }
+    function degradedHtml() { return '<span class="t">⚙️ Ассистент на профилактике</span>Умный слой временно недоступен — но выдумывать не будем. Напишите оператору здесь (кнопка ✉ внизу) или автору проекта: ' + TG + ' · ' + MAIL + '. Базовые ответы о проекте продолжают работать.'; }
     function addNotFound() { add('a', notFoundHtml()); }
     /* авто-кликабельность (на уже esc-тексте): URL, email, @telegram-хендлы */
     function autolink(s) {
@@ -1056,6 +1057,7 @@
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (d) {
           if (d && d.grounded && d.answer) { el.innerHTML = '<span class="t">✦ Ответ ассистента</span>' + fmtLLM(d.answer) + '<div class="src">ИИ-ассистент, строго по базе знаний проекта</div>'; }
+          else if (d && d.degraded) { el.innerHTML = degradedHtml(); }
           else { el.innerHTML = notFoundHtml(); }
           log.scrollTop = log.scrollHeight;
         })
