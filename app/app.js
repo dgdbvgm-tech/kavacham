@@ -4293,6 +4293,24 @@
           p.className = 'msg-t';
           p.textContent = m.text || '';
           li.appendChild(p);
+          // Длинную запись сворачиваем до 3 строк; тап по тексту или по «показать
+          // полностью» раскрывает строку (лог у Штаба/движка бывает многострочным).
+          var _t = m.text || '';
+          if (_t.length > 160 || (_t.match(/\n/g) || []).length >= 3) {
+            p.classList.add('clamp');
+            var more = document.createElement('button');
+            more.type = 'button';
+            more.className = 'msg-more';
+            more.textContent = '▾ Показать полностью';
+            var toggle = function () {
+              var open = p.classList.toggle('open');
+              more.textContent = open ? '▴ Свернуть' : '▾ Показать полностью';
+              haptic('light');
+            };
+            p.addEventListener('click', toggle);
+            more.addEventListener('click', function (e) { e.stopPropagation(); toggle(); });
+            li.appendChild(more);
+          }
           if (!m.mine) {
             var rb = document.createElement('button');
             rb.type = 'button';
