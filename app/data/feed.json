@@ -94,6 +94,25 @@
    "pages_url": "../reading/devlog-bolshe-i-chishche.html"
   },
   {
+   "slug": "analitika-palmovyj-list-i-ssylka",
+   "kind": "analytics",
+   "rubric": "analytics",
+   "title": "Как традиция доказывает подлинность: от пальмовых листьев до цифрового указателя",
+   "subtitle": "От Шрилы Вьясадевы и проверок Шрилы Сварупы Дамодары Госвами — до института GORA в Джаганнатха-Пури и кликабельной ссылки: одна цепь защиты подлинности.",
+   "date": "2026-07-20",
+   "pramanas": 0,
+   "source_links": 9,
+   "tags": [
+    "аналитика",
+    "аутентичность",
+    "парампара",
+    "манускрипты"
+   ],
+   "excerpt": "Аналитика Лаборатории. О том, как гаудия-вайшнавская традиция веками защищала точность передачи знания — и как эта работа продолжается сегодня: в исследовательских институтах, хранящих рукописи, и в цифровых инструментах, проверяющих каждую цитату.",
+   "reading_url": "data/reading/analitika-palmovyj-list-i-ssylka.json",
+   "pages_url": "../reading/analitika-palmovyj-list-i-ssylka.html"
+  },
+  {
    "slug": "onboarding-app",
    "kind": "devlog",
    "rubric": "devlog",
