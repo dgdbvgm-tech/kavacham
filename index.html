@@ -446,15 +446,18 @@
       .lab-feed .lf-metric{display:flex;align-items:baseline;gap:.55rem;flex-wrap:wrap;margin:.4rem 0 1rem}
       .lab-feed .lf-num{font-family:var(--serif,Georgia,serif);font-size:2.5rem;line-height:1;color:var(--gold-hi);font-weight:700}
       .lab-feed .lf-cap{color:var(--deep-dim)}
-      .lab-feed .lf-list{list-style:none;margin:0;padding:0}
-      .lab-feed .lf-list li{margin:.5rem 0}
-      .lab-feed .lf-list li.lf-rest{display:none}
-      .lab-feed.lf-open .lf-list li.lf-rest{display:block}
-      .lab-feed a.lf-item{color:var(--gold-hi);text-decoration:none;display:inline-flex;align-items:baseline;flex-wrap:wrap;gap:.1rem}
-      .lab-feed a.lf-item:hover{text-decoration:underline}
-      .lab-feed .lf-chip{font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--deep-dim);border:1px solid var(--deep-rule);border-radius:5px;padding:.06rem .34rem;margin-right:.5rem;white-space:nowrap;flex:none}
-      .lab-feed .lf-date{color:var(--deep-dim);font-size:.76rem;margin-left:.45rem;white-space:nowrap}
-      .lab-feed .lf-more{background:none;border:none;color:var(--gold-hi);cursor:pointer;font:inherit;padding:.35rem 0;margin-top:.15rem}
+      .lab-feed .lf-list{list-style:none;margin:.2rem 0 0;padding:0}
+      .lab-feed .lf-row{margin:0;padding:.7rem 0;border-top:1px solid var(--deep-rule)}
+      .lab-feed .lf-row:first-child{border-top:none}
+      .lab-feed .lf-row.lf-rest{display:none}
+      .lab-feed.lf-open .lf-row.lf-rest{display:block}
+      .lab-feed a.lf-item{color:var(--gold-hi);text-decoration:none;display:block;line-height:1.45}
+      .lab-feed a.lf-item:hover .lf-ttl{text-decoration:underline}
+      .lab-feed .lf-ttl{display:block}
+      .lab-feed .lf-arr{opacity:.55}
+      .lab-feed .lf-meta{display:block;margin-top:.26rem;font-size:.72rem;letter-spacing:.03em;color:var(--deep-dim)}
+      .lab-feed .lf-chip{display:inline-block;font-size:.57rem;text-transform:uppercase;letter-spacing:.1em;color:var(--deep-dim);border:1px solid var(--deep-rule);border-radius:5px;padding:.09rem .4rem;margin-right:.5rem;vertical-align:middle;white-space:nowrap;position:relative;top:-1px}
+      .lab-feed .lf-more{background:none;border:none;color:var(--gold-hi);cursor:pointer;font:inherit;padding:.75rem 0 .1rem;margin:0}
       .lab-feed .lf-more:hover{text-decoration:underline}
       .lab-feed .lf-actions{margin-top:.9rem;display:flex;gap:1.2rem;flex-wrap:wrap;border-top:1px solid var(--deep-rule);padding-top:.75rem}
       .lab-feed .lf-actions a{color:var(--gold-hi);text-decoration:none;font-size:.9rem}
@@ -1287,12 +1290,12 @@
     function row(it, isRest) {
       var r = rub(it);
       var li = document.createElement('li');
-      if (isRest) li.className = 'lf-rest';
+      li.className = 'lf-row' + (isRest ? ' lf-rest' : '');
       var a = document.createElement('a');
       a.className = 'lf-item'; a.href = pagesUrl(it); a.target = '_blank'; a.rel = 'noopener';
       var chip = (r !== 'razbor') ? ('<span class="lf-chip">' + esc(LAB[r] || r) + '</span>') : '';
-      var date = it.date ? ('<span class="lf-date">' + esc(ruDate(it.date)) + '</span>') : '';
-      a.innerHTML = chip + '<span>' + (ICON[r] || '') + esc(it.title) + ' ↗</span>' + date;
+      var meta = it.date ? ('<span class="lf-meta">' + esc(ruDate(it.date)) + '</span>') : '';
+      a.innerHTML = '<span class="lf-ttl">' + chip + (ICON[r] || '') + esc(it.title) + ' <span class="lf-arr">↗</span></span>' + meta;
       li.appendChild(a);
       return li;
     }
