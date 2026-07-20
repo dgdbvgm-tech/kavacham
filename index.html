@@ -457,6 +457,7 @@
       .lab-feed .lf-arr{opacity:.55}
       .lab-feed .lf-meta{display:block;margin-top:.26rem;font-size:.72rem;letter-spacing:.03em;color:var(--deep-dim)}
       .lab-feed .lf-chip{display:inline-block;font-size:.57rem;text-transform:uppercase;letter-spacing:.1em;color:var(--deep-dim);border:1px solid var(--deep-rule);border-radius:5px;padding:.09rem .4rem;margin-right:.5rem;vertical-align:middle;white-space:nowrap;position:relative;top:-1px}
+      .lab-feed .lf-chip-hi{color:var(--gold-hi);border-color:var(--gold-hi);opacity:.85}
       .lab-feed .lf-more{background:none;border:none;color:var(--gold-hi);cursor:pointer;font:inherit;padding:.75rem 0 .1rem;margin:0}
       .lab-feed .lf-more:hover{text-decoration:underline}
       .lab-feed .lf-actions{margin-top:.9rem;display:flex;gap:1.2rem;flex-wrap:wrap;border-top:1px solid var(--deep-rule);padding-top:.75rem}
@@ -1280,22 +1281,41 @@
     if (!host) return;
     var listEl = host.querySelector('.lf-list');
     var LAB = { razbor: 'Разбор', edu: 'Учебный узел', mega: 'Мега-разбор' };
-    var ICON = { mega: '🌌 ', edu: '🎓 ', razbor: '' };
+    /* Тип узла для чипа. Рубрики edu/mega — сразу. Внутри рубрики «разбор» тип живёт
+       в тегах (обязательный «тип узла» по таксономии). Новый тип узла → добавь тег сюда. */
+    var NODE_TAGS = [
+      { tag: 'открытый узел', label: 'Открытый узел' },
+      { tag: 'софизм', label: 'Софизм' },
+      { tag: 'проверка цитаты', label: 'Проверка цитаты' },
+      { tag: 'искажение', label: 'Искажение' },
+      { tag: 'апологетика', label: 'Апологетика' }
+    ];
     var MONTHS = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
     var SHOW = 6;
     function rub(it) { return it.rubric || it.kind || 'razbor'; }
     function ruDate(s) { var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || ''); return m ? (parseInt(m[3], 10) + ' ' + MONTHS[parseInt(m[2], 10) - 1]) : ''; }
     function pagesUrl(it) { return (it.pages_url ? it.pages_url.replace(/^\.\.\//, '') : ('reading/' + (it.slug || '') + '.html')); }
     function esc(s) { var d = document.createElement('div'); d.textContent = (s == null ? '' : String(s)); return d.innerHTML; }
-    function row(it, isRest) {
+    /* тип узла: рубрика edu/mega → сразу; разбор → по тегу типа; иначе базовый «Разбор» */
+    function typeInfo(it) {
       var r = rub(it);
+      if (r === 'edu') return { label: 'Учебный узел', hi: true };
+      if (r === 'mega') return { label: 'Мега-разбор', hi: true };
+      var tags = (it.tags || []).map(function (t) { return String(t).toLowerCase(); });
+      for (var i = 0; i < NODE_TAGS.length; i++) {
+        if (tags.indexOf(NODE_TAGS[i].tag) !== -1) return { label: NODE_TAGS[i].label, hi: true };
+      }
+      return { label: 'Разбор', hi: false };
+    }
+    function row(it, isRest) {
       var li = document.createElement('li');
       li.className = 'lf-row' + (isRest ? ' lf-rest' : '');
       var a = document.createElement('a');
       a.className = 'lf-item'; a.href = pagesUrl(it); a.target = '_blank'; a.rel = 'noopener';
-      var chip = (r !== 'razbor') ? ('<span class="lf-chip">' + esc(LAB[r] || r) + '</span>') : '';
+      var t = typeInfo(it);
+      var chip = '<span class="lf-chip' + (t.hi ? ' lf-chip-hi' : '') + '">' + esc(t.label) + '</span>';
       var meta = it.date ? ('<span class="lf-meta">' + esc(ruDate(it.date)) + '</span>') : '';
-      a.innerHTML = '<span class="lf-ttl">' + chip + (ICON[r] || '') + esc(it.title) + ' <span class="lf-arr">↗</span></span>' + meta;
+      a.innerHTML = '<span class="lf-ttl">' + chip + esc(it.title) + ' <span class="lf-arr">↗</span></span>' + meta;
       li.appendChild(a);
       return li;
     }
