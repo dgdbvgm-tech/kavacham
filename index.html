@@ -438,18 +438,41 @@
       <div class="demo-foot">✓ каждый ответ — с кликабельной ссылкой на первоисточник</div>
     </div>
     <p class="lead reveal" style="color:var(--deep-dim);margin-top:1.4rem">Выше — формат ответа. А это уже <b style="color:var(--gold-hi)">настоящие разборы лаборатории</b> по живым заявкам сообщества — каждая цитата в них прошла механическую проверку дословности:</p>
-    <ul class="lead reveal" style="color:var(--deep-dim);margin:.6rem 0 0;padding-left:0;list-style:none">
-      <li style="margin:.45rem 0"><a href="https://dgdbvgm-tech.github.io/kavacham/reading/razbor-01-prizma-acharev.html" target="_blank" rel="noopener" style="color:var(--gold-hi)">№1 «Читать ачарьев — это „в обход“ Прабхупады?» ↗</a></li>
-      <li style="margin:.45rem 0"><a href="https://dgdbvgm-tech.github.io/kavacham/reading/razbor-02-soznanie-transgumanizm.html" target="_blank" rel="noopener" style="color:var(--gold-hi)">№2 «Трансгуманизм и природа сознания» ↗</a></li>
-      <li style="margin:.45rem 0"><a href="https://dgdbvgm-tech.github.io/kavacham/reading/razbor-03-nektar-predannosti.html" target="_blank" rel="noopener" style="color:var(--gold-hi)">№3 «Пять вопросов по „Нектару преданности“» ↗</a></li>
-      <li style="margin:.45rem 0"><a href="https://dgdbvgm-tech.github.io/kavacham/reading/razbor-poryadok-chteniya-nop.html" target="_blank" rel="noopener" style="color:var(--gold-hi)">«Порядок чтения книг Прабхупады — 2.0: где место „Нектара преданности“?» ↗</a></li>
-      <li style="margin:.45rem 0"><a href="https://dgdbvgm-tech.github.io/kavacham/reading/razbor-japa-vnimanie-i-chislo.html" target="_blank" rel="noopener" style="color:var(--gold-hi)">«Джапа: один круг внимательно — или шестнадцать невнимательно?» ↗</a></li>
-      <li style="margin:.45rem 0"><a href="https://dgdbvgm-tech.github.io/kavacham/reading/razbor-sovmestnoe-vospevanie.html" target="_blank" rel="noopener" style="color:var(--gold-hi)">«Почему святое имя поют вместе? Санкиртана в источниках» ↗</a></li>
-      <li style="margin:.45rem 0"><a href="https://dgdbvgm-tech.github.io/kavacham/reading/razbor-pishcha-v-gune-blagosti.html" target="_blank" rel="noopener" style="color:var(--gold-hi)">«Пища в гуне благости: список из Гиты — и разворот» ↗</a></li>
-      <li style="margin:.45rem 0"><a href="https://dgdbvgm-tech.github.io/kavacham/reading/razbor-vkus-imeni-naslazhdenie.html" target="_blank" rel="noopener" style="color:var(--gold-hi)">«Кришна — единственный наслаждающийся: зачем же преданный просит вкус к Имени?» ↗</a></li>
-      <li style="margin:.45rem 0"><a href="https://dgdbvgm-tech.github.io/kavacham/reading/razbor-uttama-adhikari-propoved.html" target="_blank" rel="noopener" style="color:var(--gold-hi)">«Высший преданный видит всех в связи с Кришной — зачем ему проповедовать?» ↗</a></li>
-      <li style="margin:.45rem 0"><a href="https://dgdbvgm-tech.github.io/kavacham/reading/mega-01-cosmology.html" target="_blank" rel="noopener" style="color:var(--gold-hi)">🌌 мега-разбор «Ведическая космология» — 168 цитат ↗</a></li>
-    </ul>
+    <!-- ЖИВОЙ БЛОК РАЗБОРОВ. Источник — app/data/feed.json (тот же, что питает приложение).
+         Ничего не зашивается руками: новый разбор появляется здесь автоматически после build_reader.
+         Статический текст ниже — только резерв, если JS/сеть недоступны; JS его заменяет. -->
+    <style>
+      .lab-feed{margin-top:1.1rem}
+      .lab-feed .lf-metric{display:flex;align-items:baseline;gap:.55rem;flex-wrap:wrap;margin:.4rem 0 1rem}
+      .lab-feed .lf-num{font-family:var(--serif,Georgia,serif);font-size:2.5rem;line-height:1;color:var(--gold-hi);font-weight:700}
+      .lab-feed .lf-cap{color:var(--deep-dim)}
+      .lab-feed .lf-list{list-style:none;margin:0;padding:0}
+      .lab-feed .lf-list li{margin:.5rem 0}
+      .lab-feed .lf-list li.lf-rest{display:none}
+      .lab-feed.lf-open .lf-list li.lf-rest{display:block}
+      .lab-feed a.lf-item{color:var(--gold-hi);text-decoration:none;display:inline-flex;align-items:baseline;flex-wrap:wrap;gap:.1rem}
+      .lab-feed a.lf-item:hover{text-decoration:underline}
+      .lab-feed .lf-chip{font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--deep-dim);border:1px solid var(--deep-rule);border-radius:5px;padding:.06rem .34rem;margin-right:.5rem;white-space:nowrap;flex:none}
+      .lab-feed .lf-date{color:var(--deep-dim);font-size:.76rem;margin-left:.45rem;white-space:nowrap}
+      .lab-feed .lf-more{background:none;border:none;color:var(--gold-hi);cursor:pointer;font:inherit;padding:.35rem 0;margin-top:.15rem}
+      .lab-feed .lf-more:hover{text-decoration:underline}
+      .lab-feed .lf-actions{margin-top:.9rem;display:flex;gap:1.2rem;flex-wrap:wrap;border-top:1px solid var(--deep-rule);padding-top:.75rem}
+      .lab-feed .lf-actions a{color:var(--gold-hi);text-decoration:none;font-size:.9rem}
+      .lab-feed .lf-actions a:hover{text-decoration:underline}
+    </style>
+    <div class="lab-feed reveal" id="lab-feed">
+      <div class="lf-metric">
+        <span class="lf-num m-razbory-txt">13</span>
+        <span class="lf-cap">разборов по живым заявкам<span class="lf-mega"> · мега-разбор на 168 цитат</span></span>
+      </div>
+      <ul class="lf-list">
+        <li class="lf-fallback"><a class="lf-item" href="https://dgdbvgm-tech.github.io/kavacham/reading/" target="_blank" rel="noopener">Открыть все разборы в Протоколах Лаборатории ↗</a></li>
+      </ul>
+      <div class="lf-actions">
+        <a href="https://dgdbvgm-tech.github.io/kavacham/reading/" target="_blank" rel="noopener">Все разборы в Протоколах ↗</a>
+        <a href="https://t.me/kavacham_lab_bot/reader" target="_blank" rel="noopener">Открыть приложение Лаборатории ↗</a>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -565,10 +588,10 @@
         <summary>
           <div class="big">Lab</div>
           <div class="lbl">Открытые испытания в Telegram</div>
-          <div class="sub">11 разборов по живым заявкам + мега-разбор №1 (168 проверенных цитат) · новые темы выбирает канал голосованием</div>
+          <div class="sub"><span class="m-razbory-txt">13</span> разборов по живым заявкам + мега-разбор №1 (168 проверенных цитат) · новые темы выбирает канал голосованием</div>
           <div class="hint"><span class="t-close">подробнее +</span><span class="t-open">свернуть −</span></div>
         </summary>
-        <div class="more">Опубликовано по живым заявкам: <a href="https://dgdbvgm-tech.github.io/kavacham/reading/razbor-01-prizma-acharev.html" target="_blank" rel="noopener">№1 — «Читать ачарьев — в обход Прабхупады?»</a> · <a href="https://dgdbvgm-tech.github.io/kavacham/reading/razbor-02-soznanie-transgumanizm.html" target="_blank" rel="noopener">№2 — трансгуманизм и природа сознания</a> · <a href="https://dgdbvgm-tech.github.io/kavacham/reading/razbor-03-nektar-predannosti.html" target="_blank" rel="noopener">№3 — пять вопросов по «Нектару преданности»</a> · <a href="https://dgdbvgm-tech.github.io/kavacham/reading/razbor-04-atributy-vaishnava-vera.html" target="_blank" rel="noopener">№4 — атрибуты вайшнава и вера</a> · <a href="https://dgdbvgm-tech.github.io/kavacham/reading/razbor-rasa-iznachalna-ili-razvivaetsya.html" target="_blank" rel="noopener">раса: изначальна или развивается?</a> · <a href="https://dgdbvgm-tech.github.io/kavacham/reading/razbor-poryadok-chteniya-nop.html" target="_blank" rel="noopener">порядок чтения книг Прабхупады 2.0</a> · <a href="https://dgdbvgm-tech.github.io/kavacham/reading/razbor-japa-vnimanie-i-chislo.html" target="_blank" rel="noopener">джапа: один круг внимательно — или шестнадцать невнимательно?</a> · <a href="https://dgdbvgm-tech.github.io/kavacham/reading/razbor-sovmestnoe-vospevanie.html" target="_blank" rel="noopener">почему святое имя поют вместе?</a> · <a href="https://dgdbvgm-tech.github.io/kavacham/reading/razbor-pishcha-v-gune-blagosti.html" target="_blank" rel="noopener">пища в гуне благости</a> · <a href="https://dgdbvgm-tech.github.io/kavacham/reading/razbor-vkus-imeni-naslazhdenie.html" target="_blank" rel="noopener">Кришна — единственный наслаждающийся: зачем преданный просит вкус к Имени?</a> · <a href="https://dgdbvgm-tech.github.io/kavacham/reading/razbor-uttama-adhikari-propoved.html" target="_blank" rel="noopener">высший преданный видит всех в связи с Кришной — зачем ему проповедовать?</a>. А по выбранной каналом теме вышел <b>мега-разбор №1 «Ведическая космология и наука»</b> — 168 проверенных цитат, полный отчёт «под капотом»: <a href="https://dgdbvgm-tech.github.io/kavacham/reading/mega-01-cosmology.html" target="_blank" rel="noopener">читать →</a>. <a href="https://t.me/+8zzg7sB9VHcxZWNi" target="_blank" rel="noopener">Войти в канал →</a> (канал частный, вход одобряет админ) · прислать свой вызов: <a href="https://t.me/kavacham_lab_bot" target="_blank" rel="noopener">@kavacham_lab_bot</a></div>
+        <div class="more">Опубликовано <span class="m-razbory-txt">13</span> разборов по живым заявкам — полный каталог с проверяемыми ссылками и разбивкой по рубрикам в <a href="https://dgdbvgm-tech.github.io/kavacham/reading/" target="_blank" rel="noopener">Протоколах Лаборатории →</a> (тот же список — в приложении <a href="https://t.me/kavacham_lab_bot/reader" target="_blank" rel="noopener">KAVACHAM Lab</a>). А по выбранной каналом теме вышел <b>мега-разбор №1 «Ведическая космология и наука»</b> — 168 проверенных цитат, полный отчёт «под капотом»: <a href="https://dgdbvgm-tech.github.io/kavacham/reading/mega-01-cosmology.html" target="_blank" rel="noopener">читать →</a>. <a href="https://t.me/+8zzg7sB9VHcxZWNi" target="_blank" rel="noopener">Войти в канал →</a> (канал частный, вход одобряет админ) · прислать свой вызов: <a href="https://t.me/kavacham_lab_bot" target="_blank" rel="noopener">@kavacham_lab_bot</a></div>
       </details>
       <details class="fact">
         <summary>
@@ -582,7 +605,7 @@
             <li class="done"><span class="st">✓</span>Библиотека 36&nbsp;000+ документов в едином формате</li>
             <li class="done"><span class="st">✓</span>Смысловой индекс <span class="m-chunks-txt">410 715</span> фрагментов</li>
             <li class="done"><span class="st">✓</span>Гибридный ретривер: точность ×4 на эталонных кейсах · глубина поиска до 200 цитат (мега-режим)</li>
-            <li class="done"><span class="st">✓</span>Lab-полигон: 11 разборов + мега-разбор, бот-приёмная 24/7</li>
+            <li class="done"><span class="st">✓</span>Lab-полигон: <span class="m-razbory-txt">13</span> разборов + мега-разбор, бот-приёмная 24/7</li>
             <li class="done"><span class="st">✓</span>Мини-приложение <b>KAVACHAM Lab</b>: Протоколы Лаборатории, подача заявок с выбором корпусов (дерево до отдельных книг) и шаблонами (софизм · проверка цитаты · учебный узел со ступенями), голосовой ввод, архив черновиков, Лог событий с двусторонней связью с Оператором, доски «Разработка» и «Очередь Узлов», исследовательский режим</li>
             <li class="done"><span class="st">✓</span><a href="https://dgdbvgm-tech.github.io/kavacham/reading/mega-01-cosmology.html" target="_blank" rel="noopener">Мега-разбор №1 «Ведическая космология и наука»: 168 цитат, тема выбрана голосованием канала →</a></li>
             <li class="next"><span class="st">○</span>Публичный интерфейс поиска (веб + Telegram)</li>
@@ -1243,6 +1266,71 @@
       /* число фрагментов в прозе (лид + дорожная карта) — из того же источника, чтобы нигде не расходилось */
       if (m.chunks) { var chTxt = document.querySelectorAll('.m-chunks-txt'); for (var i = 0; i < chTxt.length; i++) chTxt[i].textContent = fmt(m.chunks); }
     }).catch(function () {});
+  })();
+</script>
+<script>
+  /* Живой блок разборов Лаборатории: единственный источник — app/data/feed.json (тот же,
+     что питает приложение). Метрика, последние разборы и «показать все» строятся из него;
+     список нигде не зашивается руками. Новый разбор появляется здесь сам после build_reader. */
+  (function () {
+    var host = document.getElementById('lab-feed');
+    if (!host) return;
+    var listEl = host.querySelector('.lf-list');
+    var LAB = { razbor: 'Разбор', edu: 'Учебный узел', mega: 'Мега-разбор' };
+    var ICON = { mega: '🌌 ', edu: '🎓 ', razbor: '' };
+    var MONTHS = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+    var SHOW = 6;
+    function rub(it) { return it.rubric || it.kind || 'razbor'; }
+    function ruDate(s) { var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || ''); return m ? (parseInt(m[3], 10) + ' ' + MONTHS[parseInt(m[2], 10) - 1]) : ''; }
+    function pagesUrl(it) { return (it.pages_url ? it.pages_url.replace(/^\.\.\//, '') : ('reading/' + (it.slug || '') + '.html')); }
+    function esc(s) { var d = document.createElement('div'); d.textContent = (s == null ? '' : String(s)); return d.innerHTML; }
+    function row(it, isRest) {
+      var r = rub(it);
+      var li = document.createElement('li');
+      if (isRest) li.className = 'lf-rest';
+      var a = document.createElement('a');
+      a.className = 'lf-item'; a.href = pagesUrl(it); a.target = '_blank'; a.rel = 'noopener';
+      var chip = (r !== 'razbor') ? ('<span class="lf-chip">' + esc(LAB[r] || r) + '</span>') : '';
+      var date = it.date ? ('<span class="lf-date">' + esc(ruDate(it.date)) + '</span>') : '';
+      a.innerHTML = chip + '<span>' + (ICON[r] || '') + esc(it.title) + ' ↗</span>' + date;
+      li.appendChild(a);
+      return li;
+    }
+    fetch('app/data/feed.json', { cache: 'no-cache' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d || !d.items) return;
+        var items = d.items.filter(function (it) { return LAB[rub(it)]; });
+        items.sort(function (a, b) { return String(b.date || '').localeCompare(String(a.date || '')); });
+        if (!items.length) return;
+        var nReq = items.filter(function (it) { return rub(it) === 'razbor' || rub(it) === 'edu'; }).length;
+        var mega = items.filter(function (it) { return rub(it) === 'mega'; })[0];
+        /* метрика во всех местах страницы */
+        var spans = document.querySelectorAll('.m-razbory-txt');
+        for (var i = 0; i < spans.length; i++) spans[i].textContent = String(nReq);
+        var megaEl = host.querySelector('.lf-mega');
+        if (megaEl) {
+          var mp = mega && mega.pramanas;
+          megaEl.textContent = mega ? (' · мега-разбор' + (mp ? (' на ' + mp + ' цитат') : '')) : '';
+        }
+        /* список: первые SHOW видны, остальные — под «показать все» */
+        listEl.innerHTML = '';
+        items.forEach(function (it, idx) { listEl.appendChild(row(it, idx >= SHOW)); });
+        if (items.length > SHOW) {
+          var moreLi = document.createElement('li');
+          moreLi.style.listStyle = 'none';
+          var btn = document.createElement('button');
+          btn.type = 'button'; btn.className = 'lf-more';
+          btn.textContent = '▾ Показать все ' + items.length;
+          btn.addEventListener('click', function () {
+            var open = host.classList.toggle('lf-open');
+            btn.textContent = open ? '▴ Свернуть' : ('▾ Показать все ' + items.length);
+          });
+          moreLi.appendChild(btn);
+          listEl.appendChild(moreLi);
+        }
+      })
+      .catch(function () { /* резерв в разметке остаётся: ссылка на Протоколы */ });
   })();
 </script>
 </body>
