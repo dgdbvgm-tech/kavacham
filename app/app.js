@@ -1125,6 +1125,12 @@
         sub.textContent = hint;
         sec.appendChild(sub);
       }
+      if (g.prov) {   // провенанс-сводка группы — паритет 3 поверхностей
+        var pv = document.createElement('p');
+        pv.className = 'rc-prov';
+        pv.textContent = g.prov;
+        sec.appendChild(pv);
+      }
       if (g.rights_notice) {
         var rn = document.createElement('p');
         rn.className = 'rc-src';
@@ -1151,6 +1157,12 @@
       var nmw = document.createElement('span');
       nmw.className = 'rc-bname';
       nmw.textContent = leaf.label;
+      if (leaf.prov) {   // провенанс супер-раздела
+        var lpv = document.createElement('span');
+        lpv.className = 'rc-bprov';
+        lpv.textContent = leaf.prov;
+        nmw.appendChild(lpv);
+      }
       sm.appendChild(nmw);
       var mtw = document.createElement('span');
       mtw.className = 'rc-bcnt mono';
@@ -1163,6 +1175,12 @@
         var cli = document.createElement('li');
         cli.className = 'rc-book';
         var cn = document.createElement('span'); cn.className = 'rc-bname'; cn.textContent = c.label;
+        if (c.prov) {   // у книги свой провенанс (отличен от супер-раздела)
+          var cpv = document.createElement('span');
+          cpv.className = 'rc-bprov';
+          cpv.textContent = c.prov;
+          cn.appendChild(cpv);
+        }
         var cc = document.createElement('span'); cc.className = 'rc-bcnt mono'; cc.textContent = fmtN(c.count) + ' док.';
         cli.appendChild(cn); cli.appendChild(cc);
         subUl.appendChild(cli);
@@ -1174,6 +1192,12 @@
     var n2 = document.createElement('span');
     n2.className = 'rc-bname';
     n2.textContent = (leaf.private ? '🔒 ' : '') + leaf.label;
+    if (leaf.prov) {   // провенанс до выбора: строка под именем
+      var pv2 = document.createElement('span');
+      pv2.className = 'rc-bprov';
+      pv2.textContent = leaf.prov;
+      n2.appendChild(pv2);
+    }
     li.appendChild(n2);
     if (leaf.tier && g && leaf.tier !== g.tier) {   // лист выбивается из тира группы
       var lt = document.createElement('span');
@@ -1516,8 +1540,16 @@
   function saveScopesDraft() {
     // Дерево есть → черновик v2 (JSON): группы целиком + точечные книги.
     // Формат обратно совместим: parseDraftScopes читает и v2, и легаси-CSV.
+    // rev — ревизия дерева (tma-5): смена состава каталога куратором честно
+    // сообщается, а не молча обнуляет выбор. keys — машинные scope_key полных
+    // групп для фолбэк-чипов (tma-3: русские label чипам неизвестны → POST 400).
+    // books с forDraft=true (tma-2): корпус, набранный через частично-выбранную
+    // группу, сериализуется листьями явно — иначе выбор терялся при reload.
     if (TREE) {
-      draftSave(DRAFT_SCOPES, JSON.stringify({ v: 2, all: fullGroupLabels(), books: collectBooks() }));
+      draftSave(DRAFT_SCOPES, JSON.stringify({
+        v: 2, rev: TREE_REV || '',
+        all: fullGroupLabels(), keys: fullGroupKeys(), books: collectBooks(true)
+      }));
       return;
     }
     var keys = scopeSel.slice();
@@ -1606,15 +1638,20 @@
         var s = d[DRAFT_SCOPES];
         var sel = parseDraftScopes(typeof s === 'string' ? s : '');
         if (sel) {
-          // pendingSel дождётся отрисовки дерева; чипам хватает ключей и основы
+          // pendingSel дождётся отрисовки дерева; чипам хватает ключей и основы.
+          // В scopeSel — ТОЛЬКО машинные ключи (keys v2-черновика + corpus книг):
+          // русские label групп чипам неизвестны — раньше протекали в scopeSel и
+          // уходили в POST → 400 «Неизвестные источники», форма залипала (tma-3).
           pendingSel = sel;
-          baseOn = sel.all.indexOf('prabhupada') >= 0 ||
-            sel.books.some(function (b) { return corpusToKey(b.corpus || '') === 'prabhupada'; });
+          var machineKeys = (sel.keys || []).concat(
+            sel.all.filter(function (k) { return /^[a-z][a-z0-9_-]*$/.test(k); }),
+            sel.books.map(function (b) { return corpusToKey(b.corpus || ''); }));
+          baseOn = machineKeys.indexOf('prabhupada') >= 0;
           scopeSel = [];
-          sel.all.concat(sel.books.map(function (b) { return corpusToKey(b.corpus || ''); }))
-            .forEach(function (k) {
-              if (k && k !== 'prabhupada' && scopeSel.indexOf(k) < 0) scopeSel.push(k);
-            });
+          machineKeys.forEach(function (k) {
+            if (k && k !== 'prabhupada' && /^[a-z][a-z0-9_-]*$/.test(k) &&
+                scopeSel.indexOf(k) < 0) scopeSel.push(k);
+          });
           if (TREE) applySelection(sel);
         }
         if (d[DRAFT_SHOW] === '1') $('showName').checked = true;
@@ -1635,6 +1672,7 @@
      Основа = группа со scope_key BASE_KEY: «выбран хотя бы один лист» ⇔ baseOn;
      переход в ноль — только через RESEARCH_CONFIRM (как у чипа основы). */
   var TREE = null;           // группы дерева либо null (работаем чипами)
+  var TREE_REV = '';         // ревизия дерева (updated из /api/corpus-tree) — tma-5
   var TREE_HINTS = {};
   var BASE_KEY = 'prabhupada';
   var gSel = [];             // gi → объект-множество: {bi: 1}
@@ -1680,8 +1718,20 @@
       TREE = d.tree;
       BASE_KEY = d.base_key || 'prabhupada';
       TREE_HINTS = d.hints || {};
+      TREE_REV = d.updated || '';
+      // Смена состава каталога куратором (tma-5): applySelection молча игнорирует
+      // неизвестные label — честно предупреждаем вместо тихого обнуления выбора.
+      var staleDraft = !!(pendingSel && pendingSel.rev && TREE_REV &&
+                          pendingSel.rev !== TREE_REV);
       // черновик, если он был; иначе дефолт сервера (основа + канон парампары)
       applySelection(pendingSel || { all: d.default_keys || ['prabhupada'], books: [] });
+      if (staleDraft) {
+        try {
+          var dr = $('draftRestored');
+          dr.textContent = '⚠️ Состав каталога источников обновился — проверьте выбор.';
+          dr.hidden = false;
+        } catch (e) {}
+      }
       renderTree();
       $('scopeList').hidden = true;
       $('scopeState').hidden = true;
@@ -1806,7 +1856,7 @@
     baseOn = !!(per[BASE_KEY] && per[BASE_KEY].sel);
   }
 
-  // Черновик: группы, выбранные ЦЕЛИКОМ, — по label.
+  // Черновик: группы, выбранные ЦЕЛИКОМ, — по label (точный матч восстановления).
   function fullGroupLabels() {
     var out = [];
     TREE.forEach(function (g, gi) {
@@ -1816,19 +1866,45 @@
     });
     return out;
   }
+  // …и параллельно их машинные scope_key — для фолбэк-чипов и baseOn до дерева
+  // (label здесь непригоден: у групп одного корпуса scope_key совпадает, матч по
+  // нему в applySelection дал бы ложное расширение — поэтому два поля, не одно).
+  function fullGroupKeys() {
+    var out = [];
+    TREE.forEach(function (g, gi) {
+      if (!isSelectable(g, null)) return;
+      var tot = groupTotalUnits(gi);
+      if (tot > 0 && groupSelUnits(gi) === tot && g.scope_key &&
+          out.indexOf(g.scope_key) < 0) out.push(g.scope_key);
+    });
+    return out;
+  }
 
   // Сужение для сервера по СКОУП-КЛЮЧУ: корпус целиком → ничего; частично →
   // селекторы выбранных единиц (супер-раздел целиком = {corpus,prefix}; часть
   // детей = {corpus,book|title[,prefix]}; обычный лист = {corpus,title|prefix|∅}).
-  function collectBooks() {
+  function collectBooks(forDraft) {
     if (!TREE) return [];
     var per = keyStats(), out = [];
+    // черновик: листья полностью выбранных групп уже в all — не дублируем
+    var fullG = {};
+    if (forDraft) {
+      TREE.forEach(function (g, gi) {
+        var tot = groupTotalUnits(gi);
+        if (tot > 0 && groupSelUnits(gi) === tot) fullG[gi] = 1;
+      });
+    }
     Object.keys(per).forEach(function (k) {
       var st = per[k];
-      if (!st.sel || st.sel === st.total) return;   // пусто или весь корпус
+      // POST: полный корпус сужения не требует. Черновик: тот же пропуск ТЕРЯЛ
+      // точечный выбор, когда корпус набран через частично-выбранную группу
+      // (аудит tma-2: шикшамрита исчезала после reload, а восстановленный POST
+      // слал сужение уже БЕЗ неё) — для черновика сериализуем листья явно.
+      if (!st.sel || (!forDraft && st.sel === st.total)) return;
       st.leaves.forEach(function (rec) {
         var gi = rec.gi, bi = rec.bi, leaf = rec.leaf, sc = selCount(gi, bi);
         if (!sc) return;
+        if (forDraft && fullG[gi]) return;   // группа целиком уже в all черновика
         if (isExpand(leaf)) {
           if (sc === leaf.children.length) {         // весь супер-раздел
             out.push({ corpus: leaf.corpus, prefix: leaf.prefix });
@@ -1895,12 +1971,19 @@
       meta.appendChild(tier);
       meta.appendChild(cnt);
       var hint = g.hint || TREE_HINTS[g.scope_key];
+      // провенанс-сводка группы — в тултип и видимой строкой ниже
+      if (g.prov) hint = (hint ? hint + '\n' : '') + 'Издания: ' + g.prov;
       if (hint) head.title = hint;
       head.appendChild(arrow);
       head.appendChild(lab);
       head.appendChild(meta);
       var kids = elc('div', 'cg-kids');
       kids.hidden = true;
+      if (g.prov) {
+        var gp = elc('div', 'cg-prov');
+        gp.textContent = g.prov;
+        kids.appendChild(gp);
+      }
       if (g.rights_notice) {
         var rn = elc('div', 'cg-rights');
         rn.textContent = g.rights_notice;
@@ -1931,9 +2014,17 @@
         var n2 = elc('span', 'cl-nm');
         n2.textContent = (leaf.private ? '🔒 ' : '') + leaf.label;
         l.appendChild(n2);
-        if (leaf.tier && leaf.tier !== g.tier) {
-          var lt = elc('span', 'ctier cl-tier t-' + leaf.tier);
-          lt.textContent = TIER_TMA[leaf.tier] || leaf.tier_label || '';
+        // провенанс до выбора: ⓘ раскрывает издание ДО галочки —
+        // по тапу (нативный title на мобильном не открывается)
+        var provBtn = elc('button', 'cl-info');
+        provBtn.type = 'button';
+        provBtn.textContent = 'ⓘ';
+        provBtn.setAttribute('aria-label', 'Издание: ' + leaf.label);
+        l.appendChild(provBtn);
+        var ltier = leaf.tier || g.tier;   // унаследованный тир — всегда бейджем
+        if (ltier && TIER_TMA[ltier]) {
+          var lt = elc('span', 'ctier cl-tier t-' + ltier);
+          lt.textContent = TIER_TMA[ltier];
           l.appendChild(lt);
         }
         if (leaf.stage_label) {    // этап разбора корзины «Не разобрано»
@@ -1945,6 +2036,20 @@
         c2.textContent = fmtN(leaf.count);
         l.appendChild(c2);
         kids.appendChild(l);
+        // строка издания: та же prov_line ядра, что на лендинге (идентичность);
+        // сверка (тир) и пофайловая выверка — рядом, переживает max-width:420px
+        var provRow = elc('div', 'cl-prov');
+        provRow.hidden = true;
+        provRow.textContent = (leaf.prov || 'издание не установлено') +
+          (TIER_TMA[ltier] ? ' · сверка: ' + TIER_TMA[ltier] : '') +
+          (leaf.verif === 'verified' ? ' · ✓ файлы сверены' : '');
+        kids.appendChild(provRow);
+        provBtn.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          provRow.hidden = !provRow.hidden;
+          haptic('select');
+        });
         var subUI = [];
         if (expandable) {
           subKids = elc('div', 'cl-kids');
@@ -1956,6 +2061,11 @@
             scb.disabled = !!g.disabled;
             var sn = elc('span', 'cs-nm');
             sn.textContent = ch.label;
+            if (ch.prov) {   // у книги СВОЙ провенанс (отличен от супер-раздела)
+              var sp = elc('span', 'cs-prov');
+              sp.textContent = ch.prov;
+              sn.appendChild(sp);
+            }
             var sc = elc('span', 'cs-cnt mono');
             sc.textContent = fmtN(ch.count);
             sl.appendChild(scb);
@@ -2079,7 +2189,10 @@
     if (s.charAt(0) === '{') {
       try {
         var d = JSON.parse(s);
-        if (d && d.v === 2) return { all: d.all || [], books: d.books || [] };
+        if (d && d.v === 2) {
+          return { all: d.all || [], keys: d.keys || [], books: d.books || [],
+                   rev: d.rev || '' };
+        }
       } catch (e) {}
       return null;
     }
@@ -3858,6 +3971,23 @@
     meta.textContent = author + ' · ' + (it.show_name ? '🙋 имя можно' : '🕊 аноним') +
       (it.scope ? ' · ' + it.scope : '');
     li.appendChild(meta);
+
+    // Точечный выбор книг (books): заявитель прицельно выбрал произведения внутри
+    // корпусов. Сервер отдаёт it.books (JSON [{corpus, prefix|title}, …]); оператору
+    // важно видеть ИМЕННО что выбрано, а не только «точечно: N».
+    var books = it.books;
+    if (typeof books === 'string') { try { books = JSON.parse(books); } catch (_) { books = null; } }
+    if (books && books.length) {
+      var picks = books.map(function (b) {
+        return (b && (b.prefix || b.title || b.corpus)) || '';
+      }).filter(Boolean);
+      if (picks.length) {
+        var bk = document.createElement('p');
+        bk.className = 'req-f hq-books';
+        bk.textContent = '📌 точечно (' + picks.length + '): ' + picks.join(' · ');
+        li.appendChild(bk);
+      }
+    }
 
     // Заявке отправлен уточняющий вопрос и ждём ответа заявителя (метка снимается
     // автоматически, как только он ответит — в боте или здесь, в приложении).

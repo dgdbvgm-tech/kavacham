@@ -987,6 +987,29 @@ body.tma {
   border: 1px dashed var(--rule); color: var(--text-dim); white-space: nowrap;
 }
 
+/* провенанс до выбора: ⓘ у листа + раскрывающаяся строка издания.
+   Обязан пережить max-width:420px и тач (в отличие от .ctier) — это блочные
+   строки и кнопка, медиа-квери их не прячет. */
+.cl-info {
+  flex: 0 0 auto;
+  width: 1.5rem; height: 1.5rem;
+  border: 0; background: none; color: var(--text-dim);
+  font-size: 0.85rem; line-height: 1; cursor: pointer; border-radius: 50%;
+}
+.cl-info:hover { color: var(--text); background: var(--ground); }
+.cl-prov {
+  font-size: 0.74rem; color: var(--text-dim); line-height: 1.5;
+  padding: 0 0.25rem 0.35rem 2.6rem;
+}
+.cl-prov[hidden] { display: none; }
+.cg-prov {
+  font-size: 0.76rem; color: var(--text-dim);
+  padding: 0.25rem 0.2rem 0.35rem;
+  border-bottom: 1px dashed var(--rule);
+  margin-bottom: 0.2rem;
+}
+.cs-prov { display: block; font-size: 0.68rem; color: var(--text-dim); line-height: 1.4; }
+
 /* супер-раздел каталога («Гуру ИСККОН») и вложенные группы */
 .cg-parent {
   margin: 0.35rem 0 -0.1rem;
@@ -1242,6 +1265,9 @@ body.tma .sortctl-s { min-height: 36px; }
 .rc-cnt { margin-left: auto; font-size: 0.8rem; color: var(--text-dim); white-space: nowrap; }
 .rc-sub { margin: 0.35rem 0 0; font-size: 0.84rem; line-height: 1.5; color: var(--text-2); }
 .rc-src { margin: 0.3rem 0 0; font-size: 0.78rem; color: var(--text-dim); }
+/* провенанс каталога «Доверенный контур» — паритет 3 поверхностей */
+.rc-prov { margin: 0.3rem 0 0; font-size: 0.78rem; color: var(--gold-hi, var(--text-dim)); opacity: 0.85; }
+.rc-bprov { display: block; font-size: 0.7rem; color: var(--text-dim); line-height: 1.45; margin-top: 0.1rem; }
 .rc-books { list-style: none; margin: 0.5rem 0 0; padding: 0; }
 .rc-book {
   display: flex;
