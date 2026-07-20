@@ -41,6 +41,13 @@ p.rd-note-in.rd-note-in{margin:.6rem 0 0;font-size:.86rem;line-height:1.6;color:
 .rd-tablewrap table{border-collapse:collapse;min-width:100%}
 .rd-tablewrap th,.rd-tablewrap td{border:1px solid var(--rule);padding:.5rem .65rem;
   text-align:left;font-size:.9rem;vertical-align:top}
+/* Скриншоты в теле (онбординг). Картинка на своей строке, подпись — italic-абзацем
+   сразу под ней (соседний :has). Ширину держим комфортной для чтения на телефоне. */
+.rd-img{display:block;max-width:min(100%,420px);height:auto;margin:1.6rem auto .4rem;
+  border-radius:10px;border:1px solid var(--rule);box-shadow:0 6px 22px rgba(0,0,0,.16)}
+p:has(> .rd-img){text-align:center;margin:1.6rem 0 .4rem}
+p:has(> .rd-img) + p{text-align:center;font-style:italic;font-size:.82rem;
+  color:var(--text-dim);margin:0 auto 2rem;max-width:32rem}
 
 /* Протоколы: ОБВЯЗКА страницы (шапка/оглавление/подвал + типографика тела).
    Компоненты праманы — в SHARED_CSS: они общие с TMA.

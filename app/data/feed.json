@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-07-19",
+ "generated_at": "2026-07-20",
  "rubrics": [
   {
    "key": "razbor",
@@ -33,6 +33,24 @@
   }
  ],
  "items": [
+  {
+   "slug": "devlog-bolshe-i-chishche",
+   "kind": "devlog",
+   "rubric": "devlog",
+   "title": "Не только больше, но и чище",
+   "subtitle": "Тихая работа за ростом библиотеки: дословное восстановление повреждённых книг и поиск, честный к разнообразию источников.",
+   "date": "2026-07-20",
+   "pramanas": 0,
+   "source_links": 0,
+   "tags": [
+    "build in public",
+    "качество",
+    "поиск"
+   ],
+   "excerpt": "На этой неделе библиотека выросла на сотни трудов парампары — об этом коротко рассказали в дневнике канала. Но рост — только половина дела. Вот тихая работа, которую не видно в списке добавленного, но именно она делает корпус не просто больше, а чище и…",
+   "reading_url": "data/reading/devlog-bolshe-i-chishche.json",
+   "pages_url": "../reading/devlog-bolshe-i-chishche.html"
+  },
   {
    "slug": "onboarding-app",
    "kind": "devlog",
