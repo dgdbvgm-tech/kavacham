@@ -2119,6 +2119,8 @@ body.tma-in-telegram .tabbar {
 .msg-new { border-color: var(--accent); }
 .msg-meta { margin: 0 0 0.3rem; font-size: 0.72rem; opacity: 0.75; overflow-wrap: anywhere; }
 .msg-t { margin: 0 0 0.4rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.msg-link { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; overflow-wrap: anywhere; }
+.msg-link:hover { color: var(--gold-hi); }
 /* Свёрнутый длинный текст лога: 3 строки, по тапу — раскрыть. */
 .msg-t.clamp { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; cursor: pointer; }
 .msg-t.clamp.open { -webkit-line-clamp: unset; display: block; }

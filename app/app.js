@@ -184,6 +184,36 @@
     else window.open(url, '_blank', 'noopener');
   }
 
+  // Текст сообщения → DOM с кликабельными ссылками. Никакого innerHTML:
+  // текст идёт текстовыми узлами, URL — якорями через openExternal/openTelegram
+  // (обычный <a> внутри Telegram WebView открывается ненадёжно). stopPropagation —
+  // чтобы тап по ссылке не сворачивал/разворачивал длинную запись (toggle на <p>).
+  function linkifyInto(el, text) {
+    var re = /https?:\/\/[^\s<>"']+/g, last = 0, m;
+    while ((m = re.exec(text)) !== null) {
+      var url = m[0];
+      var tail = url.match(/[.,;:!?…)»›"']+$/);
+      if (tail) { url = url.slice(0, -tail[0].length); re.lastIndex -= tail[0].length; }
+      if (m.index > last) el.appendChild(document.createTextNode(text.slice(last, m.index)));
+      var a = document.createElement('a');
+      a.className = 'msg-link';
+      a.href = url;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.textContent = url;
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        haptic('light');
+        if (/^https:\/\/t\.me\//.test(this.href)) openTelegram(this.href);
+        else openExternal(this.href);
+      });
+      el.appendChild(a);
+      last = re.lastIndex;
+    }
+    el.appendChild(document.createTextNode(text.slice(last)));
+  }
+
   // Да/нет: нативный tg.showConfirm, где он есть; вне Telegram — window.confirm.
   // Ответ приходит колбэком (showConfirm асинхронный) — синхронного пути нет.
   function askConfirm(msg, cb) {
@@ -4291,7 +4321,7 @@
           li.appendChild(meta);
           var p = document.createElement('p');
           p.className = 'msg-t';
-          p.textContent = m.text || '';
+          linkifyInto(p, m.text || '');
           li.appendChild(p);
           // Длинную запись сворачиваем до 3 строк; тап по тексту или по «показать
           // полностью» раскрывает строку (лог у Штаба/движка бывает многострочным).
@@ -4653,7 +4683,7 @@
         li.appendChild(meta);
         var p = document.createElement('p');
         p.className = 'req-t hq-clip';
-        p.textContent = m.text || '';
+        linkifyInto(p, m.text || '');
         p.addEventListener('click', function () { p.classList.toggle('open'); });
         li.appendChild(p);
         if (m.sender === 'user' && m.from_uid) {
