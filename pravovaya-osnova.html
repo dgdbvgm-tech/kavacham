@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Правовая основа KAVACHAM — авторство и права</title>
+<meta name="description" content="На каком основании KAVACHAM цитирует книги Шрилы Прабхупады и другие источники: указатель, а не переиздатель. Добросовестное цитирование с копирайт-нотисом ББТ, без подразумеваемой лицензии; тела книг не публикуются, доступ к текстам бесплатен.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Правовая основа KAVACHAM">
+<meta property="og:description" content="Указатель, а не переиздатель: добросовестное цитирование с копирайт-нотисом ББТ, без подразумеваемой лицензии.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://dgdbvgm-tech.github.io/kavacham/pravovaya-osnova.html">
+<meta property="og:image" content="https://dgdbvgm-tech.github.io/kavacham/og.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230C1030'/%3E%3Cpath d='M50 16 78 27v22c0 18-12 30-28 35C34 79 22 67 22 49V27z' fill='none' stroke='%23C9A24B' stroke-width='4'/%3E%3Ccircle cx='50' cy='47' r='6' fill='%23E7CE8C'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<style>
+  :root{
+    --deep:#0C1030; --deep-2:#131A44; --ink:#ECE6D4; --dim:#A2A6C8;
+    --rule:rgba(201,162,75,0.22); --gold:#C9A24B; --gold-lo:#A9863A; --gold-hi:#E7CE8C;
+    --serif:"Noto Serif","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --pad:clamp(1.1rem,5vw,2.2rem);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+  body{
+    background:
+      radial-gradient(1200px 500px at 50% -10%, rgba(201,162,75,0.08), transparent 60%),
+      var(--deep);
+    color:var(--ink); font-family:var(--serif); line-height:1.7;
+    padding:0 var(--pad) calc(3rem + env(safe-area-inset-bottom));
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:52rem;margin:0 auto}
+
+  /* верхняя навигация */
+  .topbar{position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center;gap:1rem;
+    padding:0.9rem 0;margin-bottom:1.4rem;border-bottom:1px solid var(--rule);
+    background:linear-gradient(180deg,var(--deep) 70%,rgba(12,16,48,0.6));backdrop-filter:blur(6px)}
+  .topbar a{font-family:var(--sans);font-size:0.74rem;letter-spacing:0.14em;text-transform:uppercase;
+    color:var(--dim);text-decoration:none;transition:color .2s}
+  .topbar a:hover{color:var(--gold-hi)}
+  .topbar .brand{color:var(--gold-hi);font-weight:600}
+
+  /* шапка документа */
+  header.doc{padding:1.6rem 0 1.2rem;text-align:center}
+  .eyebrow{font-family:var(--sans);font-size:0.72rem;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold);opacity:0.9}
+  h1.title{font-family:var(--serif);font-weight:700;font-size:clamp(1.8rem,6vw,2.7rem);letter-spacing:0.02em;
+    margin:0.5rem 0 0.4rem;color:var(--ink);text-wrap:balance}
+  .badge{display:inline-block;font-family:var(--sans);font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;
+    color:var(--gold-hi);border:1px solid var(--rule);border-radius:999px;padding:0.28rem 0.8rem;margin-top:0.3rem}
+  .intro{max-width:44rem;margin:1.3rem auto 0;font-style:italic;color:var(--dim);font-size:0.98rem;
+    border-left:2px solid var(--gold-lo);padding-left:1.1rem;text-align:left}
+
+  hr.thread{border:0;height:1px;background:linear-gradient(90deg,transparent,var(--rule),transparent);margin:2.2rem 0}
+
+  section{margin:2.2rem 0}
+  h2{font-family:var(--serif);font-weight:700;font-size:clamp(1.25rem,4vw,1.6rem);color:var(--gold-hi);
+    margin:0 0 0.5rem;line-height:1.25;text-wrap:balance}
+  h2 .num{font-family:var(--sans);font-size:0.8em;color:var(--gold);opacity:0.7;margin-right:0.5rem}
+  p{margin:0.7rem 0;color:var(--ink)}
+  p.sub,.dim{color:var(--dim)}
+  strong,b{color:var(--gold-hi);font-weight:600}
+  em{color:var(--ink)}
+  a.ref{color:var(--gold-hi);text-decoration:none;border-bottom:1px solid var(--rule)}
+  a.ref:hover{border-bottom-color:var(--gold-hi)}
+
+  ol,ul{margin:0.7rem 0 0.7rem 1.3rem}
+  li{margin:0.5rem 0}
+  li::marker{color:var(--gold)}
+
+  .callout{border:1px solid var(--rule);border-radius:12px;padding:1.1rem 1.25rem;background:rgba(255,255,255,0.02);margin:1.3rem 0}
+  .callout h3{margin-top:0;color:var(--gold-hi);font-family:var(--serif);font-weight:600;font-size:1.02rem}
+  .notice-text{font-style:italic;color:var(--dim);margin:0.4rem 0 0}
+
+  .note{font-family:var(--sans);font-size:0.82rem;color:var(--dim);opacity:0.85}
+
+  footer.doc{margin-top:2.6rem;padding-top:1.6rem;border-top:1px solid var(--rule);text-align:center;color:var(--dim)}
+  footer.doc .om{color:var(--gold-hi);font-size:1.3rem;margin-bottom:0.6rem}
+  footer.doc a{color:var(--gold-hi);text-decoration:none}
+  footer.doc .sign{margin-top:1.2rem;font-family:var(--sans);font-size:0.62rem;letter-spacing:0.3em;text-transform:uppercase;opacity:0.5}
+
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="topbar">
+    <a href="./"><span aria-hidden="true">←</span>&nbsp; <span class="brand">KAVACHAM</span></a>
+    <a href="constitution.html?v=1.5">Конституция</a>
+  </nav>
+
+  <header class="doc">
+    <p class="eyebrow">Авторство и права</p>
+    <h1 class="title">Правовая основа</h1>
+    <span class="badge">указатель, а не переиздатель</span>
+    <p class="intro">KAVACHAM показывает короткую дословную цитату и ведёт к проверенному первоисточнику — он не издаёт и не заменяет книги. Издательский мандат Бхактиведанта Бук Траст (ББТ) проект признаёт полностью. Эта страница честно объясняет, на каком основании проект цитирует и чего он принципиально не делает.</p>
+  </header>
+
+  <hr class="thread">
+
+  <section>
+    <h2><span class="num">1</span>Что такое KAVACHAM по отношению к книгам</h2>
+    <p>KAVACHAM — <b>не издатель, а указатель</b>: он приводит короткую дословную цитату и даёт кликабельную ссылку на публичный первоисточник (<a class="ref" href="https://vedabase.io/" target="_blank" rel="noopener">vedabase.io</a>). Он не хранит и не отдаёт тела книг и не заменяет их чтение.</p>
+    <p>ББТ — единственный издатель книг Шрилы Прабхупады. Этот издательский мандат проект признаёт полностью и ему не противоречит: <b>указать на цитату — не значит издать книгу</b>.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">2</span>На каком основании цитируем</h2>
+    <p>Мы опираемся на политику самого правообладателя. ББТ прямо приглашает к добросовестному цитированию — <em>«We love to be quoted»</em> («мы рады, когда нас цитируют»): короткий отрывок с указанием источника и копирайт-нотисом, в некоммерческих и образовательных целях, — <b>разрешения не требует</b>.</p>
+    <p class="sub">Важно и честно: добросовестное цитирование — это <b>законное право цитирования, а не выданная нам лицензия</b>. Мы её не подразумеваем и на неё не претендуем.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">3</span>Чего мы НЕ делаем</h2>
+    <ul>
+      <li>Не публикуем тела книг и не приводим дословно сверх короткой цитаты.</li>
+      <li>Не берём с пользователей денег за доступ к текстам — ни в одном контуре. Поддержка проекта — только дар на инфраструктуру, не плата за содержание.</li>
+      <li>Не выдаём себя за издателя и не говорим от имени ИСККОН или ББТ.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="callout">
+      <h3>Копирайт-нотис</h3>
+      <p class="notice-text">Цитаты из книг Его Божественной Милости А.Ч. Бхактиведанты Свами Прабхупады приводятся в порядке добросовестного цитирования и указывают на первоисточник. © The Bhaktivedanta Book Trust International, Inc. — <a class="ref" href="https://vedabase.io/" target="_blank" rel="noopener">vedabase.io</a>.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">4</span>Другие источники</h2>
+    <p>Материалы вне книг ББТ (например, публикации новостных лент ИСККОН) используются по тому же принципу указателя: <b>факты и события свободны</b>, авторский текст приводится <b>короткой атрибутированной цитатой со ссылкой</b> на оригинал; полный текст наружу не переиздаётся.</p>
+    <p class="sub"><b>Снятие по запросу (notice-and-takedown):</b> если правообладатель считает, что материал использован некорректно, он снимается по обоснованному запросу. Контакт: <a class="ref" href="mailto:kavacham.project@gmail.com">kavacham.project@gmail.com</a>.</p>
+  </section>
+
+  <footer class="doc">
+    <div class="om" aria-hidden="true">✦</div>
+    <p>Указатель на парампару, не источник истины. <a href="./">На главную →</a></p>
+    <p class="note" style="margin-top:0.6rem">Формулировки страницы — рабочая правовая рамка проекта, не юридическое заключение.</p>
+    <p class="sign">KAVACHAM · DGD · ZERO ENTROPY</p>
+  </footer>
+
+</div>
+</body>
+</html>
