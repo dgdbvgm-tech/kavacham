@@ -1997,6 +1997,73 @@ body.tma-in-telegram .tabbar {
 
 /* ——— Штаб ——— */
 #hqBody[hidden] { display: none; }
+
+/* Гамбургер-навигация по блокам Штаба: кнопка в строке заголовка, меню —
+   компактный выпадающий список якорей под ней. Только токены темы
+   (панель/линейки/золото) — светлая и тёмная работают сами. */
+.hq-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+.hq-nav { position: relative; flex: none; }
+.hq-nav[hidden] { display: none; }
+.hq-nav-btn {
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0.25rem 0.55rem;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--text-2);
+  font-size: 1.05rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.hq-nav-btn:hover { border-color: var(--gold); color: var(--text); }
+.hq-nav-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+.hq-nav-btn[aria-expanded="true"] { border-color: var(--gold); color: var(--gold-hi); }
+.hq-nav-menu {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  z-index: 40; /* над контентом экрана, ПОД шапкой (у неё 60) */
+  min-width: 13.5rem;
+  max-width: min(16rem, calc(100vw - 2 * var(--tma-pad)));
+  margin: 0;
+  padding: 0.3rem;
+  list-style: none;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+.hq-nav-menu[hidden] { display: none; }
+.hq-nav-item {
+  display: block;
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-2);
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  line-height: 1.3;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.hq-nav-item:hover,
+.hq-nav-item:focus-visible {
+  background: color-mix(in srgb, var(--gold) 12%, var(--panel));
+  color: var(--text);
+}
+
+/* Сводка — не .block (без своего scroll-margin), а гамбургер к ней скроллит:
+   тот же отступ под фикс-шапку, что у .block */
+.hq-stats { scroll-margin-top: calc(var(--tma-top-h) + var(--sa-top) + 0.6rem); }
 .hq-stats {
   display: flex;
   flex-wrap: wrap;

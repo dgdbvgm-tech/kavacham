@@ -8,7 +8,8 @@
   <title>КАВАЧАМ: Лаборатория</title>
   <meta name="description" content="KAVACHAM Lab — испытательный стенд: терминал заявок, полигон разборов, доверенный контур корпусов. Дословная цитата + проверяемая ссылка.">
   <link rel="stylesheet" href="../styles.css">
-  <link rel="stylesheet" href="app.css">
+  <!-- метку ?v= поднимать при каждом деплое app.js/app.css — иначе клиенты Telegram держат старый кэш -->
+  <link rel="stylesheet" href="app.css?v=2026072112">
 
   <!-- SDK Telegram — self-hosted копия, никаких CDN в рантайме.
        В <head> (как рекомендует Telegram): тогда colorScheme известен ДО первой отрисовки. -->
@@ -515,7 +516,25 @@
          админа: решение «кто админ» живёт только на сервере, а прямой заход
          не-админа упирается и в гейт ниже, и в 403 всех /api/admin/*). ═══ -->
     <section class="screen" id="screen-hq" hidden>
-      <h1 class="screen-h">Штаб</h1>
+      <div class="hq-head">
+        <h1 class="screen-h">Штаб</h1>
+        <!-- Гамбургер-навигация по разросшимся блокам Штаба. Виден только
+             вместе с #hqBody (enterHq в app.js показывает/прячет синхронно):
+             не-админу у гейта навигировать некуда. -->
+        <div class="hq-nav" id="hqNav" hidden>
+          <button class="hq-nav-btn" id="hqNavBtn" type="button" aria-haspopup="true"
+                  aria-label="Навигация по Штабу" aria-expanded="false"
+                  aria-controls="hqNavMenu">☰&#xFE0E;</button>
+          <ul class="hq-nav-menu" id="hqNavMenu" hidden>
+            <li><button class="hq-nav-item" type="button" data-goto="hqStats">Сводка</button></li>
+            <li><button class="hq-nav-item" type="button" data-goto="hqReqH">Заявки</button></li>
+            <li><button class="hq-nav-item" type="button" data-goto="hqContribH">Вклады Обогащения</button></li>
+            <li><button class="hq-nav-item" type="button" data-goto="hqDocsH">Обновления GBC/SAC</button></li>
+            <li><button class="hq-nav-item" type="button" data-goto="hqMsgH">Сигналы связи</button></li>
+            <li><button class="hq-nav-item" type="button" data-goto="hqCastH">Рассылка Штаба</button></li>
+          </ul>
+        </div>
+      </div>
       <p class="screen-sub">Пульт конвейера: те же переходы и те же уведомления заявителям, что у команд бота.</p>
 
       <!-- Не-админ / вне Telegram: честный отказ (сервер всё равно ответит 403) -->
@@ -730,6 +749,7 @@
     </a>
   </nav>
 
-  <script src="app.js"></script>
+  <!-- метку ?v= поднимать при каждом деплое app.js/app.css — иначе клиенты Telegram держат старый кэш -->
+  <script src="app.js?v=2026072112"></script>
 </body>
 </html>

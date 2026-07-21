@@ -3789,16 +3789,19 @@
   }
 
   function enterHq() {
-    var gate = $('hqGate'), body = $('hqBody');
+    var gate = $('hqGate'), body = $('hqBody'), nav = $('hqNav');
+    hqNavClose();                  // при каждом входе меню начинает закрытым
     if (isAdmin === true) {
       gate.hidden = true;
       body.hidden = false;
+      nav.hidden = false;          // гамбургер живёт по той же логике, что hqBody
       loadHq();
       return;
     }
     // не-админ, гость или сервер ещё не ответил — честный гейт (сервер всё равно 403)
     gate.hidden = false;
     body.hidden = true;
+    nav.hidden = true;
   }
 
   function loadHq() {
@@ -4765,6 +4768,58 @@
 
   $('hqMsgRefresh').addEventListener('click', function () { haptic('light'); loadHqMessages(); });
   $('hqDocsRefresh').addEventListener('click', function () { haptic('light'); loadHqDocs(); });
+
+  // ——— Гамбургер-навигация по блокам Штаба ————————————————————
+  // Кнопка видна вместе с hqBody (enterHq). Пункт меню — плавный скролл к
+  // блоку (scrollToEl уважает prefers-reduced-motion) и закрытие; клик мимо
+  // меню или повторный ☰ — тоже закрытие. Объявлено function-декларацией:
+  // enterHq() выше по файлу зовёт hqNavClose() через hoisting.
+  function hqNavClose() {
+    var menu = $('hqNavMenu');
+    if (!menu || menu.hidden) return;
+    menu.hidden = true;
+    $('hqNavBtn').setAttribute('aria-expanded', 'false');
+  }
+
+  $('hqNavBtn').addEventListener('click', function () {
+    haptic('light');
+    var menu = $('hqNavMenu');
+    if (menu.hidden) {
+      menu.hidden = false;
+      this.setAttribute('aria-expanded', 'true');
+    } else {
+      hqNavClose();
+    }
+  });
+
+  $('hqNavMenu').addEventListener('click', function (e) {
+    var item = e.target.closest('[data-goto]');
+    if (!item) return;
+    haptic('light');
+    hqNavClose();
+    $('hqNavBtn').focus();
+    var el = $(item.getAttribute('data-goto'));
+    if (!el) return;
+    // якоря — заголовки h2 внутри .block: скроллим к самому блоку (у него
+    // scroll-margin-top под фикс-шапку); у Сводки блока нет — к ней самой
+    scrollToEl(el.closest('.block') || el);
+  });
+
+  // Escape закрывает меню и возвращает фокус на ☰ (доступность с клавиатуры)
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    var menu = $('hqNavMenu');
+    if (menu && !menu.hidden) {
+      hqNavClose();
+      $('hqNavBtn').focus();
+    }
+  });
+
+  // клик мимо меню — закрыть; кнопка и пункты внутри #hqNav сюда не попадают
+  document.addEventListener('click', function (e) {
+    var nav = $('hqNav');
+    if (nav && !nav.hidden && !nav.contains(e.target)) hqNavClose();
+  });
 
   var hqCasting = false;
   $('hqCastForm').addEventListener('submit', function (e) {
