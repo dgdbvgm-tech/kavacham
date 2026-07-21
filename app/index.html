@@ -9,7 +9,7 @@
   <meta name="description" content="KAVACHAM Lab — испытательный стенд: терминал заявок, полигон разборов, доверенный контур корпусов. Дословная цитата + проверяемая ссылка.">
   <link rel="stylesheet" href="../styles.css">
   <!-- метку ?v= поднимать при каждом деплое app.js/app.css — иначе клиенты Telegram держат старый кэш -->
-  <link rel="stylesheet" href="app.css?v=2026072112">
+  <link rel="stylesheet" href="app.css?v=2026072113">
 
   <!-- SDK Telegram — self-hosted копия, никаких CDN в рантайме.
        В <head> (как рекомендует Telegram): тогда colorScheme известен ДО первой отрисовки. -->
@@ -530,6 +530,8 @@
             <li><button class="hq-nav-item" type="button" data-goto="hqReqH">Заявки</button></li>
             <li><button class="hq-nav-item" type="button" data-goto="hqContribH">Вклады Обогащения</button></li>
             <li><button class="hq-nav-item" type="button" data-goto="hqDocsH">Обновления GBC/SAC</button></li>
+            <li><button class="hq-nav-item" type="button" data-goto="hqHtmlH">HTML-реестры GBC</button></li>
+            <li><button class="hq-nav-item" type="button" data-goto="hqNewsH">Новости (серый)</button></li>
             <li><button class="hq-nav-item" type="button" data-goto="hqMsgH">Сигналы связи</button></li>
             <li><button class="hq-nav-item" type="button" data-goto="hqCastH">Рассылка Штаба</button></li>
           </ul>
@@ -580,6 +582,28 @@
           </div>
           <div class="state" id="hqDocsState" role="status" aria-live="polite">Загружаю отчёт сверки…</div>
           <div id="hqDocsBody" hidden></div>
+        </section>
+
+        <!-- HTML-реестры GBC (Law Book, реестр гуру): контент-хеш-дифф,
+             html_registry_monitor.py --push → lab_config/html_registry_report. -->
+        <section class="block" aria-labelledby="hqHtmlH">
+          <div class="block-top">
+            <h2 class="block-h" id="hqHtmlH">HTML-реестры GBC</h2>
+            <button class="mini" id="hqHtmlRefresh" type="button">Обновить</button>
+          </div>
+          <div class="state" id="hqHtmlState" role="status" aria-live="polite">Загружаю отчёт реестров…</div>
+          <div id="hqHtmlBody" hidden></div>
+        </section>
+
+        <!-- Новости ИСККОН (СЕРЫЙ КОНТУР): ISKCON News / Dandavats, отдельный
+             канал, news_feed_monitor.py → lab_config/news_feed_report. НЕ прамана. -->
+        <section class="block" aria-labelledby="hqNewsH">
+          <div class="block-top">
+            <h2 class="block-h" id="hqNewsH">Новости ИСККОН · 🟡 серый контур</h2>
+            <button class="mini" id="hqNewsRefresh" type="button">Обновить</button>
+          </div>
+          <div class="state" id="hqNewsState" role="status" aria-live="polite">Загружаю новости…</div>
+          <div id="hqNewsBody" hidden></div>
         </section>
 
         <!-- Сигналы связи (v6.3): входящие от людей + личные ответы Оператора.
@@ -750,6 +774,6 @@
   </nav>
 
   <!-- метку ?v= поднимать при каждом деплое app.js/app.css — иначе клиенты Telegram держат старый кэш -->
-  <script src="app.js?v=2026072112"></script>
+  <script src="app.js?v=2026072113"></script>
 </body>
 </html>

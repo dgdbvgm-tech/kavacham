@@ -3808,8 +3808,98 @@
     loadHqStats();
     loadHqRequests();
     loadHqContribs();
-    loadHqDocs();              // обновления GBC/SAC (отчёт сверки с Mac)
+    loadHqDocs();              // обновления GBC/SAC (doc-diff)
+    loadHqHtml();              // HTML-реестры GBC (контент-хеш-дифф)
+    loadHqNews();              // новости ИСККОН (серый контур)
     loadHqMessages();          // v6.3: сигналы связи (консоль Оператора)
+  }
+
+  // Карточка «HTML-реестры GBC»: html_registry_monitor.py --push
+  // (lab_config/html_registry_report). Изменение реестра гуру — сигнал таксономии.
+  function loadHqHtml() {
+    var stateEl = $('hqHtmlState'), bodyEl = $('hqHtmlBody');
+    bodyEl.hidden = true;
+    showState(stateEl, 'Загружаю отчёт реестров…', false);
+    api('/api/admin/html-registry').then(function (d) {
+      bodyEl.textContent = '';
+      var counts = (d && d.counts) || {};
+      var meta = document.createElement('p');
+      meta.className = 'req-f mono';
+      meta.textContent = 'Сверка: ' + (fmtDate(d.updated) || '—')
+        + ' · ' + ((d.checked && d.checked.length) ? d.checked.join(' · ') : '—')
+        + ((d.errors && d.errors.length) ? ' · ⚠ недоступно: ' + d.errors.join(', ') : '');
+      bodyEl.appendChild(meta);
+      var head = document.createElement('p');
+      head.className = 'req-m';
+      if (!counts.changed) {
+        head.textContent = '✅ Реестры без изменений с прошлой сверки.';
+        bodyEl.appendChild(head);
+      } else {
+        head.textContent = '✏️ Изменилось реестров: ' + counts.changed + ' — сверить вручную (не автоингест).';
+        bodyEl.appendChild(head);
+        var ul = document.createElement('ul');
+        ul.className = 'reqs';
+        (d.changed || []).forEach(function (c) {
+          var li = document.createElement('li');
+          li.className = 'req';
+          var p = document.createElement('p');
+          p.className = 'req-m';
+          var a = document.createElement('a');
+          a.href = c.url; a.target = '_blank'; a.rel = 'noopener';
+          a.textContent = c.label + (c.delta ? ' (Δ ' + (c.delta > 0 ? '+' : '') + c.delta + ' симв)' : '');
+          p.appendChild(a); li.appendChild(p); ul.appendChild(li);
+        });
+        bodyEl.appendChild(ul);
+      }
+      stateEl.hidden = true;
+      bodyEl.hidden = false;
+    }).catch(function (err) {
+      showState(stateEl, 'Отчёт реестров недоступен: ' + (err && err.message ? err.message : ''), true);
+    });
+  }
+
+  // Карточка «Новости ИСККОН» (СЕРЫЙ КОНТУР): news_feed_monitor.py
+  // (lab_config/news_feed_report). Репортаж, НЕ прамана — с корпусом не смешивается.
+  function loadHqNews() {
+    var stateEl = $('hqNewsState'), bodyEl = $('hqNewsBody');
+    bodyEl.hidden = true;
+    showState(stateEl, 'Загружаю новости…', false);
+    api('/api/admin/news-feed').then(function (d) {
+      bodyEl.textContent = '';
+      var counts = (d && d.counts) || {};
+      var meta = document.createElement('p');
+      meta.className = 'req-f mono';
+      meta.textContent = 'Сверка: ' + (fmtDate(d.updated) || '—')
+        + ' · 🟡 серый контур (репортаж, не прамана)'
+        + ((d.errors && d.errors.length) ? ' · ⚠ недоступно: ' + d.errors.join(', ') : '');
+      bodyEl.appendChild(meta);
+      var head = document.createElement('p');
+      head.className = 'req-m';
+      if (!counts.new) {
+        head.textContent = '✅ Новых материалов с прошлой сверки нет.';
+        bodyEl.appendChild(head);
+      } else {
+        head.textContent = '🆕 Новых материалов: ' + counts.new + ' (серый контур, в корпус не идут).';
+        bodyEl.appendChild(head);
+        var ul = document.createElement('ul');
+        ul.className = 'reqs';
+        (d.new || []).slice(0, 40).forEach(function (n) {
+          var li = document.createElement('li');
+          li.className = 'req';
+          var p = document.createElement('p');
+          p.className = 'req-m';
+          var a = document.createElement('a');
+          a.href = n.url; a.target = '_blank'; a.rel = 'noopener';
+          a.textContent = '[' + (n.feed || '') + '] ' + (n.title || n.url);
+          p.appendChild(a); li.appendChild(p); ul.appendChild(li);
+        });
+        bodyEl.appendChild(ul);
+      }
+      stateEl.hidden = true;
+      bodyEl.hidden = false;
+    }).catch(function (err) {
+      showState(stateEl, 'Новости недоступны: ' + (err && err.message ? err.message : ''), true);
+    });
   }
 
   // Карточка «Обновления GBC/SAC»: последний отчёт refresh_iskcon_docs.py --push
@@ -4768,6 +4858,8 @@
 
   $('hqMsgRefresh').addEventListener('click', function () { haptic('light'); loadHqMessages(); });
   $('hqDocsRefresh').addEventListener('click', function () { haptic('light'); loadHqDocs(); });
+  $('hqHtmlRefresh').addEventListener('click', function () { haptic('light'); loadHqHtml(); });
+  $('hqNewsRefresh').addEventListener('click', function () { haptic('light'); loadHqNews(); });
 
   // ——— Гамбургер-навигация по блокам Штаба ————————————————————
   // Кнопка видна вместе с hqBody (enterHq). Пункт меню — плавный скролл к
