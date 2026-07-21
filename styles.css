@@ -203,7 +203,7 @@
   .deep .eyebrow { color: var(--gold-hi); }
   .deep .eyebrow::before { background: var(--gold); }
 
-  .cite { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent-2); padding-bottom: 1px; white-space: nowrap; transition: color .2s, border-color .2s; }
+  .cite { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent-2); padding-bottom: 1px; overflow-wrap: break-word; transition: color .2s, border-color .2s; }
   .cite::after { content: " ↗"; font-size: 0.85em; }
   .cite:hover { color: var(--accent-2); }
   .deep .cite { color: var(--gold-hi); border-color: var(--gold); }
