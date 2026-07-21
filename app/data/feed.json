@@ -34,6 +34,25 @@
  ],
  "items": [
   {
+   "slug": "devlog-pravovaya-osnova",
+   "kind": "devlog",
+   "rubric": "devlog",
+   "title": "Правовая основа KAVACHAM: указатель как архитектура",
+   "subtitle": "Закрыт вопрос правового основания для цитирования книг Шрилы Прабхупады: короткая цитата с атрибуцией и ссылкой на официальный источник по политике ББТ «We love to be quoted»; нотис вшит в сборку, основа — на публичной странице «Авторство и права».",
+   "date": "2026-07-22",
+   "pramanas": 0,
+   "source_links": 0,
+   "tags": [
+    "build in public",
+    "право",
+    "авторство",
+    "указатель"
+   ],
+   "excerpt": "Сегодня закрыт фундаментальный вопрос — правовое основание для цитирования книг Шрилы Прабхупады в KAVACHAM. Результат встроен в систему и вынесен на публичную страницу. Коротко и по существу.",
+   "reading_url": "data/reading/devlog-pravovaya-osnova.json",
+   "pages_url": "../reading/devlog-pravovaya-osnova.html"
+  },
+  {
    "slug": "razbor-duhovnyj-mir-vizualnyj-kanon",
    "kind": "razbor",
    "rubric": "razbor",
