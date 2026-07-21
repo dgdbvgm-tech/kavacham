@@ -56,6 +56,25 @@
    "pages_url": "../reading/razbor-duhovnyj-mir-vizualnyj-kanon.html"
   },
   {
+   "slug": "devlog-sac-doctrine",
+   "kind": "devlog",
+   "rubric": "devlog",
+   "title": "Библиотека выросла на целый совет — и подарила движку три правила",
+   "subtitle": "Все 13 документов Шастрического совета (SAC) — в библиотеке; в движке — герменевтический чек-лист, жанр «обеих сторон» для споров и честный вес институциональных источников (Конституция v1.5).",
+   "date": "2026-07-21",
+   "pramanas": 0,
+   "source_links": 0,
+   "tags": [
+    "build in public",
+    "SAC",
+    "герменевтика",
+    "вес источника"
+   ],
+   "excerpt": "Мы полностью внесли в библиотеку первоисточников КАВАЧАМ документы Шастрического совета (SAC) — консультативного органа при Руководящем совете ИСККОН (GBC): все 13 позиций официального реестра, от папера о женщинах-дикша-гуру (2005) до документа об…",
+   "reading_url": "data/reading/devlog-sac-doctrine.json",
+   "pages_url": "../reading/devlog-sac-doctrine.html"
+  },
+  {
    "slug": "razbor-uttama-adhikari-propoved",
    "kind": "razbor",
    "rubric": "razbor",
