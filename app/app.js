@@ -3805,7 +3805,63 @@
     loadHqStats();
     loadHqRequests();
     loadHqContribs();
+    loadHqDocs();              // обновления GBC/SAC (отчёт сверки с Mac)
     loadHqMessages();          // v6.3: сигналы связи (консоль Оператора)
+  }
+
+  // Карточка «Обновления GBC/SAC»: последний отчёт refresh_iskcon_docs.py --push
+  // (lab_config/iskcon_docs_report). Сервер лишь отдаёт запись — сверку делает
+  // ежемесячный launchd на Mac; отсюда ничего не скачивается и не ингестится.
+  function loadHqDocs() {
+    var stateEl = $('hqDocsState'), bodyEl = $('hqDocsBody');
+    bodyEl.hidden = true;
+    showState(stateEl, 'Загружаю отчёт сверки…', false);
+    api('/api/admin/iskcon-docs').then(function (d) {
+      bodyEl.textContent = '';
+      var counts = (d && d.counts) || {};
+      var meta = document.createElement('p');
+      meta.className = 'req-f mono';
+      meta.textContent = 'Сверка: ' + (fmtDate(d.updated) || '—')
+        + ' · ' + ((d.checked && d.checked.length) ? d.checked.join(' · ') : 'страницы не проверены')
+        + ((d.errors && d.errors.length) ? ' · ⚠ недоступно: ' + d.errors.join(', ') : '');
+      bodyEl.appendChild(meta);
+      var head = document.createElement('p');
+      head.className = 'req-m';
+      if (!counts.new) {
+        head.textContent = '✅ Новых документов на официальных страницах нет.';
+        bodyEl.appendChild(head);
+      } else {
+        head.textContent = '＋ Новых документов: ' + counts.new + ' — скачивание и ингест только по решению автора проекта.';
+        bodyEl.appendChild(head);
+        var ul = document.createElement('ul');
+        ul.className = 'reqs';
+        (d.new || []).forEach(function (n) {
+          var li = document.createElement('li');
+          li.className = 'req';
+          var p = document.createElement('p');
+          p.className = 'req-m';
+          var a = document.createElement('a');
+          a.href = n.url;
+          a.target = '_blank';
+          a.rel = 'noopener';
+          a.textContent = (n.text && n.text.length > 5) ? n.text : (n.base || n.url);
+          p.appendChild(a);
+          li.appendChild(p);
+          ul.appendChild(li);
+        });
+        bodyEl.appendChild(ul);
+      }
+      if (counts.gone) {
+        var g = document.createElement('p');
+        g.className = 'req-f';
+        g.textContent = 'Ссылок переехало или пропало со страниц: ' + counts.gone + ' (файлы в библиотеке сохранены; сверить вручную).';
+        bodyEl.appendChild(g);
+      }
+      stateEl.hidden = true;
+      bodyEl.hidden = false;
+    }).catch(function (err) {
+      showState(stateEl, 'Отчёт сверки недоступен: ' + (err && err.message ? err.message : ''), true);
+    });
   }
 
   function loadHqStats() {
@@ -4708,6 +4764,7 @@
   }
 
   $('hqMsgRefresh').addEventListener('click', function () { haptic('light'); loadHqMessages(); });
+  $('hqDocsRefresh').addEventListener('click', function () { haptic('light'); loadHqDocs(); });
 
   var hqCasting = false;
   $('hqCastForm').addEventListener('submit', function (e) {

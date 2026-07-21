@@ -551,6 +551,18 @@
           <ul class="reqs" id="hqContribList" hidden></ul>
         </section>
 
+        <!-- Обновления GBC/SAC: последний отчёт сверки официальных страниц
+             gbc.iskcon.org с библиотекой (пишет refresh_iskcon_docs.py --push:
+             ежемесячный launchd на Mac + ручные прогоны). Только чтение. -->
+        <section class="block" aria-labelledby="hqDocsH">
+          <div class="block-top">
+            <h2 class="block-h" id="hqDocsH">Обновления GBC/SAC</h2>
+            <button class="mini" id="hqDocsRefresh" type="button">Обновить</button>
+          </div>
+          <div class="state" id="hqDocsState" role="status" aria-live="polite">Загружаю отчёт сверки…</div>
+          <div id="hqDocsBody" hidden></div>
+        </section>
+
         <!-- Сигналы связи (v6.3): входящие от людей + личные ответы Оператора.
              Ответ уходит в Лог событий получателя и пушем в его личку. -->
         <section class="block" aria-labelledby="hqMsgH">
