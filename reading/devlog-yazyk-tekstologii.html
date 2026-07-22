@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>У нашего метода есть научное имя: текстология — и мы берём только её честную половину · КАВАЧАМ</title>
+<meta name="description" content="Когда мы объясняем, что делает КАВАЧАМ, обычно перечисляем действия: сверяем каждую цитату с первоисточником посимвольно, помечаем уровень доверия к изданию, ловим ложные приписывания, показываем расхождения между переводами. Оказалось, у всего этого…">
+<meta property="og:type" content="article">
+<meta property="og:title" content="У нашего метода есть научное имя: текстология — и мы берём только её честную половину">
+<meta property="og:description" content="Когда мы объясняем, что делает КАВАЧАМ, обычно перечисляем действия: сверяем каждую цитату с первоисточником посимвольно, помечаем уровень доверия к изданию, ловим ложные приписывания, показываем расхождения между переводами. Оказалось, у всего этого…">
+<meta property="og:image" content="https://dgdbvgm-tech.github.io/kavacham/reading/covers/devlog-yazyk-tekstologii.jpeg">
+<meta property="og:url" content="https://dgdbvgm-tech.github.io/kavacham/reading/devlog-yazyk-tekstologii.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="generator" content="build_reader">
+<link rel="stylesheet" href="../styles.css">
+<style>
+.rd-pramana.rd-pramana{border-left:2px solid var(--accent-2)}
+.rd-pramana-nolink.rd-pramana-nolink{border-left-style:dotted}
+p.rd-quote.rd-quote{font-family:var(--serif);line-height:1.64;margin:0}
+p.rd-src.rd-src{margin:.6rem 0 0;font-size:.82rem;line-height:1.7;color:var(--text-dim);
+  display:flex;flex-wrap:wrap;gap:.35rem;align-items:baseline}
+p.rd-note-in.rd-note-in{margin:.6rem 0 0;font-size:.86rem;line-height:1.6;color:var(--text-2)}
+/* .cite в общей системе — короткая сноска (white-space:nowrap); у праманы источник
+   длинный, разрешаем перенос, иначе страница поедет вбок. */
+.rd-src .cite{white-space:normal;overflow-wrap:anywhere}
+.rd-dot{opacity:.55}
+.rd-badge{display:inline-block;font-size:.7rem;line-height:1.5;padding:.05rem .55rem;
+  border-radius:999px;border:1px solid var(--rule);white-space:nowrap}
+.rd-tier-t1{color:var(--accent);border-color:var(--accent-2)}
+.rd-tier-t2{color:var(--text-2)}
+.rd-tier-grey{opacity:.8}
+.rd-sri{white-space:normal;color:var(--text-2)}
+.rd-gap{font-size:.76rem;border-bottom:1px dotted currentColor}
+.rd-tooltip{position:relative;border-bottom:1px dashed var(--deep-dim);cursor:help;outline:none;color:var(--text);padding-bottom:1px}
+.rd-tooltip::after{content:" ⓘ";font-size:.75em;vertical-align:super;opacity:.5;color:var(--text);transition:opacity .2s,color .2s}
+.rd-tooltip:focus,.rd-tooltip:hover{border-bottom-color:var(--gold)}
+.rd-tooltip:focus::after,.rd-tooltip:hover::after{opacity:1;color:var(--gold)}
+.rd-tooltip:focus .rd-tooltip-box,.rd-tooltip:hover .rd-tooltip-box{visibility:visible;opacity:1;pointer-events:auto}
+.rd-tooltip-box{visibility:hidden;position:absolute;z-index:100;bottom:100%;left:0;width:280px;max-width:85vw;margin-bottom:8px;padding:.75rem 1rem;border-radius:8px;background:var(--panel);border:1px solid var(--rule);box-shadow:0 8px 24px rgba(0,0,0,.2);color:var(--text);font-size:.85rem;line-height:1.5;font-family:system-ui,sans-serif;font-weight:400;opacity:0;transition:opacity .2s;pointer-events:none;text-indent:0;white-space:normal}
+.rd-tablewrap{overflow-x:auto;overscroll-behavior-x:contain}
+.rd-tablewrap table{border-collapse:collapse;min-width:100%}
+.rd-tablewrap th,.rd-tablewrap td{border:1px solid var(--rule);padding:.5rem .65rem;
+  text-align:left;font-size:.9rem;vertical-align:top}
+/* Скриншоты в теле (онбординг). Картинка на своей строке, подпись — italic-абзацем
+   сразу под ней (соседний :has). Ширину держим комфортной для чтения на телефоне. */
+.rd-img{display:block;max-width:min(100%,420px);height:auto;margin:1.6rem auto .4rem;
+  border-radius:10px;border:1px solid var(--rule);box-shadow:0 6px 22px rgba(0,0,0,.16)}
+p:has(> .rd-img){text-align:center;margin:1.6rem 0 .4rem}
+p:has(> .rd-img) + p{text-align:center;font-style:italic;font-size:.82rem;
+  color:var(--text-dim);margin:0 auto 2rem;max-width:32rem}
+
+/* Протоколы: ОБВЯЗКА страницы (шапка/оглавление/подвал + типографика тела).
+   Компоненты праманы — в SHARED_CSS: они общие с TMA.
+   Дизайн НАСЛЕДУЕТСЯ из ../styles.css: компоновка (.band/.inner/.paper), ссылка-прамана
+   (.cite), кнопки (.btn), надзаголовок (.eyebrow), тёмный подвал (footer.deep).
+   ВАЖНО про токены: --deep*/--gold* ФИКСИРОВАНЫ (мир «щита», всегда тёмный), а тему
+   переключают семантические --ground/--panel/--text/--text-2/--text-dim/--rule/--accent.
+   Тело обязано жить на семантических, иначе в светлой теме получим кремовый текст на
+   пергаменте. --gold* используем только внутри .deep (подвал). */
+.rd-head{padding-bottom:1.4rem;border-bottom:1px solid var(--rule)}
+.rd-head .eyebrow{margin:0}
+.rd-sandbox{display:inline-block;font-size:.72rem;line-height:1.4;color:var(--text-dim);
+  border:1px solid var(--rule);border-radius:999px;padding:.25rem .7rem;margin-left:.6rem}
+.rd-title{font-size:clamp(1.6rem,4.6vw,2.6rem);line-height:1.18;margin:1.8rem 0 .7rem}
+.rd-sub{font-family:var(--serif);font-weight:400;text-wrap:balance;
+  font-size:clamp(1.02rem,2.5vw,1.24rem);line-height:1.45;color:var(--text-2);margin:0 0 1.2rem}
+.rd-meta{display:flex;flex-wrap:wrap;gap:.45rem;margin:0 0 2.2rem;font-size:.76rem;
+  font-variant-numeric:tabular-nums;color:var(--text-dim)}
+.rd-meta span{border:1px solid var(--rule);border-radius:999px;padding:.2rem .65rem}
+.rd-toc{background:var(--panel);border:1px solid var(--rule);border-radius:4px;
+  padding:1.2rem 1.4rem;margin:0 0 2.6rem}
+.rd-toc ol{list-style:none;margin:0;padding:0}
+.rd-toc li{margin:.35em 0;line-height:1.45}
+.rd-toc li.l3{padding-left:1.15em;font-size:.94em;color:var(--text-2)}
+.rd-toc a{color:inherit;text-decoration:none;border-bottom:1px solid transparent}
+.rd-toc a:hover{border-bottom-color:var(--accent)}
+.rd-body h2{font-size:clamp(1.3rem,3.2vw,1.75rem);line-height:1.26;margin:2.4rem 0 .8rem;
+  scroll-margin-top:1rem}
+.rd-body h3{font-size:clamp(1.06rem,2.5vw,1.28rem);line-height:1.32;margin:2rem 0 .6rem;
+  color:var(--accent);scroll-margin-top:1rem}
+.rd-body p{margin:0 0 1.1rem;line-height:1.72}
+.rd-body ul,.rd-body ol{margin:0 0 1.2rem;padding-left:1.35rem}
+.rd-body li{margin:.45rem 0;line-height:1.65}
+.rd-body a:not(.cite){color:var(--accent);text-underline-offset:3px}
+.rd-body hr{border:0;border-top:1px solid var(--rule);margin:2rem 0}
+.rd-body blockquote{margin:1.4rem 0;padding:.1rem 0 .1rem 1.1rem;
+  border-left:2px solid var(--rule)}
+.rd-body blockquote p{margin:0}
+.rd-body .rd-tablewrap{margin:0 0 1.3rem}
+.rd-cta{display:flex;flex-wrap:wrap;gap:.8rem;justify-content:center;margin:0 0 1.6rem}
+.rd-note{font-size:.84rem;line-height:1.7;color:var(--deep-dim);max-width:46rem;margin:0 auto}
+.rd-sig{font-family:var(--serif);letter-spacing:.18em;font-size:.72rem;text-transform:uppercase;
+  color:var(--gold);margin:1.8rem 0 0}
+.bbt-notice{font-size:.72rem;line-height:1.65;color:var(--deep-dim);max-width:46rem;margin:1.1rem auto 0}
+.bbt-notice a{color:var(--gold);text-decoration:none;border-bottom:1px solid rgba(201,162,75,.35)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+footer :focus-visible{outline-color:var(--gold)}
+</style>
+<script>
+  (function () {
+    var t = null;
+    try { t = localStorage.getItem('kavacham.theme'); } catch (e) {}
+    if (t === 'light' || t === 'dark') {
+      document.documentElement.setAttribute('data-theme', t);
+      document.documentElement.style.colorScheme = t;
+    }
+  })();
+</script>
+</head>
+<body>
+<main class="band narrow paper">
+  <div class="inner">
+    <header class="rd-head">
+      <p class="eyebrow">Лаборатория КАВАЧАМ<span class="rd-sandbox">песочница — не готовый продукт</span></p>
+    </header>
+
+    <article>
+      <h1 class="rd-title">У нашего метода есть научное имя: текстология — и мы берём только её честную половину</h1>
+      <p class="rd-sub">У того, что делает движок — дословная сверка, уровни доверия к изданиям, ловля ложных атрибуций — есть имя в филологии: текстология. Но из двух её половин мы по принципу берём только фиксирующую: показываем свидетелей и разночтения, не устанавливая «подлинный» текст сами.</p>
+      <p class="rd-meta"><span>дневник разработки</span><span>2026-07-22</span><span>1 ссылка на первоисточник</span></p>
+      <nav class="rd-toc" aria-label="Оглавление">
+        <p class="eyebrow">Оглавление</p>
+        <ol><li class="l2"><a href="#s-odnoy-frazoy">✨ Одной фразой</a></li><li class="l2"><a href="#s-metodologiya-i-granicy">Методология и границы</a></li></ol>
+      </nav>
+
+      <div class="rd-body">
+<p>Когда мы объясняем, что делает КАВАЧАМ, обычно перечисляем действия: сверяем каждую цитату с первоисточником посимвольно, помечаем уровень доверия к изданию, ловим ложные приписывания, показываем расхождения между переводами. Оказалось, у всего этого вместе есть точное имя в науке — <strong>текстология</strong>, отрасль филологии о том, как сохранить и проверить текст на пути через века. И у этого открытия есть неожиданное следствие: оно проводит для движка границу, которую мы теперь можем назвать вслух.</p>
+<p><strong>Мы уже говорим на этом языке — просто без ярлыка.</strong> Текстология веками занимается ровно тем же, что наш контур: устанавливает, какой перед нами <em>свидетель</em> текста (издание, список, запись), фиксирует <em>разночтения</em> между свидетелями, прослеживает <em>происхождение</em> фрагмента и отделяет подлинную передачу от ошибки переписчика. Переведите эти задачи на наш язык — и получите то, что движок делает каждый день:</p>
+<div class="rd-tablewrap table-scroll"><table><tr><th>Задача текстологии</th><th>Что делает КАВАЧАМ</th></tr><tr><td>Установить свидетеля и его статус</td><td>у каждой цитаты — паспорт: издание, переводчик, год, ступень достоверности</td></tr><tr><td>Сверить с источником (оригинал против ошибки копии)</td><td>дословная сверка цитаты как непрерывной подстроки первоисточника; маркер "✅ сверено"</td></tr><tr><td>Отделить подлинное от приписанного</td><td>письмо, напечатанное секретарём в 1977-м, — это документ со своим статусом, а не прямая речь; мы не поднимаем его до уровня прямой речи гуру</td></tr><tr><td>Зафиксировать разночтения между свидетелями</td><td>показываем расхождения переводов и написаний со ссылками, не назначая "единственно верное"</td></tr></table></div>
+<p><strong>Зачем это назвать.</strong> Не ради красивого слова. У имени есть практическая сила: оно даёт публично защитимую рамку. То, что со стороны можно принять за "сектантскую вычитку", — на самом деле обычный филологический метод, тот же, которым выверяют летопись или рукопись поэта. Мы не изобрели свою дисциплину доверия; мы применяем существующую.</p>
+<p><strong>Но у текстологии две половины — и вот здесь начинается принцип.</strong> Одни школы текстологии <em>реконструируют</em> текст: редактор по многим спискам восстанавливает "авторский" вариант, которого может не быть ни в одной сохранившейся рукописи, — и печатает его как выверенное, критическое издание. Другие школы <em>фиксируют</em>: они бережно записывают, что реально сохранилось у каждого свидетеля, со всеми разночтениями и происхождением, но сознательно <strong>не выносят приговор</strong>, какой вариант "настоящий".</p>
+<p><strong>КАВАЧАМ по устройству стоит на второй, фиксирующей половине.</strong> И это не техническое ограничение, а наш главный принцип — "указатель, не переиздатель". Мы не устанавливаем подлинный текст: эту работу делают издательство линии (ББТ) и институты, хранящие рукописи. Мы указываем на их результат и проверяем, что цитата дошла неискажённой. Движок никогда не решает сам, какое чтение подлинно, а какое — "порча текста".</p>
+<p><strong>Почему именно так — словами самой традиции.</strong> Господь Чайтанья учил Сарвабхауму Бхаттачарью: <em>"среди свидетельств прямой смысл шрути и есть свидетельство"</em> — свидетельством может считаться только прямое изложение, толкование свидетельством быть не может (<a href="https://vedabase.io/en/library/cc/madhya/6/135/" target="_blank" rel="noopener noreferrer">ЧЧ Мадхья 6.135</a>). Инструмент проверки — вещь обусловленная: им <em>спорят</em> и <em>подтверждают</em>, им не <em>переписывают</em> полученное по цепи. Текстология даёт нам инструменты фиксации, но не право арбитража. Приговор о подлинности остаётся за писанием в парампаре — а наша задача честнее и скромнее: показать под каждым словом проверяемую опору, а где её нет — сказать "нет опоры", а не заполнить пробел правдоподобным текстом.</p>
+<p><strong>Что это меняет на практике.</strong> Три вещи, которые из принципа следуют сами:</p>
+<p>- <strong>Разночтение — это данные, а не шум.</strong> Когда написание расходится (например, между аудиозаписью и печатью или между изданиями перевода), мы не прячем расхождение и не выбираем за вас "правильное" — мы показываем оба варианта со ссылками. Разница между свидетелями — это информация, которую вы вправе видеть.</p>
+<p>- <strong>Атрибуция — документальная, а не "на слух".</strong> Кто автор фразы, решает не догадка о стиле, а сам документ и его происхождение. Письмо 1977 года, подписанное секретарём, честно остаётся письмом секретаря.</p>
+<p>- <strong>Молчание — часть метода.</strong> Если проверенного свидетеля нет, честная текстология фиксирует пробел, а не сочиняет недостающее. Ровно это делает наше "право молчать".</p>
+<p>Один конец древней цепи защиты подлинности держат руки, снимающие грибок с пальмового листа, — <a href="https://dgdbvgm-tech.github.io/kavacham/" target="_blank" rel="noopener noreferrer">об этой работе мы рассказывали отдельно</a>. Другой конец — код, который отказывается выдать цитату без адреса. У этого кода теперь есть имя дисциплины, к которой он принадлежит. И честность этого имени в том, что оно точно очерчивает, чего мы делать не будем.</p>
+<hr>
+<h2 id="s-odnoy-frazoy">✨ Одной фразой</h2>
+<p>У того, что делает КАВАЧАМ, есть научное имя — текстология; но из двух её половин мы по принципу берём только фиксирующую (показать свидетеля и разночтение, указать на источник), а вторую — устанавливать "подлинный" текст своей властью — оставляем писанию в парампаре и издательству линии: движок фиксирует и показывает, приговор о подлинности выносит не он.</p>
+<hr>
+<h2 id="s-metodologiya-i-granicy">Методология и границы</h2>
+<ul><li><strong>Единственная шастра-цитата</strong> — ЧЧ Мадхья 6.135 (комментарий Шрилы Прабхупады) — приведена дословно и кликабельно; это выверенный якорь культуры праманы проекта.</li><li><strong>Термины текстологии</strong> даны по-русски (свидетель, разночтение, происхождение текста, критическое издание) — это общефилологические понятия, не праманы.</li><li><strong>Чего мы сознательно не утверждаем:</strong> мы не академические текстологи и не устанавливаем тексты; сравнение с текстологией — способ честно назвать наш метод и его границу, а не заявка на научную экспертизу.</li></ul>
+<p>🤖 У нашего метода есть научное имя: текстология</p>
+<p>🧪 То, что делает движок КАВАЧАМ — сверяет цитаты посимвольно, помечает уровень доверия к изданию, ловит ложные приписывания, показывает расхождения переводов, — это и есть текстология: наука о проверке текста сквозь века.</p>
+<p>🛡 Но у неё две половины. Одна <em>реконструирует</em> текст — редактор своей властью устанавливает "подлинный" вариант. Другая <em>фиксирует</em> — показывает, что сохранилось у каждого свидетеля, с разночтениями, не вынося приговор. КАВАЧАМ — на второй: это и есть "указатель, не переиздатель". Какое чтение подлинно, решаем не мы, а писание в парампаре и издательство линии; наше дело — показать проверяемую опору, а нет её — честно сказать "нет опоры" (<a href="https://vedabase.io/en/library/cc/madhya/6/135/" target="_blank" rel="noopener noreferrer">ЧЧ Мадхья 6.135</a>).</p>
+<p>✨ <strong>Одной фразой:</strong> движок фиксирует и показывает свидетеля со ссылкой — приговор о подлинности выносит не он.</p>
+<p>📖 Нажмите → 🔗 <a href="https://dgdbvgm-tech.github.io/kavacham/reading/devlog-yazyk-tekstologii.html" target="_blank" rel="noopener noreferrer">https://dgdbvgm-tech.github.io/kavacham/reading/devlog-yazyk-tekstologii.html</a></p>
+      </div>
+    </article>
+  </div>
+</main>
+
+<footer class="deep">
+  <div class="rd-cta">
+    <a class="btn btn-primary" href="https://t.me/kavacham_lab_bot" target="_blank" rel="noopener noreferrer">Нашли неточность / пришлите тему на разбор</a>
+    <a class="btn btn-ghost" href="https://dgdbvgm-tech.github.io/kavacham/app/" target="_blank" rel="noopener noreferrer">Открыть протоколы</a>
+  </div>
+  <p class="rd-note">Каждая цитата дословна и снабжена проверяемой ссылкой на первоисточник. Где ссылки нет — это честно помечено как пробел корпуса: движок не додумывает. Витрина проекта — <a class="cite" href="https://dgdbvgm-tech.github.io/kavacham/" target="_blank" rel="noopener noreferrer">лендинг КАВАЧАМ</a>.</p>
+  <p class="bbt-notice">Цитаты книг Шрилы Прабхупады — добросовестное цитирование · © The Bhaktivedanta Book Trust International, Inc. · <a href="https://vedabase.io/" target="_blank" rel="noopener noreferrer">vedabase.io</a> · <a href="../pravovaya-osnova.html">Правовая основа</a></p>
+  <p class="rd-sig">KAVACHAM · DGD · ZERO ENTROPY</p>
+</footer>
+</body>
+</html>
