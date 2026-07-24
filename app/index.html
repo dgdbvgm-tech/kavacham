@@ -44,7 +44,10 @@
     <button class="tma-back" id="btnBack" type="button" aria-label="Назад" hidden>
       <span aria-hidden="true">←</span>
     </button>
-    <a class="tma-brand" href="#/terminal">КАВАЧАМ<span class="tma-brand-lab">LAB</span></a>
+    <!-- Клик по бренду → лендинг проекта (решение PO 2026-07-24: раньше вёл на
+         #/terminal — внутри приложения выглядело как «ничего не произошло»).
+         target=_blank: Telegram открывает внешний браузер поверх TMA. -->
+    <a class="tma-brand" href="https://dgdbvgm-tech.github.io/kavacham/" target="_blank" rel="noopener noreferrer">КАВАЧАМ<span class="tma-brand-lab">LAB</span></a>
     <!-- Лог событий (v6.3): конверт + счётчик непрочитанного. Текстовый рендер
          глифа (U+FE0E) — в ряду с монохромом шапки. -->
     <button class="tma-theme tma-bell" id="btnBell" type="button" aria-label="Лог событий" title="Лог событий">

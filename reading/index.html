@@ -86,8 +86,23 @@ footer :focus-visible{outline-color:var(--gold)}
     <a href="../glossary.html">Словарь</a>
     <a href="../corpus.html">Каталог</a>
   </nav>
+  <button class="nav-theme" id="rdTheme" type="button" aria-label="Переключить светлую/тёмную тему">◐</button>
   <a class="nav-cta" href="https://dgdbvgm-tech.github.io/kavacham/app/" target="_blank" rel="noopener noreferrer">В лабораторию</a>
 </header>
+<script>
+  (function () {
+    var doc = document.documentElement;
+    var tbtn = document.getElementById('rdTheme');
+    if (tbtn) tbtn.addEventListener('click', function () {
+      var cur = doc.getAttribute('data-theme');
+      if (!cur) cur = (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+      var next = cur === 'light' ? 'dark' : 'light';
+      doc.setAttribute('data-theme', next);
+      doc.style.colorScheme = next;
+      try { localStorage.setItem('kavacham.theme', next); } catch (e) {}
+    });
+  })();
+</script>
 <main id="main" class="band narrow paper">
   <div class="inner">
     <header class="rd-head">

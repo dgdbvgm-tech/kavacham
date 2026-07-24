@@ -98,6 +98,16 @@
 
   @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
+<script>
+  (function () {
+    var t = null;
+    try { t = localStorage.getItem('kavacham.theme'); } catch (e) {}
+    if (t === 'light' || t === 'dark') {
+      document.documentElement.setAttribute('data-theme', t);
+      document.documentElement.style.colorScheme = t;
+    }
+  })();
+</script>
 </head>
 <body>
 <div class="wrap">
@@ -110,6 +120,7 @@
       <a href="constitution.html">Конституция</a>
       <a href="reading/">Протоколы</a>
     </nav>
+  <button class="nav-theme" id="rdTheme" type="button" aria-label="Переключить светлую/тёмную тему">◐</button>
     <a class="nav-cta" href="app/" target="_blank" rel="noopener noreferrer">В лабораторию</a>
   </header>
 
@@ -284,5 +295,19 @@
   </footer>
 
 </div>
+<script>
+  (function () {
+    var doc = document.documentElement;
+    var tbtn = document.getElementById('rdTheme');
+    if (tbtn) tbtn.addEventListener('click', function () {
+      var cur = doc.getAttribute('data-theme');
+      if (!cur) cur = (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+      var next = cur === 'light' ? 'dark' : 'light';
+      doc.setAttribute('data-theme', next);
+      doc.style.colorScheme = next;
+      try { localStorage.setItem('kavacham.theme', next); } catch (e) {}
+    });
+  })();
+</script>
 </body>
 </html>
