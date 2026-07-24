@@ -114,13 +114,12 @@ footer :focus-visible{outline-color:var(--gold)}
 .rr-rub{display:inline-block;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;
   color:var(--text-dim);border:1px solid var(--rule);border-radius:999px;
   padding:.14rem .55rem;margin-right:.55rem;vertical-align:middle}
-
-@media (max-width:980px){
-  .nav .links{position:static;transform:none;opacity:1;pointer-events:auto;
-    flex-direction:row;padding:0;background:transparent;border:0;box-shadow:none}
-  .nav .links a{border-bottom:none;padding:0;font-size:.7rem}
+.rd-toc a.rd-toc-on{color:var(--accent);border-bottom-color:var(--accent)}
+@media (min-width:1460px){
+  .rd-toc{position:fixed;left:calc(50% - 44rem);top:5.2rem;width:15rem;
+    max-height:calc(100vh - 7rem);overflow:auto;margin:0;font-size:.84rem;
+    padding:1rem 1.15rem;scrollbar-width:thin}
 }
-@media (max-width:480px){.nav .nav-cta{font-size:.74rem;padding:.4rem .65rem}}
 </style>
 <script>
   (function () {
@@ -135,11 +134,13 @@ footer :focus-visible{outline-color:var(--gold)}
 </head>
 <body>
 <a class="skip" href="#main">К содержанию</a>
-<header class="nav">
+<header class="nav nav--bare">
   <a class="brand" href="../#top">KAVACHAM</a>
   <nav class="links" aria-label="Навигация по сайту">
     <a href="./">← Протоколы</a>
+    <a href="./?focus=search">Поиск</a>
   </nav>
+  <button class="nav-theme" id="rdTheme" type="button" aria-label="Переключить светлую/тёмную тему">◐</button>
   <a class="nav-cta" href="https://dgdbvgm-tech.github.io/kavacham/app/" target="_blank" rel="noopener noreferrer">В лабораторию</a>
   <span class="progress" id="rdProgress" aria-hidden="true"></span>
 </header>
@@ -179,22 +180,48 @@ footer :focus-visible{outline-color:var(--gold)}
     <a class="btn btn-ghost" href="https://dgdbvgm-tech.github.io/kavacham/app/" target="_blank" rel="noopener noreferrer">В лабораторию</a>
     <a class="btn btn-ghost" href="../">О проекте — лендинг</a>
   </div>
-  <p class="rd-note">Каждая цитата дословна и снабжена проверяемой ссылкой на первоисточник. Где ссылки нет — это честно помечено как пробел корпуса: движок не додумывает. Витрина проекта — <a class="cite" href="https://dgdbvgm-tech.github.io/kavacham/" target="_blank" rel="noopener noreferrer">лендинг КАВАЧАМ</a>.</p>
+  <p class="rd-note">Каждая цитата дословна и снабжена проверяемой ссылкой на первоисточник. Где ссылки нет — это честно помечено как пробел корпуса: движок не додумывает.</p>
   <p class="bbt-notice">Цитаты книг Шрилы Прабхупады — добросовестное цитирование · © The Bhaktivedanta Book Trust International, Inc. · <a href="https://vedabase.io/" target="_blank" rel="noopener noreferrer">vedabase.io</a> · <a href="../pravovaya-osnova.html">Правовая основа</a></p>
   <p class="rd-sig">KAVACHAM · DGD · ZERO ENTROPY</p>
 </footer>
 <script>
   (function () {
-    var bar = document.getElementById('rdProgress');
-    if (!bar) return;
     var doc = document.documentElement;
-    var update = function () {
-      var max = doc.scrollHeight - doc.clientHeight;
-      bar.style.width = (max > 0 ? (doc.scrollTop / max) * 100 : 0) + '%';
-    };
-    document.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', update);
-    update();
+    var bar = document.getElementById('rdProgress');
+    if (bar) {
+      var update = function () {
+        var max = doc.scrollHeight - doc.clientHeight;
+        bar.style.width = (max > 0 ? (doc.scrollTop / max) * 100 : 0) + '%';
+      };
+      document.addEventListener('scroll', update, { passive: true });
+      window.addEventListener('resize', update);
+      update();
+    }
+    var tbtn = document.getElementById('rdTheme');
+    if (tbtn) tbtn.addEventListener('click', function () {
+      var cur = doc.getAttribute('data-theme');
+      if (!cur) cur = (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+      var next = cur === 'light' ? 'dark' : 'light';
+      doc.setAttribute('data-theme', next);
+      doc.style.colorScheme = next;
+      try { localStorage.setItem('kavacham.theme', next); } catch (e) {}
+    });
+    var toc = document.querySelector('.rd-toc');
+    if (toc && 'IntersectionObserver' in window) {
+      var heads = document.querySelectorAll('.rd-body h2[id], .rd-body h3[id]');
+      var current = null;
+      var mark = function () {
+        if (!current) return;
+        toc.querySelectorAll('a').forEach(function (a) {
+          a.classList.toggle('rd-toc-on', a.getAttribute('href') === '#' + current);
+        });
+      };
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) { if (en.isIntersecting) current = en.target.id; });
+        mark();
+      }, { rootMargin: '-8% 0px -72% 0px' });
+      heads.forEach(function (h) { io.observe(h); });
+    }
   })();
 </script>
 </body>

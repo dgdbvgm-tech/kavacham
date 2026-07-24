@@ -13,6 +13,7 @@
 <meta property="og:image" content="https://dgdbvgm-tech.github.io/kavacham/og.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230C1030'/%3E%3Cpath d='M50 16 78 27v22c0 18-12 30-28 35C34 79 22 67 22 49V27z' fill='none' stroke='%23C9A24B' stroke-width='4'/%3E%3Ccircle cx='50' cy='47' r='6' fill='%23E7CE8C'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="styles.css">
 <style>
   :root{
     --deep:#0C1030; --deep-2:#131A44; --ink:#ECE6D4; --dim:#A2A6C8;
@@ -101,12 +102,18 @@
 <body>
 <div class="wrap">
 
-  <nav class="topbar">
-    <a href="./"><span aria-hidden="true">←</span>&nbsp; <span class="brand">KAVACHAM</span></a>
-    <a href="./#principles">Принципы на сайте</a>
-  </nav>
+  <a class="skip" href="#main">К содержанию</a>
+  <header class="nav nav--bare">
+    <a class="brand" href="./#top">KAVACHAM</a>
+    <nav class="links" aria-label="Навигация по сайту">
+      <a href="corpus.html">Каталог</a>
+      <a href="glossary.html">Словарь</a>
+      <a href="reading/">Протоколы</a>
+    </nav>
+    <a class="nav-cta" href="app/" target="_blank" rel="noopener noreferrer">В лабораторию</a>
+  </header>
 
-  <header class="doc">
+  <header class="doc" id="main">
     <p class="eyebrow">Основной закон агента</p>
     <h1 class="title">Конституция КАВАЧАМ</h1>
     <span class="badge">версия 1.5 · утверждена автором проекта</span>

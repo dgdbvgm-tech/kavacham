@@ -65,13 +65,6 @@
 .bbt-notice a{color:var(--gold);text-decoration:none;border-bottom:1px solid rgba(201,162,75,.35)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
 footer :focus-visible{outline-color:var(--gold)}
-
-@media (max-width:980px){
-  .nav .links{position:static;transform:none;opacity:1;pointer-events:auto;
-    flex-direction:row;padding:0;background:transparent;border:0;box-shadow:none}
-  .nav .links a{border-bottom:none;padding:0;font-size:.7rem}
-}
-@media (max-width:480px){.nav .nav-cta{font-size:.74rem;padding:.4rem .65rem}}
 </style>
 <script>
   (function () {
@@ -86,10 +79,11 @@ footer :focus-visible{outline-color:var(--gold)}
 </head>
 <body>
 <a class="skip" href="#main">К содержанию</a>
-<header class="nav">
+<header class="nav nav--bare">
   <a class="brand" href="../#top">KAVACHAM</a>
   <nav class="links" aria-label="Навигация по сайту">
     <a href="../glossary.html">Словарь</a>
+    <a href="../corpus.html">Каталог</a>
   </nav>
   <a class="nav-cta" href="https://dgdbvgm-tech.github.io/kavacham/app/" target="_blank" rel="noopener noreferrer">В лабораторию</a>
 </header>
@@ -102,15 +96,16 @@ footer :focus-visible{outline-color:var(--gold)}
     <p class="rd-sub">Все опубликованные материалы Лаборатории — одной страницей. Каждая цитата дословна и снабжена проверяемой ссылкой на первоисточник. Открывается в любом браузере, без приложения.</p>
     <div class="rx-controls">
       <input class="rx-search" type="search" placeholder="Поиск по названию…" aria-label="Поиск по названию">
-      <div class="rx-chips rx-rubrics" role="group" aria-label="Фильтр по рубрикам"><button class="rx-chip on" type="button" data-rubric="">Все · 38</button><button class="rx-chip" type="button" data-rubric="razbor">Разборы · 19</button><button class="rx-chip" type="button" data-rubric="edu">Учебные узлы · 1</button><button class="rx-chip" type="button" data-rubric="mega">Мега-разборы · 2</button><button class="rx-chip" type="button" data-rubric="analytics">Аналитика · 4</button><button class="rx-chip" type="button" data-rubric="devlog">Дневник разработки · 10</button><button class="rx-chip" type="button" data-rubric="map">Карты · 2</button></div>
+      <div class="rx-chips rx-rubrics" role="group" aria-label="Фильтр по рубрикам"><button class="rx-chip on" type="button" aria-pressed="true" data-rubric="">Все · 39</button><button class="rx-chip" type="button" aria-pressed="false" data-rubric="razbor">Разборы · 19</button><button class="rx-chip" type="button" aria-pressed="false" data-rubric="edu">Учебные узлы · 1</button><button class="rx-chip" type="button" aria-pressed="false" data-rubric="mega">Мега-разборы · 2</button><button class="rx-chip" type="button" aria-pressed="false" data-rubric="analytics">Аналитика · 5</button><button class="rx-chip" type="button" aria-pressed="false" data-rubric="devlog">Дневник разработки · 10</button><button class="rx-chip" type="button" aria-pressed="false" data-rubric="map">Карты · 2</button></div>
       <button class="rx-chip rx-tags-toggle" type="button" aria-expanded="false" aria-controls="rxTags">Темы ▾</button>
-      <div class="rx-chips rx-tags" id="rxTags" role="group" aria-label="Фильтр по темам" hidden><button class="rx-chip" type="button" data-tag="build in public">#build in public</button><button class="rx-chip" type="button" data-tag="SRI">#SRI</button><button class="rx-chip" type="button" data-tag="Бхагавад-гита">#Бхагавад-гита</button><button class="rx-chip" type="button" data-tag="Шримад-Бхагаватам">#Шримад-Бхагаватам</button><button class="rx-chip" type="button" data-tag="парампара">#парампара</button><button class="rx-chip" type="button" data-tag="приложение">#приложение</button><button class="rx-chip" type="button" data-tag="садхана">#садхана</button><button class="rx-chip" type="button" data-tag="святое имя">#святое имя</button><button class="rx-chip" type="button" data-tag="ИИ">#ИИ</button><button class="rx-chip" type="button" data-tag="Нектар преданности">#Нектар преданности</button><button class="rx-chip" type="button" data-tag="аналитика">#аналитика</button><button class="rx-chip" type="button" data-tag="архитектура">#архитектура</button><button class="rx-chip" type="button" data-tag="джапа">#джапа</button><button class="rx-chip" type="button" data-tag="киртан">#киртан</button><button class="rx-chip" type="button" data-tag="мега-разбор">#мега-разбор</button><button class="rx-chip" type="button" data-tag="метод">#метод</button><button class="rx-chip" type="button" data-tag="праманы">#праманы</button><button class="rx-chip" type="button" data-tag="прозрачность">#прозрачность</button><button class="rx-chip" type="button" data-tag="равность Господа">#равность Господа</button><button class="rx-chip" type="button" data-tag="санкиртана">#санкиртана</button><button class="rx-chip" type="button" data-tag="совместное воспевание">#совместное воспевание</button></div>
+      <div class="rx-chips rx-tags" id="rxTags" role="group" aria-label="Фильтр по темам" hidden><button class="rx-chip" type="button" aria-pressed="false" data-tag="build in public">#build in public</button><button class="rx-chip" type="button" aria-pressed="false" data-tag="SRI">#SRI</button><button class="rx-chip" type="button" aria-pressed="false" data-tag="Бхагавад-гита">#Бхагавад-гита</button><button class="rx-chip" type="button" aria-pressed="false" data-tag="Шримад-Бхагаватам">#Шримад-Бхагаватам</button><button class="rx-chip" type="button" aria-pressed="false" data-tag="мега-разбор">#мега-разбор</button><button class="rx-chip" type="button" aria-pressed="false" data-tag="парампара">#парампара</button><button class="rx-chip" type="button" aria-pressed="false" data-tag="приложение">#приложение</button><button class="rx-chip" type="button" aria-pressed="false" data-tag="садхана">#садхана</button><button class="rx-chip" type="button" aria-pressed="false" data-tag="святое имя">#святое имя</button><button class="rx-chip" type="button" aria-pressed="false" data-tag="ИИ">#ИИ</button><button class="rx-chip" type="button" aria-pressed="false" data-tag="Нектар преданности">#Нектар преданности</button><button class="rx-chip" type="button" aria-pressed="false" data-tag="аналитика">#аналитика</button><button class="rx-chip" type="button" aria-pressed="false" data-tag="архитектура">#архитектура</button><button class="rx-chip" type="button" aria-pressed="false" data-tag="джапа">#джапа</button><button class="rx-chip" type="button" aria-pressed="false" data-tag="киртан">#киртан</button><button class="rx-chip" type="button" aria-pressed="false" data-tag="метод">#метод</button><button class="rx-chip" type="button" aria-pressed="false" data-tag="праманы">#праманы</button><button class="rx-chip" type="button" aria-pressed="false" data-tag="прозрачность">#прозрачность</button><button class="rx-chip" type="button" aria-pressed="false" data-tag="равность Господа">#равность Господа</button><button class="rx-chip" type="button" aria-pressed="false" data-tag="санкиртана">#санкиртана</button><button class="rx-chip" type="button" aria-pressed="false" data-tag="совместное воспевание">#совместное воспевание</button></div>
       <div class="rx-controls-foot">
         <button class="rx-sort" type="button" data-order="new">Сначала новые ⇅</button>
         <p class="rx-count" aria-live="polite"></p>
       </div>
     </div>
     <ul class="rx-list" id="rxList">
+      <li class="rx-item" data-rubric="analytics" data-tags="мега-разбор|голосование|апасиддханта|разведпроход" data-date="2026-07-24" data-title="мега-разбор №3: выбираем тему вместе"><a href="mega-03-vybiraem-temu.html"><h3>Мега-разбор №3: выбираем тему вместе</h3><p></p><p class="rx-meta"><span class="rx-rub">аналитика</span><span>2026-07-24</span><span>16 ссылок</span></p></a></li>
       <li class="rx-item" data-rubric="razbor" data-tags="варнашрама|варна|гуна-карма|каста|Бхагавад-гита|Шримад-Бхагаватам|даиви-варнашрама" data-date="2026-07-23" data-title="варна — по крови или по качествам? и правда ли, что шрила прабхупада «узаконил касту»?"><a href="razbor-varna-rozhdenie-ili-kachestva.html"><h3>Варна — по крови или по качествам? И правда ли, что Шрила Прабхупада «узаконил касту»?</h3><p>Первый разбор проактивного потока: реально циркулирующее искажение «варна определяется рождением, а Шрила Прабхупада узаконил наследственную касту» — снято словами самого Шрилы Прабхупады и дословными праманами, каждая со сверенной кликабельной ссылкой.</p><p class="rx-meta"><span class="rx-rub">разбор</span><span>2026-07-23</span><span>7 праман</span></p></a></li>
       <li class="rx-item" data-rubric="razbor" data-tags="Драупади|вастра-харана|Махабхарата|Шримад-Бхагаватам|призма ачарьев|уровни текста" data-date="2026-07-23" data-title="спасал ли господь шри кришна царицу драупади?"><a href="razbor-spasal-li-krishna-draupadi.html"><h3>Спасал ли Господь Шри Кришна царицу Драупади?</h3><p>Сцену принимают все — расхождение об одном: назван ли Кришна источником бесконечной ткани в самом первоисточнике, или эта деталь живёт на уровне комментария ачарьи и комментаторской традиции. Обе линии — по уровням текста, без вердикта.</p><p class="rx-meta"><span class="rx-rub">разбор</span><span>2026-07-23</span><span>30 праман</span></p></a></li>
       <li class="rx-item" data-rubric="razbor" data-tags="равность Господа|сура|асура|беспристрастность|Вритрасура|Бали Махараджа|Шримад-Бхагаватам" data-date="2026-07-23" data-title="господь «равен ко всем» — почему полубог падает, а «демон» восходит?"><a href="razbor-ravnost-asura-sura.html"><h3>Господь «равен ко всем» — почему полубог падает, а «демон» восходит?</h3><p>Полубог Индра оскорбляет гуру и теряет небеса, а «демон» Вритрасура уходит прямо к Богу как чистый преданный. «Сура/асура» меряет не Господа, а сердце дживы — работает один закон для обоих лагерей.</p><p class="rx-meta"><span class="rx-rub">разбор</span><span>2026-07-23</span><span>23 ссылки</span></p></a></li>
@@ -159,7 +154,7 @@ footer :focus-visible{outline-color:var(--gold)}
     <a class="btn btn-ghost" href="https://dgdbvgm-tech.github.io/kavacham/app/" target="_blank" rel="noopener noreferrer">В лабораторию — приложение</a>
     <a class="btn btn-ghost" href="../">О проекте — лендинг</a>
   </div>
-  <p class="rd-note">Где ссылки на первоисточник нет — это честно помечено как пробел корпуса: движок не додумывает. Витрина проекта — <a class="cite" href="https://dgdbvgm-tech.github.io/kavacham/" target="_blank" rel="noopener noreferrer">лендинг КАВАЧАМ</a>.</p>
+  <p class="rd-note">Где ссылки на первоисточник нет — это честно помечено как пробел корпуса: движок не додумывает.</p>
   <p class="bbt-notice">Цитаты книг Шрилы Прабхупады — добросовестное цитирование · © The Bhaktivedanta Book Trust International, Inc. · <a href="https://vedabase.io/" target="_blank" rel="noopener noreferrer">vedabase.io</a> · <a href="../pravovaya-osnova.html">Правовая основа</a></p>
   <p class="rd-sig">KAVACHAM · DGD · ZERO ENTROPY</p>
 </footer>
@@ -197,13 +192,14 @@ footer :focus-visible{outline-color:var(--gold)}
   }
   rubBtns.forEach(function(b){b.addEventListener('click',function(){
     state.rubric=b.getAttribute('data-rubric');
-    rubBtns.forEach(function(x){x.classList.toggle('on',x===b);});
+    rubBtns.forEach(function(x){x.classList.toggle('on',x===b);x.setAttribute('aria-pressed',String(x===b));});
     apply();
   });});
   tagBtns.forEach(function(b){b.addEventListener('click',function(){
     var t=b.getAttribute('data-tag'),i=state.tags.indexOf(t);
     if(i>=0){state.tags.splice(i,1);b.classList.remove('on');}
     else{state.tags.push(t);b.classList.add('on');}
+    b.setAttribute('aria-pressed',String(i<0));
     apply();
   });});
   if(toggle)toggle.addEventListener('click',function(){
@@ -219,6 +215,12 @@ footer :focus-visible{outline-color:var(--gold)}
     sortList();
   });
   apply();
+  try{
+    var usp=new URLSearchParams(location.search);
+    var q0=usp.get('q');
+    if(q0&&search){search.value=q0;state.q=q0.trim().toLowerCase();apply();}
+    if(usp.get('focus')==='search'&&search){search.focus();search.scrollIntoView({block:'center'});}
+  }catch(e){}
 })();
 </script>
 </body>

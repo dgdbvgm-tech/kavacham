@@ -34,6 +34,25 @@
  ],
  "items": [
   {
+   "slug": "mega-03-vybiraem-temu",
+   "kind": "analytics",
+   "rubric": "analytics",
+   "title": "Мега-разбор №3: выбираем тему вместе",
+   "subtitle": "",
+   "date": "2026-07-24",
+   "pramanas": 0,
+   "source_links": 16,
+   "tags": [
+    "мега-разбор",
+    "голосование",
+    "апасиддханта",
+    "разведпроход"
+   ],
+   "excerpt": "Лаборатория прошла по открытой сети и собрала утверждения, которые сегодня расходятся с первоисточниками. Какое из них разобрать первым — решаете вы.",
+   "reading_url": "data/reading/mega-03-vybiraem-temu.json",
+   "pages_url": "../reading/mega-03-vybiraem-temu.html"
+  },
+  {
    "slug": "razbor-varna-rozhdenie-ili-kachestva",
    "kind": "razbor",
    "rubric": "razbor",

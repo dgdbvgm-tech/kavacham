@@ -179,6 +179,23 @@
   }
   @media (prefers-reduced-motion: reduce) { .nav .links { transition: opacity .2s ease; } .nav-burger span { transition: none; } }
 
+  /* Вариант шапки без бургера (Протоколы, каталог, конституция, словарь): пунктов мало —
+     держим их в строку на любой ширине. Единственный источник компонента .nav — этот файл;
+     страницы включают вариант классом .nav--bare (никаких локальных копий CSS шапки). */
+  .nav--bare .links { position: static; transform: none; opacity: 1; pointer-events: auto;
+    flex-direction: row; gap: 1.05rem; padding: 0; background: transparent; border: 0; box-shadow: none; }
+  .nav--bare .links a { border-bottom: none; padding: 0; font-size: 0.72rem; }
+  @media (max-width: 480px) {
+    .nav--bare .nav-cta { font-size: 0.74rem; padding: 0.4rem 0.65rem; }
+    .nav--bare .links { gap: 0.8rem; }
+  }
+
+  /* Переключатель светлой/тёмной темы (шапка страниц Протоколов) */
+  .nav-theme { flex: none; background: none; border: 1px solid var(--deep-rule); border-radius: 999px;
+    width: 2rem; height: 2rem; line-height: 1; cursor: pointer; color: var(--gold-hi);
+    font-size: 0.95rem; transition: border-color .2s, transform .18s; }
+  .nav-theme:hover { border-color: var(--gold-hi); transform: translateY(-1px); }
+
   /* ——— СЕКЦИИ / ПОЛОСЫ ——— */
   .band { position: relative; padding: var(--pad-y) var(--pad-x); }
   .band > .inner { max-width: var(--maxw); margin: 0 auto; width: 100%; }
