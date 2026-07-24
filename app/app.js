@@ -39,7 +39,9 @@
   // ПОСЛЕ регистрации short_name достаточно вписать сюда строку — шаринг
   // и deep-link переключатся сами:
   //   var APP_DIRECT_LINK = 'https://t.me/kavacham_lab_bot/reader';
-  var APP_DIRECT_LINK = null;
+  // Включено 2026-07-24: short_name «reader» зарегистрирован у @kavacham_lab_bot
+  // (проверено: t.me/kavacham_lab_bot/reader отдаёт страницу запуска приложения).
+  var APP_DIRECT_LINK = 'https://t.me/kavacham_lab_bot/reader';
 
   var $ = function (id) { return document.getElementById(id); };
   var root = document.documentElement;
