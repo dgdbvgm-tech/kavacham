@@ -5345,9 +5345,11 @@
     }
     syncViewport();
 
-    // deep-link: t.me/kavacham_lab_bot/reader?startapp=<slug> → сразу нужный разбор
+    // deep-link: t.me/kavacham_lab_bot/reader?startapp=<slug> → сразу нужный разбор.
+    // Telegram грузит страницу с СВОИМ хэшем (#tgWebAppData=…), так что «хэш пуст»
+    // внутри Telegram не бывает никогда — уступаем дорогу только НАШИМ маршрутам (#/…).
     var startParam = (tg.initDataUnsafe && tg.initDataUnsafe.start_param) || '';
-    if (!location.hash && safeSlug(startParam)) {
+    if (!/^#\//.test(location.hash) && safeSlug(startParam)) {
       location.replace('#/reading/' + encodeURIComponent(startParam));
     }
   } else {
