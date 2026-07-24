@@ -130,10 +130,10 @@
   .demo details > summary { cursor: pointer; list-style: none; font-family: var(--sans); font-size: 0.76rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold-hi);
     display: inline-flex; align-items: center; gap: 0.45em; padding: 0.5rem 0.85rem; border: 1px solid var(--gold-lo); border-radius: 8px; background: rgba(201,162,75,0.10); transition: background .2s, box-shadow .2s; }
   .demo details > summary:hover { background: rgba(201,162,75,0.20); }
-  .demo details:not([open]) > summary { animation: nyanudge 2.2s ease-in-out infinite; }
+  .demo details:not([open]) > summary { animation: nyanudge 2.2s ease-in-out 3; }
   .demo details > summary::-webkit-details-marker { display: none; }
   .demo details > summary::before { content: "▸"; display: inline-block; transition: transform .2s; }
-  .demo details:not([open]) > summary::before { animation: nyabob 1.3s ease-in-out infinite; }
+  .demo details:not([open]) > summary::before { animation: nyabob 1.3s ease-in-out 3; }
   .demo details[open] > summary::before { transform: rotate(90deg); }
   .demo details:not([open]) > summary::after { content: "нажмите ↓"; margin-left: 0.35em; font-size: 0.6rem; letter-spacing: 0.06em; color: var(--deep); background: var(--gold-hi); border-radius: 999px; padding: 0.1rem 0.55rem; font-weight: 700; }
   .demo details[open] > summary::after { content: ""; }
@@ -239,6 +239,15 @@
     <a href="#brihat" class="nav-extra">Брихат-мриданга</a>
     <a href="constitution.html?v=1.5" class="nav-extra">Конституция</a>
     <a href="pravovaya-osnova.html" class="nav-extra">Правовая основа</a>
+    <details class="nav-more">
+      <summary>Ещё</summary>
+      <div class="nav-more-menu">
+        <a href="#principles">Принципы</a>
+        <a href="#brihat">Брихат-мриданга</a>
+        <a href="constitution.html?v=1.5">Конституция</a>
+        <a href="pravovaya-osnova.html">Правовая основа</a>
+      </div>
+    </details>
     <a href="#help">Помочь</a>
     <a href="#contact">Контакты</a>
     <a href="#" id="navAsk">Спросить</a>
@@ -268,7 +277,7 @@
     <div class="statstrip reveal">
       <div class="s"><b>39&nbsp;000+</b><span>документов в каталоге</span></div>
       <div class="s"><b>0</b><span>ошибок валидации</span></div>
-      <div class="s"><b>0</b><span>галлюцинаций — только цитаты</span></div>
+      <a class="s" style="text-decoration:none" href="reading/"><b>22</b><span>разбора опубликовано — каждая цитата со ссылкой</span></a>
     </div>
   </div>
 </section>
@@ -402,17 +411,18 @@
   <div class="inner">
     <p class="eyebrow reveal">Живой пример — самое сильное доказательство</p>
     <h2 class="kicker reveal">Так выглядит ответ. Каждое слово — проверяемо.</h2>
-    <p class="lead reveal" style="color:var(--deep-dim)">Первый пример — разбор самого острого вопроса в сети (ритвик-вада): возражение оппонента разбирается в сильнейшей форме, а затем опровергается по ньяе словами Самого Прабхупады. Все цитаты настоящие, ссылки рабочие: нажмите — откроется первоисточник.</p>
+    <p class="lead reveal" style="color:var(--deep-dim)">Первый пример — разбор самого острого вопроса в сети (ритвик-вада): возражение оппонента разбирается в сильнейшей форме, а затем опровергается по ньяе словами Самого Шрилы Прабхупады. Все цитаты настоящие, ссылки рабочие: нажмите — откроется первоисточник.</p>
     <div class="demo reveal">
-      <div class="demo-bar"><span class="dots"><i></i><i></i><i></i></span><span class="ttl">KAVACHAM · поиск по вани</span></div>
+      <div class="demo-bar"><span class="dots"><i></i><i></i><i></i></span><span class="ttl">KAVACHAM · пример формата ответа</span></div>
       <div class="demo-body">
         <div style="align-self:flex-start;font-family:var(--sans);font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold-hi);opacity:0.9">✦ апологетика · разбор искажения (класс В)</div>
         <div class="q">«Последнее распоряжение» Прабхупады о ритвиках — письмо от 9 июля 1977 — навсегда закрепило «инициации только через ритвиков-представителей», и живых дикша-гуру больше быть не может?</div>
         <div class="a">
           <p>Короткий ответ — по иерархии праман (арбитр — <span class="skt">śabda</span>, а не одно административное письмо):</p>
-          <blockquote>Распоряжение о ритвиках дано на время физической немоготы ачарьи и стоит <i>ниже</i> шастры. Шастра предписывает <b>живую</b> инициирующую преемственность — а в той же беседе 28 мая 1977 Прабхупада прямо велит назначенному «стать <i>регулярным</i> гуру» «по моему приказу», его инициат — «ученик моего ученика». Это продолжение парампары, а не вечный ритвик.</blockquote>
+          <blockquote>Распоряжение о ритвиках дано на время физической немоготы ачарьи и стоит <i>ниже</i> шастры. Шастра предписывает <b>живую</b> инициирующую преемственность — а в той же беседе 28 мая 1977 Шрила Прабхупада прямо велит назначенному «стать <i>регулярным</i> гуру» «по моему приказу», его инициат — «ученик моего ученика». Это продолжение парампары, а не вечный ритвик.</blockquote>
           <div style="margin-top:1rem;">
-            <a class="ask-chip" style="text-decoration:none; display:inline-block; color:var(--gold-hi); line-height:1.4;" href="reading/mega-02-ritvik.html">📖 Полный разбор по ньяе: пурвапакша → кхандана (7 хетвабхас) → сиддханта — 33 сверенные цитаты и словарь терминов →</a>
+            <a class="btn btn-ghost" style="font-size:0.85rem; padding:0.5rem 1.1rem;" href="reading/mega-02-ritvik.html">Читать полный разбор по ньяе →</a>
+            <div style="margin-top:0.5rem; font-family:var(--sans); font-size:0.7rem; letter-spacing:0.06em; color:var(--deep-dim); opacity:0.9;">Мега-разбор №2 · 33 сверенные цитаты · словарь терминов</div>
           </div>
         </div>
         <div class="q">Можно ли доказать существование Бога одной логикой — без опоры на писание?</div>
@@ -532,7 +542,7 @@
         <p>Где опоры нет — честное «нет основания» вместо правдоподобной догадки. Молчание тоже несёт ноль искажения.</p>
       </div>
     </div>
-    <p class="laws-note reveal"><b>Ноль энтропии.</b> Энтропия — мера шума и неопределённости; ноль энтропии — чистый сигнал без искажения. Это наш стандарт и наша подпись — <b>ZERO&nbsp;ENTROPY</b>: истину нельзя получить мгновенно и даром, за неё платят вдумчивой работой. Оттого и «0&nbsp;галлюцинаций» вверху страницы — не лозунг, а обязательство.</p>
+    <p class="laws-note reveal"><b>Ноль энтропии.</b> Энтропия — мера шума и неопределённости; ноль энтропии — чистый сигнал без искажения. Это наш стандарт и наша подпись — <b>ZERO&nbsp;ENTROPY</b>: истину нельзя получить мгновенно и даром, за неё платят вдумчивой работой. Оттого и принцип «ноль галлюцинаций» — не лозунг, а обязательство: каждая цитата в каждом разборе ведёт на первоисточник.</p>
   </div>
 </section>
 

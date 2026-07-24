@@ -138,7 +138,14 @@
   .nav .links { display: flex; gap: 1.05rem; align-items: center; }
   .nav .links a { font-family: var(--sans); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--deep-dim); text-decoration: none; transition: color .2s; white-space: nowrap; }
   .nav .links a:hover { color: var(--gold-hi); }
-  .nav .links a.nav-extra { display: none; } /* Принципы/Брихат/Конституция — только в гамбургере, чтобы не перегружать десктоп-строку */
+  .nav .links a.nav-extra { display: none; } /* Принципы/Брихат/Конституция — в гамбургере; на десктопе — в выпадающем «Ещё» (аудит E-001: контент не должен быть беднее на десктопе) */
+  .nav .links .nav-more { position: relative; }
+  .nav .links .nav-more > summary { list-style: none; cursor: pointer; font-family: var(--sans); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--deep-dim); transition: color .2s; white-space: nowrap; }
+  .nav .links .nav-more > summary::-webkit-details-marker { display: none; }
+  .nav .links .nav-more > summary::after { content: " ▾"; font-size: 0.85em; opacity: 0.8; }
+  .nav .links .nav-more:hover > summary, .nav .links .nav-more[open] > summary { color: var(--gold-hi); }
+  .nav .links .nav-more .nav-more-menu { position: absolute; top: calc(100% + 12px); right: -1rem; min-width: 200px; display: flex; flex-direction: column; padding: 0.4rem 0; background: var(--deep); border: 1px solid var(--deep-rule); border-radius: 6px; box-shadow: 0 18px 40px rgba(0,0,0,0.45); }
+  .nav .links .nav-more .nav-more-menu a { padding: 0.6rem 1.1rem; }
   .nav .nav-cta {
     font-family: var(--sans); font-weight: 600; font-size: 0.86rem;
     padding: 0.5rem 1rem; border-radius: 3px; text-decoration: none; white-space: nowrap;
@@ -167,6 +174,7 @@
     .nav .links.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
     .nav .links a { padding: 0.9rem 0.2rem; font-size: 0.82rem; border-bottom: 1px solid var(--deep-rule); }
     .nav .links a.nav-extra { display: block; }
+    .nav .links .nav-more { display: none; } /* на мобильном те же пункты уже в бургере как a.nav-extra */
     .nav .links a:last-child { border-bottom: none; }
   }
   @media (prefers-reduced-motion: reduce) { .nav .links { transition: opacity .2s ease; } .nav-burger span { transition: none; } }
