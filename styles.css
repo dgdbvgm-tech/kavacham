@@ -185,6 +185,17 @@
   .nav--bare .links { position: static; transform: none; opacity: 1; pointer-events: auto;
     flex-direction: row; gap: 1.05rem; padding: 0; background: transparent; border: 0; box-shadow: none; }
   .nav--bare .links a { border-bottom: none; padding: 0; font-size: 0.72rem; }
+  /* Телефон: бренд + 3 ссылки + тема + кнопка в одну строку не помещаются и
+     РАСПИРАЮТ страницу (замер 2026-07-24: при экране 390px документ 485px, правый
+     край кнопки уезжал на 683px, содержимое обрезалось). Переносим ссылки на
+     вторую строку — ни один пункт не прячется и горизонтального выезда нет. */
+  @media (max-width: 620px) {
+    .nav--bare { flex-wrap: wrap; row-gap: 0.5rem; padding-bottom: 0.5rem; }
+    .nav--bare .brand { margin-right: auto; font-size: 1.05rem; }
+    .nav--bare .links { order: 3; flex: 1 0 100%; justify-content: center; gap: 1.1rem;
+      padding-top: 0.45rem; border-top: 1px solid var(--deep-rule); }
+    .nav--bare .links a { padding: 0.25rem 0; }
+  }
   @media (max-width: 480px) {
     .nav--bare .nav-cta { font-size: 0.74rem; padding: 0.4rem 0.65rem; }
     .nav--bare .links { gap: 0.8rem; }

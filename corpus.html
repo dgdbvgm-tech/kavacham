@@ -13,129 +13,260 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&display=swap">
 <link rel="stylesheet" href="styles.css">
 <style>
-  :root{--deep:#0C1030;--deep-2:#131A44;--ink:#ECE6D4;--dim:#A2A6C8;--rule:rgba(201,162,75,0.22);
-    --gold:#C9A24B;--gold-lo:#A9863A;--gold-hi:#E7CE8C;
-    --serif:"Noto Serif","Palatino Linotype",Palatino,Georgia,serif;
-    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;--pad:clamp(1.1rem,5vw,2.2rem)}
-  *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-  body{background:radial-gradient(1200px 500px at 50% -10%,rgba(201,162,75,0.08),transparent 60%),var(--deep);
-    color:var(--ink);font-family:var(--serif);line-height:1.6;padding:0 var(--pad) calc(3rem + env(safe-area-inset-bottom));
-    -webkit-font-smoothing:antialiased}
-  .wrap{max-width:54rem;margin:0 auto}
-  .topbar{position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center;gap:1rem;
-    padding:0.9rem 0;margin-bottom:1.2rem;border-bottom:1px solid var(--rule);
-    background:linear-gradient(180deg,var(--deep) 70%,rgba(12,16,48,0.6));backdrop-filter:blur(6px)}
-  .topbar a{font-family:var(--sans);font-size:0.74rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--dim);text-decoration:none;transition:color .2s}
-  .topbar a:hover{color:var(--gold-hi)}
-  .topbar .brand{color:var(--gold-hi);font-weight:600}
-  header.doc{padding:1.4rem 0 1rem;text-align:center}
-  .eyebrow{font-family:var(--sans);font-size:0.72rem;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold);opacity:.9}
-  h1.title{font-weight:700;font-size:clamp(1.8rem,6vw,2.6rem);margin:.5rem 0 .5rem;text-wrap:balance}
-  .tot{font-family:var(--sans);font-size:.9rem;color:var(--dim)}
-  .tot b{color:var(--gold-hi);font-variant-numeric:tabular-nums}
-  .supergroup{font-family:var(--sans);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
-    color:var(--gold-hi);margin:2rem 0 .3rem;padding-top:.6rem;border-top:1px solid var(--rule)}
-  .tier-badge{font-family:var(--sans);font-size:.6rem;padding:.1rem .4rem;border-radius:999px;border:1px solid var(--rule);color:var(--dim);vertical-align:middle;margin-left:.4rem}
-  .stage{font-family:var(--sans);font-size:.66rem;color:var(--dim);border:1px dashed var(--rule);border-radius:999px;padding:.05rem .4rem;margin-left:.4rem}
-  .corp.showcase{opacity:.85}
-  .corp.showcase h2{color:var(--dim)}
-  .w-group>details>summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:.6rem}
+  /* Токены берём из styles.css (--ground/--panel/--text/--rule/--accent): каталог
+     живёт в общей теме сайта и переключается вместе с ней. Своя тёмная палитра,
+     как было до 2026-07-24, ломала светлую тему на этой одной странице. */
+  :root{--ink:var(--text);--dim:var(--text-2);--faint:var(--text-dim);--pad:clamp(1rem,4vw,2rem)}
+  *{box-sizing:border-box}
+  body{background:var(--ground);color:var(--ink);font-family:var(--sans);line-height:1.6;
+    padding:0 var(--pad) calc(4rem + env(safe-area-inset-bottom))}
+  .wrap{max-width:76rem;margin:0 auto}
+  h1,h2,h3,.corp-name,.w-name{font-family:var(--serif)}
+
+  /* ── шапка страницы ───────────────────────────────────────── */
+  header.doc{padding:2rem 0 1rem;text-align:center;max-width:44rem;margin:0 auto}
+  .eyebrow{font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;color:var(--accent);opacity:.95}
+  h1.title{font-weight:700;font-size:clamp(1.9rem,6vw,2.7rem);margin:.5rem 0;text-wrap:balance}
+  .stats{display:flex;justify-content:center;flex-wrap:wrap;gap:.5rem;margin:.9rem 0 0}
+  .stat-tile{border:1px solid var(--rule);border-radius:12px;background:var(--panel);
+    padding:.5rem .9rem;min-width:7.5rem;flex:0 1 auto;box-shadow:var(--shadow)}
+  @media(max-width:520px){.stats{gap:.4rem}
+    .stat-tile{min-width:0;flex:1 1 5.5rem;padding:.45rem .5rem}
+    .stat-tile b{font-size:1.1rem}
+    .stat-tile span{font-size:.62rem;letter-spacing:.06em}
+    .chip{font-size:.74rem;padding:.4rem .6rem}
+    .chips{gap:.3rem}}
+  .stat-tile b{display:block;font-family:var(--serif);font-size:1.25rem;color:var(--accent);font-variant-numeric:tabular-nums;line-height:1.2}
+  .stat-tile span{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+  .banner{margin:1.2rem auto 0;max-width:44rem;font-size:.88rem;line-height:1.55;color:var(--dim);
+    border:1px solid var(--rule);border-radius:12px;padding:.8rem 1rem;background:var(--panel)}
+  .banner b{color:var(--ink)}
+
+  /* ── панель управления (липкая) ───────────────────────────── */
+  .tools{position:sticky;top:var(--navh,0px);z-index:20;margin:1.4rem 0 1rem;padding:.7rem 0;
+    background:var(--ground);border-bottom:1px solid var(--rule)}
+  .tools-row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+  .search{position:relative;flex:1 1 16rem;min-width:12rem}
+  .search input{width:100%;font:inherit;font-size:.95rem;color:var(--ink);background:var(--panel);
+    border:1px solid var(--rule);border-radius:10px;padding:.62rem .8rem .62rem 2.2rem;min-height:44px}
+  .search input::placeholder{color:var(--faint)}
+  .search::before{content:"🔍";position:absolute;left:.7rem;top:50%;transform:translateY(-50%);opacity:.55;font-size:.9rem}
+  .chips{display:flex;flex-wrap:wrap;gap:.35rem}
+  .chip{font:inherit;font-size:.78rem;color:var(--dim);background:var(--panel);border:1px solid var(--rule);
+    border-radius:999px;padding:.42rem .75rem;min-height:36px;cursor:pointer;transition:.16s;white-space:nowrap}
+  .chip:hover{border-color:var(--accent);color:var(--ink)}
+  .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--ground);font-weight:600}
+  .tools-stat{margin:.55rem 0 0;font-size:.82rem;color:var(--faint)}
+  .tools-stat b{color:var(--accent)}
+
+  /* ── раскладка: оглавление + содержимое ───────────────────── */
+  .layout{display:grid;grid-template-columns:1fr;gap:1.2rem;align-items:start}
+  @media(min-width:1040px){.layout{grid-template-columns:17rem 1fr;gap:2rem}}
+  .toc details{border:1px solid var(--rule);border-radius:12px;background:var(--panel);overflow:hidden}
+  .toc summary{cursor:pointer;list-style:none;padding:.75rem 1rem;font-size:.85rem;letter-spacing:.02em;
+    color:var(--accent);font-weight:600;min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+  .toc summary::-webkit-details-marker{display:none}
+  .toc summary::after{content:"▾";opacity:.7}
+  .toc details[open] summary::after{content:"▴"}
+  .toc-list{list-style:none;margin:0;padding:.3rem .5rem .6rem;max-height:none;overflow:visible}
+  .toc-list li{margin:0}
+  .toc-parent{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);
+    padding:.7rem .6rem .25rem;border-top:1px solid var(--rule);margin-top:.3rem}
+  .toc-list li:first-child.toc-parent{border-top:0;margin-top:0;padding-top:.2rem}
+  .toc-list a{display:flex;justify-content:space-between;align-items:baseline;gap:.6rem;
+    padding:.5rem .6rem;border-radius:8px;color:var(--dim);text-decoration:none;font-size:.86rem;line-height:1.35;min-height:38px}
+  .toc-list a:hover{background:var(--ground-2);color:var(--ink)}
+  .toc-list a.on{background:var(--ground-2);color:var(--accent);font-weight:600}
+  .toc-num{font-size:.72rem;color:var(--faint);font-variant-numeric:tabular-nums;white-space:nowrap}
+  @media(min-width:1040px){
+    .toc{position:sticky;top:calc(var(--navh,0px) + 4.6rem);max-height:calc(100vh - var(--navh,0px) - 6rem);overflow:auto;overscroll-behavior:contain}
+    .toc summary{display:none}
+    .toc details{border-radius:12px}
+  }
+
+  /* ── карточка раздела ─────────────────────────────────────── */
+  .supergroup{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);
+    margin:2rem 0 .5rem;padding-top:.7rem;border-top:1px solid var(--rule)}
+  .corp{margin:.7rem 0;border:1px solid var(--rule);border-radius:14px;background:var(--panel);
+    box-shadow:var(--shadow);overflow:hidden}
+  .corp[hidden]{display:none}
+  .corp-head{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;
+    gap:.8rem;flex-wrap:wrap;padding:.9rem 1.1rem;min-height:56px}
+  .corp-head::-webkit-details-marker{display:none}
+  .corp-head:hover{background:var(--ground-2)}
+  .corp-title{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;flex:1 1 auto}
+  .corp-name::before{content:"";display:inline-block;width:.5rem;height:.5rem;margin-right:.55rem;
+    border-right:2px solid var(--accent);border-bottom:2px solid var(--accent);
+    transform:rotate(-45deg) translate(-.05rem,-.05rem);transition:transform .18s;vertical-align:middle}
+  .corp[open]>.corp-head .corp-name::before{transform:rotate(45deg)}
+  .corp-name{font-size:clamp(1.02rem,2.6vw,1.22rem);color:var(--ink);font-weight:600;line-height:1.25}
+  .corp[open]>.corp-head .corp-name{color:var(--accent)}
+  .corp-meta{font-size:.78rem;color:var(--faint);white-space:nowrap}
+  .corp-meta b{color:var(--dim);font-variant-numeric:tabular-nums}
+  .corp-body{padding:0 1.1rem 1rem;border-top:1px solid var(--rule)}
+  .corp-sub{color:var(--dim);font-size:.9rem;margin:.7rem 0 .2rem}
+  .corp-sub:empty{display:none}
+  .corp-src,.corp-prov{font-size:.72rem;color:var(--faint);margin:.25rem 0;letter-spacing:.01em;line-height:1.45}
+  .corp-prov{color:var(--accent);opacity:.9}
+  .corp.showcase{opacity:.9}
+  .tier-badge{font-size:.62rem;padding:.14rem .5rem;border-radius:999px;border:1px solid var(--rule);
+    color:var(--faint);white-space:nowrap}
+  .tier-badge.t-trusted{color:var(--verify);border-color:rgba(134,190,151,.4)}
+  .stage{font-size:.66rem;color:var(--faint);border:1px dashed var(--rule);border-radius:999px;padding:.05rem .4rem;margin-left:.4rem}
+
+  /* ── список произведений ──────────────────────────────────── */
+  ul.works{list-style:none;margin:.6rem 0 0;padding:0;display:grid;grid-template-columns:1fr;gap:0}
+  @media(min-width:760px){ul.works{grid-template-columns:1fr 1fr;column-gap:1.4rem}}
+  ul.works li{display:flex;justify-content:space-between;gap:1rem;padding:.5rem .1rem;
+    border-bottom:1px solid var(--rule);align-items:baseline}
+  ul.works li[hidden]{display:none}
+  .w-name{color:var(--ink);font-size:.93rem;line-height:1.4}
+  .w-num{font-size:.76rem;color:var(--faint);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .w-num.pending a{color:var(--accent);text-decoration:none;font-style:italic}
+  .w-num.pending a:hover{text-decoration:underline}
+  .w-prov{display:block;font-size:.68rem;color:var(--faint);opacity:.85;line-height:1.4;margin-top:.1rem}
+  .w-group{display:block}
+  .w-group>details>summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:.6rem;min-height:38px;align-items:center}
   .w-group>details>summary::-webkit-details-marker{display:none}
-  .w-group>details>summary::before{content:"▸ ";color:var(--gold)}
-  .w-group>details[open]>summary::before{content:"▾ "}
-  ul.works.sub{margin:.3rem 0 .5rem 1rem;border-left:1px solid var(--rule);padding-left:.7rem}
-  .banner{margin:1.3rem auto 0;max-width:44rem;font-family:var(--sans);font-size:.88rem;line-height:1.5;color:var(--dim);
-    border:1px solid var(--rule);border-radius:12px;padding:.8rem 1rem;background:rgba(201,162,75,0.05)}
-  .banner b{color:var(--gold-hi)}
-  .explain{max-width:48rem;margin:0 auto;border:1px solid var(--rule);border-radius:12px;background:rgba(255,255,255,0.02);overflow:hidden}
-  .explain summary{position:relative;cursor:pointer;list-style:none;padding:.9rem 8.5rem .9rem 1.1rem;font-family:var(--sans);font-size:.86rem;letter-spacing:.02em;color:var(--gold-hi)}
+  .w-group>details>summary::before{content:"▸";color:var(--accent);margin-right:.35rem}
+  .w-group>details[open]>summary::before{content:"▾"}
+  ul.works.sub{margin:.3rem 0 .5rem .9rem;border-left:1px solid var(--rule);padding-left:.7rem;grid-template-columns:1fr}
+  .more-btn{font:inherit;font-size:.8rem;color:var(--accent);background:none;border:1px dashed var(--rule);
+    border-radius:8px;padding:.5rem .8rem;margin:.6rem 0 0;cursor:pointer;min-height:40px;width:100%}
+  .more-btn:hover{border-color:var(--accent);background:var(--ground-2)}
+
+  /* ── справка, дорожная карта, подвал ──────────────────────── */
+  .explain{max-width:44rem;margin:1rem auto 0;border:1px solid var(--rule);border-radius:12px;background:var(--panel);overflow:hidden}
+  .explain summary{cursor:pointer;list-style:none;padding:.85rem 1.1rem;font-size:.86rem;color:var(--accent);min-height:44px;display:flex;align-items:center;gap:.4rem}
   .explain summary::-webkit-details-marker{display:none}
-  .explain summary::before{content:"❔ ";opacity:.8}
-  .explain summary::after{content:"нажмите ▾";position:absolute;right:1rem;top:50%;transform:translateY(-50%);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:#0C1030;background:var(--gold-hi);border-radius:999px;padding:.28rem .6rem;white-space:nowrap;animation:explainpulse 2.2s ease-in-out infinite}
-  .explain[open] summary::after{content:"свернуть ▴";color:var(--dim);background:transparent;border:1px solid var(--rule);animation:none}
+  .explain summary::before{content:"❔";opacity:.8}
+  .explain summary::after{content:"▾";margin-left:auto;opacity:.7}
+  .explain[open] summary::after{content:"▴"}
   .explain[open] summary{border-bottom:1px solid var(--rule)}
-  @keyframes explainpulse{0%,100%{box-shadow:0 0 0 0 rgba(201,162,75,0)}50%{box-shadow:0 0 0 5px rgba(201,162,75,.22)}}
-  @media(prefers-reduced-motion:reduce){.explain summary::after{animation:none}}
-  .explain .body{padding:1rem 1.1rem;font-size:.92rem;line-height:1.6;color:var(--dim)}
+  .explain .body{padding:1rem 1.1rem;font-size:.9rem;line-height:1.6;color:var(--dim)}
   .explain .body b{color:var(--ink)}
   .explain .body p{margin:.5rem 0}
-  hr.thread{border:0;height:1px;background:linear-gradient(90deg,transparent,var(--rule),transparent);margin:1.8rem 0}
-  .corp{margin:1.6rem 0;border:1px solid var(--rule);border-radius:14px;padding:1.2rem 1.3rem;background:rgba(255,255,255,0.02)}
-  .corp-head{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;flex-wrap:wrap}
-  .corp-head h2{font-size:clamp(1.15rem,3.4vw,1.45rem);color:var(--gold-hi);line-height:1.2}
-  .corp-meta{font-family:var(--sans);font-size:.82rem;color:var(--dim);white-space:nowrap}
-  .corp-meta b{color:var(--ink);font-variant-numeric:tabular-nums}
-  .corp-sub{color:var(--dim);font-size:.95rem;margin:.3rem 0 .2rem}
-  .corp-src{font-family:var(--sans);font-size:.72rem;color:var(--dim);opacity:.8;margin:.1rem 0 .3rem;letter-spacing:.02em}
-  .corp-prov{font-family:var(--sans);font-size:.72rem;color:var(--gold-hi);opacity:.85;margin:.1rem 0 .2rem;letter-spacing:.02em}
-  .w-prov{display:block;font-family:var(--sans);font-size:.68rem;color:var(--dim);opacity:.8;line-height:1.45;margin-top:.1rem}
-  details.works-wrap>summary{cursor:pointer;list-style:none;font-family:var(--sans);font-size:.82rem;letter-spacing:.02em;
-    color:var(--gold-hi);padding:.55rem 0 .2rem;user-select:none}
-  details.works-wrap>summary::-webkit-details-marker{display:none}
-  details.works-wrap>summary::after{content:" ▾";color:var(--gold)}
-  details.works-wrap[open]>summary::after{content:" ▴"}
-  ul.works{list-style:none;margin:.7rem 0 0;display:grid;grid-template-columns:1fr;gap:.1rem}
-  ul.works li{display:flex;justify-content:space-between;gap:1rem;padding:.5rem .2rem;border-bottom:1px solid rgba(201,162,75,0.1)}
-  ul.works li:last-child{border-bottom:0}
-  .w-name{color:var(--ink);font-size:.95rem}
-  .w-num{font-family:var(--sans);font-size:.78rem;color:var(--dim);white-space:nowrap;font-variant-numeric:tabular-nums}
-  .w-num.pending a{color:var(--gold,#C9A24B);text-decoration:none;opacity:.85;font-style:italic}
-  .w-num.pending a:hover{opacity:1;text-decoration:underline}
-  @media(min-width:640px){ul.works{grid-template-columns:1fr 1fr;gap:.1rem .0}
-    ul.works li{border-bottom:1px solid rgba(201,162,75,0.1)}}
-  .roadmap{margin:2.4rem 0 0;border:1px solid var(--rule);border-radius:14px;padding:1.3rem 1.3rem;
-    background:linear-gradient(180deg,rgba(201,162,75,0.05),rgba(255,255,255,0.02))}
-  .roadmap>h2{font-size:clamp(1.15rem,3.4vw,1.45rem);color:var(--gold-hi)}
-  .roadmap>p{color:var(--dim);font-size:.92rem;margin:.3rem 0 1rem}
+  .roadmap{margin:2rem 0 0;border:1px solid var(--rule);border-radius:14px;padding:1.3rem;background:var(--panel);box-shadow:var(--shadow)}
+  .roadmap>h2{font-size:clamp(1.15rem,3.4vw,1.45rem);color:var(--accent)}
+  .roadmap>p{color:var(--dim);font-size:.9rem;margin:.3rem 0 1rem}
   .road-cols{display:grid;grid-template-columns:1fr;gap:1rem}
   @media(min-width:720px){.road-cols{grid-template-columns:repeat(3,1fr)}}
-  .road-col{border:1px solid var(--rule);border-radius:12px;padding:.9rem 1rem;background:rgba(12,16,48,0.35)}
-  .road-col h3{font-family:var(--sans);font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.6rem}
-  .road-col.done h3{color:#8Fca8F}.road-col.wip h3{color:var(--gold-hi)}.road-col.next h3{color:var(--dim)}
-  .road-col ul{list-style:none;margin:0;display:flex;flex-direction:column;gap:.45rem}
-  .road-col li{font-size:.9rem;line-height:1.4;color:var(--ink);padding-left:.9rem;position:relative}
-  .road-col li::before{content:"•";position:absolute;left:0;color:var(--gold);opacity:.6}
+  .road-col{border:1px solid var(--rule);border-radius:12px;padding:.9rem 1rem;background:var(--ground)}
+  .road-col h3{font-family:var(--sans);font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;margin:0 0 .6rem}
+  .road-col.done h3{color:var(--verify)}.road-col.wip h3{color:var(--accent)}.road-col.next h3{color:var(--faint)}
+  .road-col ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.45rem}
+  .road-col li{font-size:.88rem;line-height:1.4;color:var(--dim);padding-left:.9rem;position:relative}
+  .road-col li::before{content:"•";position:absolute;left:0;color:var(--accent);opacity:.7}
   footer.doc{margin-top:2.4rem;padding-top:1.4rem;border-top:1px solid var(--rule);text-align:center;color:var(--dim)}
-  footer.doc a{color:var(--gold-hi);text-decoration:none}
-  footer.doc .when{font-family:var(--sans);font-size:.72rem;opacity:.7;margin-top:.6rem}
-  footer.doc .sign{margin-top:1rem;font-family:var(--sans);font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--dim);opacity:.5}
-  @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  footer.doc a{color:var(--accent);text-decoration:none}
+  footer.doc .when{font-size:.72rem;color:var(--faint);margin-top:.6rem}
+  footer.doc .sign{margin-top:1rem;font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--faint);opacity:.7}
+
+  /* ── кнопка «наверх» ──────────────────────────────────────── */
+  .totop{position:fixed;right:1rem;bottom:calc(1rem + env(safe-area-inset-bottom));z-index:30;
+    width:44px;height:44px;border-radius:999px;border:1px solid var(--rule);background:var(--panel);
+    color:var(--accent);font-size:1.1rem;cursor:pointer;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .2s}
+  .totop.on{opacity:1;pointer-events:auto}
+  .empty{display:none;text-align:center;color:var(--faint);font-size:.92rem;padding:2rem 1rem;
+    border:1px dashed var(--rule);border-radius:12px;margin:1rem 0}
+  .empty.on{display:block}
+  @media(prefers-reduced-motion:reduce){.corp-name::before,.totop{transition:none}}
 </style>
 </head>
 <body>
+<a class="skip" href="#main">К содержанию</a>
+<script>
+  (function () {
+    var t = null;
+    try { t = localStorage.getItem('kavacham.theme'); } catch (e) {}
+    if (t === 'light' || t === 'dark') {
+      document.documentElement.setAttribute('data-theme', t);
+      document.documentElement.style.colorScheme = t;
+    }
+  })();
+</script>
+<header class="nav nav--bare">
+  <a class="brand" href="./#top">KAVACHAM</a>
+  <nav class="links" aria-label="Навигация по сайту">
+    <a href="constitution.html">Конституция</a>
+    <a href="glossary.html">Словарь</a>
+    <a href="reading/">Протоколы</a>
+  </nav>
+  <button class="nav-theme" id="themeBtn" type="button" aria-label="Переключить светлую и тёмную тему">◐</button>
+  <a class="nav-cta" href="app/" target="_blank" rel="noopener noreferrer">В лабораторию</a>
+</header>
 <div class="wrap">
-  <a class="skip" href="#main">К содержанию</a>
-  <header class="nav nav--bare">
-    <a class="brand" href="./#top">KAVACHAM</a>
-    <nav class="links" aria-label="Навигация по сайту">
-      <a href="constitution.html">Конституция</a>
-      <a href="glossary.html">Словарь</a>
-      <a href="reading/">Протоколы</a>
-    </nav>
-    <a class="nav-cta" href="app/" target="_blank" rel="noopener noreferrer">В лабораторию</a>
-  </header>
   <header class="doc" id="main">
     <p class="eyebrow">Что внутри библиотеки</p>
     <h1 class="title">Каталог корпуса</h1>
-    <p class="tot"><b>39 484</b> документов · <b>469 602</b> фрагментов · <b>17</b> корпусов</p>
+    <div class="stats">
+      <div class="stat-tile"><b>39 484</b><span>документов</span></div>
+      <div class="stat-tile"><b>469 602</b><span>фрагментов</span></div>
+      <div class="stat-tile"><b>17</b><span>разделов</span></div>
+    </div>
     <div class="banner">Каталог отражает то, что уже проиндексировано и доступно поиску. Пополнение идёт по мере вычитки источников — непроверенное в поиск не попадает. Институциональный слой (Новости ИСККОН · GBC · SAC) проверяется на пополнение автоматически, ежемесячно.</div>
   </header>
-  <hr class="thread">
+
   <details class="explain">
     <summary>Что такое «фрагменты» и зачем векторизация</summary>
     <div class="body">
-      <p>Каждый документ мы делим на небольшие <b>смысловые фрагменты</b> (по абзацам/стихам) и превращаем в числовые «отпечатки смысла» — <b>векторы</b>. Это и есть векторизация.</p>
+      <p>Каждый документ мы делим на небольшие <b>смысловые фрагменты</b> (по абзацам и стихам) и превращаем в числовые «отпечатки смысла» — <b>векторы</b>. Это и есть векторизация.</p>
       <p><b>Зачем.</b> Поиск идёт не по совпадению слов, а по смыслу: на вопрос система находит те самые места первоисточников, где ответ есть по сути, даже если формулировка другая — и приводит их дословно, со ссылкой.</p>
       <p><b>Почему фрагментами.</b> Мелкий фрагмент — точное попадание в нужный стих или абзац, а не «вся книга целиком». Поэтому фрагментов в разы больше, чем документов: один документ даёт много точек поиска.</p>
       <p><b>Ценность для нас.</b> Точность и проверяемость: ответ собирается из конкретных найденных мест, а не выдумывается. Это фундамент «трёх рубежей чистоты».</p>
     </div>
   </details>
-  <section class="corp">
-  <div class="corp-head">
-    <h2>Шрила Прабхупада <span class="tier-badge t-trusted">✅ Проверен</span></h2>
-    <div class="corp-meta"><b>36 571</b> док.</div>
+
+  <div class="tools">
+    <div class="tools-row">
+      <label class="search"><span class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Поиск по каталогу</span>
+        <input id="q" type="search" autocomplete="off" placeholder="Найти книгу, автора или раздел…" aria-describedby="stat"></label>
+      <div class="chips" role="group" aria-label="Фильтр по слою проверки">
+        <button class="chip" type="button" data-tier="" aria-pressed="true">Все разделы</button>
+        <button class="chip" type="button" data-tier="trusted" aria-pressed="false">✅ Проверен</button>
+        <button class="chip" type="button" data-tier="grey" aria-pressed="false">🔬 Песочница</button>
+        <button class="chip" type="button" data-tier="pending" aria-pressed="false">📋 В очереди</button>
+      </div>
+      <button class="chip" id="toggleAll" type="button" aria-expanded="false">Развернуть все</button>
+    </div>
+    <p class="tools-stat" id="stat" role="status"></p>
   </div>
+
+  <div class="layout">
+    <aside class="toc" aria-label="Разделы каталога">
+      <details id="tocBox">
+        <summary>Разделы каталога<span class="toc-num">17</span></summary>
+        <ul class="toc-list" id="tocList">
+    <li><a href="#shrila-prabhupada" data-anchor="shrila-prabhupada" data-tier="trusted"><span class="toc-name">Шрила Прабхупада</span><span class="toc-num">36 571</span></a></li>
+    <li><a href="#arhiv-dokumentov-shrily-prabhupady" data-anchor="arhiv-dokumentov-shrily-prabhupady" data-tier="trusted"><span class="toc-name">Архив документов Шрилы Прабхупады</span><span class="toc-num">8</span></a></li>
+    <li><a href="#knigi-o-shrile-prabhupade" data-anchor="knigi-o-shrile-prabhupade" data-tier="pending"><span class="toc-name">Книги о Шриле Прабхупаде</span><span class="toc-num">260</span></a></li>
+    <li><a href="#gosvami-vrindavana" data-anchor="gosvami-vrindavana" data-tier="grey"><span class="toc-name">Госвами Вриндавана</span><span class="toc-num">174</span></a></li>
+    <li><a href="#achari-parampary" data-anchor="achari-parampary" data-tier="trusted"><span class="toc-name">Ачарьи парампары</span><span class="toc-num">455</span></a></li>
+    <li><a href="#knigi-o-bhaktisiddhante-sarasvati-thakur" data-anchor="knigi-o-bhaktisiddhante-sarasvati-thakur" data-tier="pending"><span class="toc-name">Книги о Бхактисиддханте Сарасвати Тхакуре</span><span class="toc-num">5</span></a></li>
+    <li class="toc-parent">КОРПУСА РАЗБОРА</li>
+    <li><a href="#e-s-bhakti-vigyana-gosvami" data-anchor="e-s-bhakti-vigyana-gosvami" data-tier="trusted"><span class="toc-name">Е.С. Бхакти Вигьяна Госвами</span><span class="toc-num">1 660</span></a></li>
+    <li class="toc-parent">Институты и управление ИСККОН</li>
+    <li><a href="#gbc-rezolyucii-i-protokoly" data-anchor="gbc-rezolyucii-i-protokoly" data-tier="trusted"><span class="toc-name">GBC — резолюции и протоколы</span><span class="toc-num">98</span></a></li>
+    <li><a href="#sac-shastricheskiy-sovet" data-anchor="sac-shastricheskiy-sovet" data-tier="trusted"><span class="toc-name">SAC — Шастрический совет</span><span class="toc-num">14</span></a></li>
+    <li><a href="#debaty-i-pozicii-iskkon" data-anchor="debaty-i-pozicii-iskkon" data-tier="grey"><span class="toc-name">Дебаты и позиции ИСККОН</span><span class="toc-num">4</span></a></li>
+    <li><a href="#novosti-iskkon" data-anchor="novosti-iskkon" data-tier="grey"><span class="toc-name">Новости ИСККОН</span><span class="toc-num">3</span></a></li>
+    <li><a href="#uchiteli-i-propovedniki-iskkon" data-anchor="uchiteli-i-propovedniki-iskkon" data-tier="grey"><span class="toc-name">Учители и проповедники ИСККОН</span><span class="toc-num">110</span></a></li>
+    <li><a href="#zhizneopisaniya-i-istoriya-iskkon" data-anchor="zhizneopisaniya-i-istoriya-iskkon" data-tier="pending"><span class="toc-name">Жизнеописания и история ИСККОН</span><span class="toc-num">2</span></a></li>
+    <li><a href="#apologetika-i-stati" data-anchor="apologetika-i-stati" data-tier="pending"><span class="toc-name">Апологетика и статьи</span><span class="toc-num">3</span></a></li>
+    <li><a href="#obrazovatelnye-materialy" data-anchor="obrazovatelnye-materialy" data-tier="pending"><span class="toc-name">Образовательные материалы</span><span class="toc-num">105</span></a></li>
+    <li><a href="#kirtan-i-bhadzhan" data-anchor="kirtan-i-bhadzhan" data-tier="grey"><span class="toc-name">Киртан и бхаджан</span><span class="toc-num">7</span></a></li>
+    <li><a href="#ne-razobrano" data-anchor="ne-razobrano" data-tier="pending"><span class="toc-name">Не разобрано</span><span class="toc-num">5</span></a></li>
+        </ul>
+      </details>
+    </aside>
+
+    <div class="content" id="content">
+<details class="corp" id="shrila-prabhupada" data-tier="trusted" data-label="шрила прабхупада" open>
+  <summary class="corp-head">
+    <span class="corp-title"><span class="corp-name">Шрила Прабхупада</span> <span class="tier-badge t-trusted">✅ Проверен</span></span>
+    <span class="corp-meta"><b>36 571</b> док. · 8 произведений</span>
+  </summary>
+  <div class="corp-body">
   <p class="corp-sub">Основа (Линза сиддханты) — включена по умолчанию. Снять можно — включится исследовательский режим: поиск пойдёт без корпуса основы, согласование выводов по призме останется за человеком на сверке.</p>
   <p class="corp-prov">А. Ч. Бхактиведанта Свами Прабхупада · слой сиддханты</p>
   <ul class="works">
@@ -187,32 +318,36 @@
       <li><span class="w-name">«Веда: тайны Востока» (рус.)<span class="w-prov">А. Ч. Бхактиведанта Свами Прабхупада · Bhaktivedanta Book Trust (BBT) · слой сиддханты</span></span><span class="w-num">1 док.</span></li>
     </ul></details></li>
   </ul>
-</section>
-
-<section class="corp">
-  <div class="corp-head">
-    <h2>Архив документов Шрилы Прабхупады <span class="tier-badge t-trusted">✅ Проверен</span></h2>
-    <div class="corp-meta"><b>8</b> док.</div>
   </div>
+</details>
+
+<details class="corp" id="arhiv-dokumentov-shrily-prabhupady" data-tier="trusted" data-label="архив документов шрилы прабхупады">
+  <summary class="corp-head">
+    <span class="corp-title"><span class="corp-name">Архив документов Шрилы Прабхупады</span> <span class="tier-badge t-trusted">✅ Проверен</span></span>
+    <span class="corp-meta"><b>8</b> док. · 8 произведений</span>
+  </summary>
+  <div class="corp-body">
   <p class="corp-sub"></p>
-  <p class="corp-prov">А. Ч. Бхактиведанта Свами Прабхупада · Bhaktivedanta Archives, 1966 (запись); факсимиле — изд. Бхактиведанта-архива · первичный документ (свидетельство факта, не наставление) · источник: Vanisource (факсимиле журнала «The Beginning»)</p>
+  <p class="corp-prov">А. Ч. Бхактиведанта Свами Прабхупада · Bhaktivedanta Archives, 1966 (запись); факсимиле — изд. Бхактиведанта-архива · справочный слой · источник: Vanisource (факсимиле журнала «The Beginning»)</p>
   <ul class="works">
-      <li><span class="w-name">Нью-Йоркский журнал 1966 — выдержки из бесед о том времени<span class="w-prov">А. Ч. Бхактиведанта Свами Прабхупада · Bhaktivedanta Archives, 1966 (запись); факсимиле — изд. Бхактиведанта-архива · первичный документ (свидетельство факта, не наставление) · источник: Vanisource (факсимиле журнала «The Beginning»)</span></span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Нью-Йоркский журнал 1966 — Второй авеню, 26 (июль–ноябрь)<span class="w-prov">А. Ч. Бхактиведанта Свами Прабхупада · Bhaktivedanta Archives, 1966 (запись); факсимиле — изд. Бхактиведанта-архива · первичный документ (свидетельство факта, не наставление) · источник: Vanisource (факсимиле журнала «The Beginning»)</span></span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Нью-Йоркский журнал 1966 — послесловие<span class="w-prov">А. Ч. Бхактиведанта Свами Прабхупада · Bhaktivedanta Archives, 1966 (запись); факсимиле — изд. Бхактиведанта-архива · первичный документ (свидетельство факта, не наставление) · источник: Vanisource (факсимиле журнала «The Beginning»)</span></span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Нью-Йоркский журнал 1966 — предисловие<span class="w-prov">А. Ч. Бхактиведанта Свами Прабхупада · Bhaktivedanta Archives, 1966 (запись); факсимиле — изд. Бхактиведанта-архива · первичный документ (свидетельство факта, не наставление) · источник: Vanisource (факсимиле журнала «The Beginning»)</span></span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Нью-Йоркский журнал 1966 — памятные записи и счета<span class="w-prov">А. Ч. Бхактиведанта Свами Прабхупада · Bhaktivedanta Archives, 1966 (запись); факсимиле — изд. Бхактиведанта-архива · первичный документ (свидетельство факта, не наставление) · источник: Vanisource (факсимиле журнала «The Beginning»)</span></span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Нью-Йоркский журнал 1966 — Бауэри (апрель–июнь)<span class="w-prov">А. Ч. Бхактиведанта Свами Прабхупада · Bhaktivedanta Archives, 1966 (запись); факсимиле — изд. Бхактиведанта-архива · первичный документ (свидетельство факта, не наставление) · источник: Vanisource (факсимиле журнала «The Beginning»)</span></span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Нью-Йоркский журнал 1966 — Верхний Вест-Сайд (январь–март)<span class="w-prov">А. Ч. Бхактиведанта Свами Прабхупада · Bhaktivedanta Archives, 1966 (запись); факсимиле — изд. Бхактиведанта-архива · первичный документ (свидетельство факта, не наставление) · источник: Vanisource (факсимиле журнала «The Beginning»)</span></span><span class="w-num">1 док.</span></li>
-      <li><span class="w-name">Нью-Йоркский журнал 1966 — оглавление («The Beginning»)<span class="w-prov">А. Ч. Бхактиведанта Свами Прабхупада · Bhaktivedanta Archives, 1966 (запись); факсимиле — изд. Бхактиведанта-архива · первичный документ (свидетельство факта, не наставление) · источник: Vanisource (факсимиле журнала «The Beginning»)</span></span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Нью-Йоркский журнал 1966 — выдержки из бесед о том времени<span class="w-prov">А. Ч. Бхактиведанта Свами Прабхупада · Bhaktivedanta Archives, 1966 (запись); факсимиле — изд. Бхактиведанта-архива · справочный слой · источник: Vanisource (факсимиле журнала «The Beginning»)</span></span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Нью-Йоркский журнал 1966 — Второй авеню, 26 (июль–ноябрь)<span class="w-prov">А. Ч. Бхактиведанта Свами Прабхупада · Bhaktivedanta Archives, 1966 (запись); факсимиле — изд. Бхактиведанта-архива · справочный слой · источник: Vanisource (факсимиле журнала «The Beginning»)</span></span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Нью-Йоркский журнал 1966 — послесловие<span class="w-prov">А. Ч. Бхактиведанта Свами Прабхупада · Bhaktivedanta Archives, 1966 (запись); факсимиле — изд. Бхактиведанта-архива · справочный слой · источник: Vanisource (факсимиле журнала «The Beginning»)</span></span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Нью-Йоркский журнал 1966 — предисловие<span class="w-prov">А. Ч. Бхактиведанта Свами Прабхупада · Bhaktivedanta Archives, 1966 (запись); факсимиле — изд. Бхактиведанта-архива · справочный слой · источник: Vanisource (факсимиле журнала «The Beginning»)</span></span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Нью-Йоркский журнал 1966 — памятные записи и счета<span class="w-prov">А. Ч. Бхактиведанта Свами Прабхупада · Bhaktivedanta Archives, 1966 (запись); факсимиле — изд. Бхактиведанта-архива · справочный слой · источник: Vanisource (факсимиле журнала «The Beginning»)</span></span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Нью-Йоркский журнал 1966 — Бауэри (апрель–июнь)<span class="w-prov">А. Ч. Бхактиведанта Свами Прабхупада · Bhaktivedanta Archives, 1966 (запись); факсимиле — изд. Бхактиведанта-архива · справочный слой · источник: Vanisource (факсимиле журнала «The Beginning»)</span></span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Нью-Йоркский журнал 1966 — Верхний Вест-Сайд (январь–март)<span class="w-prov">А. Ч. Бхактиведанта Свами Прабхупада · Bhaktivedanta Archives, 1966 (запись); факсимиле — изд. Бхактиведанта-архива · справочный слой · источник: Vanisource (факсимиле журнала «The Beginning»)</span></span><span class="w-num">1 док.</span></li>
+      <li><span class="w-name">Нью-Йоркский журнал 1966 — оглавление («The Beginning»)<span class="w-prov">А. Ч. Бхактиведанта Свами Прабхупада · Bhaktivedanta Archives, 1966 (запись); факсимиле — изд. Бхактиведанта-архива · справочный слой · источник: Vanisource (факсимиле журнала «The Beginning»)</span></span><span class="w-num">1 док.</span></li>
   </ul>
-</section>
-
-<section class="corp">
-  <div class="corp-head">
-    <h2>Книги о Шриле Прабхупаде <span class="tier-badge t-pending">📋 В очереди</span></h2>
-    <div class="corp-meta"><b>260</b> док.</div>
   </div>
+</details>
+
+<details class="corp" id="knigi-o-shrile-prabhupade" data-tier="pending" data-label="книги о шриле прабхупаде">
+  <summary class="corp-head">
+    <span class="corp-title"><span class="corp-name">Книги о Шриле Прабхупаде</span> <span class="tier-badge t-pending">📋 В очереди</span></span>
+    <span class="corp-meta"><b>260</b> док. · 9 произведений</span>
+  </summary>
+  <div class="corp-body">
   <p class="corp-sub">Наставления из писем и жизнеописания: Прабхупада-шикшамрита, Лиламрита, Трансцендентный дневник. Слой справочный.</p>
   <ul class="works">
       <li><span class="w-name">Прабхупада-шикшамрита (рус.)<span class="w-prov">А. Ч. Бхактиведанта Свами Прабхупада · издание не установлено · неофициальный перевод 1990-х, на сверке · слой сиддханты · источник: bhaktivedanta.by</span></span><span class="w-num">252 док.</span></li>
@@ -225,13 +360,15 @@
       <li><span class="w-name">Трансцендентный дневник, том 4<span class="w-prov">Хари Шаури дас · издание не установлено · справочный слой</span></span><span class="w-num">1 док.</span></li>
       <li><span class="w-name">Трансцендентный дневник, том 5<span class="w-prov">Хари Шаури дас · издание не установлено · справочный слой</span></span><span class="w-num">1 док.</span></li>
   </ul>
-</section>
-
-<section class="corp">
-  <div class="corp-head">
-    <h2>Госвами Вриндавана <span class="tier-badge t-grey">🔬 Песочница</span></h2>
-    <div class="corp-meta"><b>174</b> док.</div>
   </div>
+</details>
+
+<details class="corp" id="gosvami-vrindavana" data-tier="grey" data-label="госвами вриндавана">
+  <summary class="corp-head">
+    <span class="corp-title"><span class="corp-name">Госвами Вриндавана</span> <span class="tier-badge t-grey">🔬 Песочница</span></span>
+    <span class="corp-meta"><b>174</b> док. · 6 произведений</span>
+  </summary>
+  <div class="corp-body">
   <p class="corp-sub">Шесть Госвами Вриндавана и своды школы — первоисточники санскритской традиции. Серый список: тексты в вычитке, точность каждой ссылки проверяет человек на сверке.</p>
   <p class="corp-prov">ачарьи парампары</p>
   <ul class="works">
@@ -403,13 +540,15 @@
       <li><span class="w-name">Жизнеописания святых вайшнавов<span class="w-prov">разные авторы · издание не установлено · ачарьи парампары</span></span><span class="w-num">9 док.</span></li>
       <li><span class="w-name">Гопала Бхатта Госвами (жизнеописания)<span class="w-prov">разные авторы · издание не установлено · ачарьи парампары</span></span><span class="w-num">4 док.</span></li>
   </ul>
-</section>
-
-<section class="corp">
-  <div class="corp-head">
-    <h2>Ачарьи парампары <span class="tier-badge t-trusted">✅ Проверен</span></h2>
-    <div class="corp-meta"><b>455</b> док.</div>
   </div>
+</details>
+
+<details class="corp" id="achari-parampary" data-tier="trusted" data-label="ачарьи парампары">
+  <summary class="corp-head">
+    <span class="corp-title"><span class="corp-name">Ачарьи парампары</span> <span class="tier-badge t-trusted">✅ Проверен</span></span>
+    <span class="corp-meta"><b>455</b> док. · 14 произведений</span>
+  </summary>
+  <div class="corp-body">
   <p class="corp-sub">Ачарьи линии — от Госвами до Бхактивиноды и Вишванатхи. Сиддханта-вывод строится на этом слое и на Прабхупаде.</p>
   <p class="corp-prov">ачарьи парампары</p>
   <ul class="works">
@@ -535,13 +674,15 @@
       <li><span class="w-name">virodha bhanjika=yoga=acintya sakti (Prameya ratnavali, 1.15) contradi</span><span class="w-num">1 док.</span></li>
     </ul></details></li>
   </ul>
-</section>
-
-<section class="corp">
-  <div class="corp-head">
-    <h2>Книги о Бхактисиддханте Сарасвати Тхакуре <span class="tier-badge t-pending">📋 В очереди</span></h2>
-    <div class="corp-meta"><b>5</b> док.</div>
   </div>
+</details>
+
+<details class="corp" id="knigi-o-bhaktisiddhante-sarasvati-thakur" data-tier="pending" data-label="книги о бхактисиддханте сарасвати тхакуре">
+  <summary class="corp-head">
+    <span class="corp-title"><span class="corp-name">Книги о Бхактисиддханте Сарасвати Тхакуре</span> <span class="tier-badge t-pending">📋 В очереди</span></span>
+    <span class="corp-meta"><b>5</b> док. · 5 произведений</span>
+  </summary>
+  <div class="corp-body">
   <p class="corp-sub"></p>
   <p class="corp-prov">справочный слой</p>
   <ul class="works">
@@ -551,14 +692,16 @@
       <li><span class="w-name">Bhaktisiddhanta Vaibhava Part 2<span class="w-prov">Е.С. Бхакти Викаша Свами · издание не установлено · справочный слой</span></span><span class="w-num">1 док.</span></li>
       <li><span class="w-name">Bhaktisiddhanta Vaibhava Part 3<span class="w-prov">Е.С. Бхакти Викаша Свами · издание не установлено · справочный слой</span></span><span class="w-num">1 док.</span></li>
   </ul>
-</section>
-
-<h2 class="supergroup">КОРПУСА РАЗБОРА</h2>
-<section class="corp">
-  <div class="corp-head">
-    <h2>Е.С. Бхакти Вигьяна Госвами <span class="tier-badge t-trusted">✅ Проверен</span></h2>
-    <div class="corp-meta"><b>1 660</b> док.</div>
   </div>
+</details>
+
+<h2 class="supergroup" id="gr-korpusa-razbora">КОРПУСА РАЗБОРА</h2>
+<details class="corp" id="e-s-bhakti-vigyana-gosvami" data-tier="trusted" data-label="е.с. бхакти вигьяна госвами">
+  <summary class="corp-head">
+    <span class="corp-title"><span class="corp-name">Е.С. Бхакти Вигьяна Госвами</span> <span class="tier-badge t-trusted">✅ Проверен</span></span>
+    <span class="corp-meta"><b>1 660</b> док. · 36 произведений</span>
+  </summary>
+  <div class="corp-body">
   <p class="corp-sub">Учитель в линии Прабхупады. Слой справочный: читается через Линзу и сиддханту не определяет.</p>
   <p class="corp-prov">Е.С. Бхакти Вигьяна Госвами · учитель линии · источник: folio.goswami.ru</p>
   <ul class="works">
@@ -599,14 +742,16 @@
       <li><span class="w-name">Лекции и семинары · 1995<span class="w-prov">Е.С. Бхакти Вигьяна Госвами · издание не установлено · учитель линии · источник: folio.goswami.ru</span></span><span class="w-num">18 док.</span></li>
       <li><span class="w-name">Лекции и семинары · 1994<span class="w-prov">Е.С. Бхакти Вигьяна Госвами · издание не установлено · учитель линии · источник: folio.goswami.ru</span></span><span class="w-num">7 док.</span></li>
   </ul>
-</section>
-
-<h2 class="supergroup">Институты и управление ИСККОН</h2>
-<section class="corp">
-  <div class="corp-head">
-    <h2>GBC — резолюции и протоколы <span class="tier-badge t-trusted">✅ Проверен</span></h2>
-    <div class="corp-meta"><b>98</b> док.</div>
   </div>
+</details>
+
+<h2 class="supergroup" id="gr-instituty-i-upravlenie-iskkon">Институты и управление ИСККОН</h2>
+<details class="corp" id="gbc-rezolyucii-i-protokoly" data-tier="trusted" data-label="gbc — резолюции и протоколы">
+  <summary class="corp-head">
+    <span class="corp-title"><span class="corp-name">GBC — резолюции и протоколы</span> <span class="tier-badge t-trusted">✅ Проверен</span></span>
+    <span class="corp-meta"><b>98</b> док. · 61 произведение</span>
+  </summary>
+  <div class="corp-body">
   <p class="corp-sub">Резолюции и протоколы GBC — институциональный слой, НОРМА управления (резолюции обязательны в ИСККОН). Не сиддханта: авторитет управленческий, не доктринальный. Ежемесячный автомат-монитор сверяет официальные страницы; свежие документы попадают в каталог после решения автора, не автоматически.</p>
   <p class="corp-prov">GBC (Руководящий совет ИСККОН) · институциональный слой · норма GBC (резолюции обязательны) · источник: gbc.iskcon.org</p>
   <ul class="works">
@@ -672,13 +817,15 @@
       <li><span class="w-name">Кодекс этического поведения<span class="w-prov">GBC (Руководящий совет ИСККОН) · издание не установлено · институциональный слой · норма GBC (резолюции обязательны) · источник: gbc.iskcon.org</span></span><span class="w-num">1 док.</span></li>
       <li><span class="w-name">Свод законов ИСККОН (ISKCON Law Book, англ.)<span class="w-prov">GBC (Руководящий совет ИСККОН) · издание не установлено · институциональный слой · норма GBC (резолюции обязательны) · источник: gbc.iskcon.org</span></span><span class="w-num">1 док.</span></li>
   </ul>
-</section>
-
-<section class="corp">
-  <div class="corp-head">
-    <h2>SAC — Шастрический совет <span class="tier-badge t-trusted">✅ Проверен</span></h2>
-    <div class="corp-meta"><b>14</b> док.</div>
   </div>
+</details>
+
+<details class="corp" id="sac-shastricheskiy-sovet" data-tier="trusted" data-label="sac — шастрический совет">
+  <summary class="corp-head">
+    <span class="corp-title"><span class="corp-name">SAC — Шастрический совет</span> <span class="tier-badge t-trusted">✅ Проверен</span></span>
+    <span class="corp-meta"><b>14</b> док. · 14 произведений</span>
+  </summary>
+  <div class="corp-body">
   <p class="corp-sub">Паперы Шастрического консультативного совета при GBC — шастрический разбор для руководства. Совещательный орган: рекомендации SAC не обязательны для GBC. Институциональный слой, не прамана. Ежемесячный автомат-монитор сверяет официальные страницы; свежие паперы попадают в каталог после решения автора, не автоматически.</p>
   <p class="corp-prov">Шастрический консультативный совет (SAC) при GBC · институциональный слой · совещательный орган (рекомендации, не обязательны для GBC) · источник: gbc.iskcon.org/sac</p>
   <ul class="works">
@@ -697,13 +844,15 @@
       <li><span class="w-name">SAC Paper: Vaisnava Samadhi (2026)<span class="w-prov">Шастрический консультативный совет (SAC) при GBC · издание не установлено · институциональный слой · совещательный орган (рекомендации, не обязательны для GBC) · источник: gbc.iskcon.org/sac</span></span><span class="w-num">1 док.</span></li>
       <li><span class="w-name">SAC Protocols and Bylaws (2018)<span class="w-prov">Шастрический консультативный совет (SAC) при GBC · издание не установлено · институциональный слой · совещательный орган (рекомендации, не обязательны для GBC) · источник: gbc.iskcon.org/sac</span></span><span class="w-num">1 док.</span></li>
   </ul>
-</section>
-
-<section class="corp">
-  <div class="corp-head">
-    <h2>Дебаты и позиции ИСККОН <span class="tier-badge t-grey">🔬 Песочница</span></h2>
-    <div class="corp-meta"><b>4</b> док.</div>
   </div>
+</details>
+
+<details class="corp" id="debaty-i-pozicii-iskkon" data-tier="grey" data-label="дебаты и позиции исккон">
+  <summary class="corp-head">
+    <span class="corp-title"><span class="corp-name">Дебаты и позиции ИСККОН</span> <span class="tier-badge t-grey">🔬 Песочница</span></span>
+    <span class="corp-meta"><b>4</b> док. · 4 произведения</span>
+  </summary>
+  <div class="corp-body">
   <p class="corp-sub">Полемические и адвокатские тексты сторон внутренних дискуссий ИСККОН. НЕ доверенный контур: каждая цитата сверяется человеком, с праманой не смешивается.</p>
   <p class="corp-prov">справочный слой</p>
   <ul class="works">
@@ -712,13 +861,15 @@
       <li><span class="w-name">Prabhupada&#x27;s Daughters Speak Out on VDG<span class="w-prov">58 women disciples of A.C. Bhaktivedanta Swami Prabhupada (signatories listed) · издание не установлено · справочный слой</span></span><span class="w-num">1 док.</span></li>
       <li><span class="w-name">Unveiled: Behind ISKCON&#x27;s Debates about Vaishnavi Diksa Gurus<span class="w-prov">Pranada Devi Dasi (Pranada Comtois) · издание не установлено · справочный слой</span></span><span class="w-num">1 док.</span></li>
   </ul>
-</section>
-
-<section class="corp">
-  <div class="corp-head">
-    <h2>Новости ИСККОН <span class="tier-badge t-grey">🔬 Песочница</span></h2>
-    <div class="corp-meta"><b>3</b> док.</div>
   </div>
+</details>
+
+<details class="corp" id="novosti-iskkon" data-tier="grey" data-label="новости исккон">
+  <summary class="corp-head">
+    <span class="corp-title"><span class="corp-name">Новости ИСККОН</span> <span class="tier-badge t-grey">🔬 Песочница</span></span>
+    <span class="corp-meta"><b>3</b> док. · 3 произведения</span>
+  </summary>
+  <div class="corp-body">
   <p class="corp-sub">Публикации ISKCON News — журналистика (факты, даты, прецеденты). Слой вспомогательный, на сверке; не прамана. Ежемесячный автомат-монитор отслеживает свежие материалы (карточка Штаба); в каталог они попадают после решения автора, не автоматически.</p>
   <p class="corp-prov">ISKCON News (редакция) · справочный слой · источник: iskconnews.org</p>
   <ul class="works">
@@ -726,13 +877,15 @@
       <li><span class="w-name">Narayani Devi Dasi Initiates Her First Diksa Disciple<span class="w-prov">ISKCON News (редакция) · издание не установлено · справочный слой · источник: iskconnews.org</span></span><span class="w-num">1 док.</span></li>
       <li><span class="w-name">As the GBC Prepares to Meet in Mayapur, a Look Back at the Vaishnavi Diksha Guru Debate<span class="w-prov">ISKCON News (редакция) · издание не установлено · справочный слой · источник: iskconnews.org</span></span><span class="w-num">1 док.</span></li>
   </ul>
-</section>
-
-<section class="corp">
-  <div class="corp-head">
-    <h2>Учители и проповедники ИСККОН <span class="tier-badge t-grey">🔬 Песочница</span></h2>
-    <div class="corp-meta"><b>110</b> док.</div>
   </div>
+</details>
+
+<details class="corp" id="uchiteli-i-propovedniki-iskkon" data-tier="grey" data-label="учители и проповедники исккон">
+  <summary class="corp-head">
+    <span class="corp-title"><span class="corp-name">Учители и проповедники ИСККОН</span> <span class="tier-badge t-grey">🔬 Песочница</span></span>
+    <span class="corp-meta"><b>110</b> док. · 21 произведение</span>
+  </summary>
+  <div class="corp-body">
   <p class="corp-sub">Труды учеников Прабхупады и проповедников ИСККОН (Хридаянанда, Равиндра Сварупа, Сатсварупа и др.). Серый список: издание/переводчик на экспертной сверке, с праманой не смешивается.</p>
   <p class="corp-prov">справочный слой · источник: архив Сандхья-аватары</p>
   <ul class="works">
@@ -758,13 +911,15 @@
       <li><span class="w-name">Studies<span class="w-prov">издание не установлено · справочный слой · источник: архив Сандхья-аватары</span></span><span class="w-num">1 док.</span></li>
       <li><span class="w-name">Visakha dasi<span class="w-prov">Visakha dasi · издание не установлено · справочный слой · источник: архив Сандхья-аватары</span></span><span class="w-num">1 док.</span></li>
   </ul>
-</section>
-
-<section class="corp">
-  <div class="corp-head">
-    <h2>Жизнеописания и история ИСККОН <span class="tier-badge t-pending">📋 В очереди</span></h2>
-    <div class="corp-meta"><b>2</b> док.</div>
   </div>
+</details>
+
+<details class="corp" id="zhizneopisaniya-i-istoriya-iskkon" data-tier="pending" data-label="жизнеописания и история исккон">
+  <summary class="corp-head">
+    <span class="corp-title"><span class="corp-name">Жизнеописания и история ИСККОН</span> <span class="tier-badge t-pending">📋 В очереди</span></span>
+    <span class="corp-meta"><b>2</b> док. · 1 произведение</span>
+  </summary>
+  <div class="corp-body">
   <p class="corp-sub">Хроники движения (напр. «Взрыв Харе Кришна»). Слой справочный.</p>
   <p class="corp-prov">справочный слой</p>
   <ul class="works">
@@ -773,26 +928,30 @@
       <li><span class="w-name">Бхактисиддханта-вайбхава, том 1</span><span class="w-num">1 док.</span></li>
     </ul></details></li>
   </ul>
-</section>
-
-<section class="corp">
-  <div class="corp-head">
-    <h2>Апологетика и статьи <span class="tier-badge t-pending">📋 В очереди</span></h2>
-    <div class="corp-meta"><b>3</b> док.</div>
   </div>
+</details>
+
+<details class="corp" id="apologetika-i-stati" data-tier="pending" data-label="апологетика и статьи">
+  <summary class="corp-head">
+    <span class="corp-title"><span class="corp-name">Апологетика и статьи</span> <span class="tier-badge t-pending">📋 В очереди</span></span>
+    <span class="corp-meta"><b>3</b> док. · 2 произведения</span>
+  </summary>
+  <div class="corp-body">
   <p class="corp-sub">Полемические и разъясняющие тексты. Слой вспомогательный, на вычитке.</p>
   <p class="corp-prov">справочный слой</p>
   <ul class="works">
       <li><span class="w-name">Апологетика<span class="w-prov">разные авторы · издание не установлено · справочный слой</span></span><span class="w-num">1 док.</span></li>
       <li><span class="w-name">Бхакти и садхана<span class="w-prov">разные авторы · издание не установлено · справочный слой</span></span><span class="w-num">2 док.</span></li>
   </ul>
-</section>
-
-<section class="corp">
-  <div class="corp-head">
-    <h2>Образовательные материалы <span class="tier-badge t-pending">📋 В очереди</span></h2>
-    <div class="corp-meta"><b>105</b> док.</div>
   </div>
+</details>
+
+<details class="corp" id="obrazovatelnye-materialy" data-tier="pending" data-label="образовательные материалы">
+  <summary class="corp-head">
+    <span class="corp-title"><span class="corp-name">Образовательные материалы</span> <span class="tier-badge t-pending">📋 В очереди</span></span>
+    <span class="corp-meta"><b>105</b> док. · 3 произведения</span>
+  </summary>
+  <div class="corp-body">
   <p class="corp-sub">Образовательные и учебные материалы. Слой вспомогательный, на вычитке. Курс герменевтики шастр (SAC, Level One) — официальные пособия; доктринальное ядро курса — в разделе «SAC — Шастрический совет».</p>
   <p class="corp-prov">справочный слой</p>
   <ul class="works">
@@ -891,13 +1050,15 @@
       <li><span class="w-name">Дети и «одноглазый гуру».</span><span class="w-num">1 док.</span></li>
     </ul></details></li>
   </ul>
-</section>
-
-<section class="corp">
-  <div class="corp-head">
-    <h2>Киртан и бхаджан <span class="tier-badge t-grey">🔬 Песочница</span></h2>
-    <div class="corp-meta"><b>7</b> док.</div>
   </div>
+</details>
+
+<details class="corp" id="kirtan-i-bhadzhan" data-tier="grey" data-label="киртан и бхаджан">
+  <summary class="corp-head">
+    <span class="corp-title"><span class="corp-name">Киртан и бхаджан</span> <span class="tier-badge t-grey">🔬 Песочница</span></span>
+    <span class="corp-meta"><b>7</b> док. · 7 произведений</span>
+  </summary>
+  <div class="corp-body">
   <p class="corp-sub"></p>
   <p class="corp-prov">разные авторы · справочный слой · источник: открытые интернет-источники</p>
   <ul class="works">
@@ -909,13 +1070,15 @@
       <li><span class="w-name">Musical Instruments to be used for Kirtan and Bhajan in Temple Worship and Public Presentations in ISKCON (KSC)<span class="w-prov">разные авторы · издание не установлено · справочный слой · источник: открытые интернет-источники</span></span><span class="w-num">1 док.</span></li>
       <li><span class="w-name">religious experience and ritualisation z9jb1z3qn4<span class="w-prov">разные авторы · издание не установлено · справочный слой · источник: открытые интернет-источники</span></span><span class="w-num">1 док.</span></li>
   </ul>
-</section>
-
-<section class="corp showcase">
-  <div class="corp-head">
-    <h2>Не разобрано <span class="tier-badge t-pending">📋 В очереди</span></h2>
-    <div class="corp-meta"><b>5</b> док.</div>
   </div>
+</details>
+
+<details class="corp showcase" id="ne-razobrano" data-tier="pending" data-label="не разобрано">
+  <summary class="corp-head">
+    <span class="corp-title"><span class="corp-name">Не разобрано</span> <span class="tier-badge t-pending">📋 В очереди</span></span>
+    <span class="corp-meta"><b>5</b> док. · 3 произведения</span>
+  </summary>
+  <div class="corp-body">
   <p class="corp-sub">Материал ещё не разобран — виден для прозрачности, в поиск не входит. У каждого пункта — этап разбора.</p>
   <p class="corp-prov">справочный слой</p>
   <ul class="works">
@@ -923,53 +1086,275 @@
       <li><span class="w-name">Махабхарата (пересказ Кришна-дхармы, англ.)<span class="w-prov">Кришна-дхарма дас · изд. 2003 · справочный слой</span></span><span class="w-num">1 док. <span class="stage">⏳ экспертная сверка</span></span></li>
       <li><span class="w-name">Документы<span class="w-prov">издание не установлено · справочный слой</span></span><span class="w-num">1 док. <span class="stage">⏳ экспертная сверка</span></span></li>
   </ul>
-</section>
+  </div>
+</details>
 
-  <section class="roadmap">
-    <h2>Что впереди — карта развития корпуса</h2>
-    <p>Библиотека растёт по принципу канбана: видно, что уже сделано, что в работе и что предстоит.</p>
-    <div class="road-cols">
-      <div class="road-col next">
-        <h3>🔜 Впереди</h3>
-        <ul>
-          <li>Санскрит-слой: деванагари, транслитерация и пословный разбор стихов с поиском по каждому слою (идёт исследование)</li>
-          <li>Книги учителей линии — по мере получения прав на публикацию</li>
-          <li>Ачарьи парампары: атрибуция авторов и полные произведения</li>
-          <li>Экспертная сверка легитимности (серый → белый список)</li>
-          <li>Редкие выверенные книги — пополнение корпуса</li>
-        </ul>
-      </div>
-      <div class="road-col wip">
-        <h3>🔄 В работе</h3>
-        <ul>
-          <li>Гибридный поиск: доводка по «красным» кейсам эталонного набора</li>
-          <li>Корпус учителей линии ИСККОН — пополнение</li>
-          <li>Отдельный корпус «Госвами Вриндавана» (проверяется)</li>
-        </ul>
-      </div>
-      <div class="road-col done">
-        <h3>✅ Сделано</h3>
-        <ul>
-          <li>Корпус вани Шрилы Прабхупады (книги, лекции, беседы, письма)</li>
-          <li>Бхагавад-гита, Шримад-Бхагаватам, Чайтанья-чаритамрита (Vedabase)</li>
-          <li>Лекции Е.С. Бхакти Вигьяна Госвами</li>
-          <li>Труды ачарьёв парампары · Резолюции GBC</li>
-          <li>Гибридный смысловой + дословный поиск (точность ×4)</li>
-        </ul>
-      </div>
+      <p class="empty" id="empty">Ничего не нашлось. Попробуйте другое слово или снимите фильтр слоя.</p>
+
+      <section class="roadmap">
+        <h2>Что впереди — карта развития корпуса</h2>
+        <p>Библиотека растёт по принципу канбана: видно, что уже сделано, что в работе и что предстоит.</p>
+        <div class="road-cols">
+          <div class="road-col done">
+            <h3>✅ Сделано</h3>
+            <ul>
+              <li>Корпус вани Шрилы Прабхупады (книги, лекции, беседы, письма)</li>
+              <li>Бхагавад-гита, Шримад-Бхагаватам, Чайтанья-чаритамрита (Vedabase)</li>
+              <li>Лекции Е.С. Бхакти Вигьяна Госвами</li>
+              <li>Труды ачарьёв парампары · Резолюции GBC</li>
+              <li>Гибридный смысловой и дословный поиск (точность ×4)</li>
+            </ul>
+          </div>
+          <div class="road-col wip">
+            <h3>🔄 В работе</h3>
+            <ul>
+              <li>Гибридный поиск: доводка по «красным» кейсам эталонного набора</li>
+              <li>Корпус учителей линии ИСККОН — пополнение</li>
+              <li>Отдельный корпус «Госвами Вриндавана» (проверяется)</li>
+            </ul>
+          </div>
+          <div class="road-col next">
+            <h3>🔜 Впереди</h3>
+            <ul>
+              <li>Санскрит-слой: деванагари, транслитерация и пословный разбор стихов с поиском по каждому слою (идёт исследование)</li>
+              <li>Книги учителей линии — по мере получения прав на публикацию</li>
+              <li>Ачарьи парампары: атрибуция авторов и полные произведения</li>
+              <li>Экспертная сверка легитимности (серый — белый список)</li>
+              <li>Редкие выверенные книги — пополнение корпуса</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="roadmap" style="text-align:center">
+        <h2>🌱 Помогите корпусу расти</h2>
+        <p style="max-width:640px;margin:.4rem auto 1rem">Увидели пробел в каталоге — предложите выверенное издание, и оно послужит всем, кто изучает наследие. Продукт служит ученикам разных Гуру — каждый найдёт свою опору. Знаете живые форумы и сообщества, где идут настоящие обсуждения, — подскажите: для Лаборатории это источники будущих разборов.</p>
+        <p><a href="https://t.me/kavacham_lab_bot" target="_blank" rel="noopener" style="display:inline-block;padding:.7rem 1.4rem;border:1px solid var(--accent);border-radius:10px;color:var(--accent);text-decoration:none;font-weight:600">Предложить книгу или форум · @kavacham_lab_bot</a></p>
+        <p style="font-size:.85rem;color:var(--faint)">Каждая наводка получает номер и не теряется.</p>
+      </section>
     </div>
-  </section>
-  <section class="roadmap" style="text-align:center">
-    <h2>🌱 Помогите корпусу расти</h2>
-    <p style="max-width:640px;margin:.4rem auto 1rem">Увидели пробел в каталоге — предложите выверенное издание, и оно послужит всем, кто изучает наследие. Продукт служит ученикам разных Гуру — каждый найдёт свою опору. Знаете живые форумы и сообщества, где идут настоящие обсуждения, — подскажите: для Лаборатории это источники будущих разборов.</p>
-    <p><a href="https://t.me/kavacham_lab_bot" target="_blank" rel="noopener" style="display:inline-block;padding:.7rem 1.4rem;border:1px solid var(--gold-hi);border-radius:10px;color:var(--gold-hi);text-decoration:none;font-weight:600">Предложить книгу или форум · @kavacham_lab_bot</a></p>
-    <p style="font-size:.85rem;opacity:.75">Каждая наводка получает номер и не теряется.</p>
-  </section>
+  </div>
+
   <footer class="doc">
     <p>Каталог отражает выверенную библиотеку — «указатель, не переиздатель». <a href="./">На главную →</a></p>
-    <p class="when">Обновлено автоматически из векторного индекса · 2026-07-24 18:29</p>
+    <p class="when">Обновлено автоматически из векторного индекса · 2026-07-24 19:20</p>
     <p class="sign">KAVACHAM · DGD · ZERO ENTROPY</p>
   </footer>
 </div>
+<button class="totop" id="toTop" type="button" aria-label="Наверх">↑</button>
+<script>
+(function () {
+  var doc = document.documentElement;
+  var sections = [].slice.call(document.querySelectorAll('.corp'));
+  var tocLinks = [].slice.call(document.querySelectorAll('#tocList a'));
+  var q = document.getElementById('q');
+  var stat = document.getElementById('stat');
+  var empty = document.getElementById('empty');
+  var chips = [].slice.call(document.querySelectorAll('.chips .chip'));
+  var toggleAll = document.getElementById('toggleAll');
+  var tocBox = document.getElementById('tocBox');
+  var tier = '';
+
+  /* тема — общий ключ со всеми страницами сайта */
+  var themeBtn = document.getElementById('themeBtn');
+  if (themeBtn) themeBtn.addEventListener('click', function () {
+    var cur = doc.getAttribute('data-theme');
+    if (!cur) cur = (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+    var next = cur === 'dark' ? 'light' : 'dark';
+    doc.setAttribute('data-theme', next);
+    doc.style.colorScheme = next;
+    try { localStorage.setItem('kavacham.theme', next); } catch (e) {}
+  });
+
+  /* высота шапки в CSS-переменную: липкая панель обязана прилипать ПОД шапкой,
+     а не под верх экрана — иначе на телефоне (двухстрочная шапка) она уезжает под неё */
+  var navEl = document.querySelector('.nav');
+  function syncNavHeight() {
+    if (!navEl) return;
+    doc.style.setProperty('--navh', navEl.offsetHeight + 'px');
+  }
+  syncNavHeight();
+  window.addEventListener('resize', syncNavHeight);
+  window.addEventListener('load', syncNavHeight);
+
+  /* на широком экране оглавление — всегда развёрнутая колонка, на телефоне — меню */
+  function syncToc() {
+    if (!tocBox) return;
+    if (window.innerWidth >= 1040) tocBox.open = true;
+  }
+  syncToc();
+  window.addEventListener('resize', syncToc);
+
+  /* длинные списки: показываем первые 14 позиций, остальное — по кнопке.
+     Иначе один раздел на 100+ произведений снова превращает страницу в ленту. */
+  var CLAMP = 14;
+  sections.forEach(function (sec) {
+    var list = sec.querySelector('ul.works');
+    if (!list) return;
+    var items = [].slice.call(list.children);
+    if (items.length <= CLAMP + 4) return;
+    var hidden = items.slice(CLAMP);
+    hidden.forEach(function (li) { li.dataset.clamped = '1'; li.hidden = true; });
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'more-btn';
+    btn.setAttribute('aria-expanded', 'false');
+    btn.textContent = 'Показать ещё ' + hidden.length;
+    btn.addEventListener('click', function () {
+      var open = btn.getAttribute('aria-expanded') === 'true';
+      hidden.forEach(function (li) { if (!li.dataset.filtered) li.hidden = open; });
+      btn.setAttribute('aria-expanded', String(!open));
+      btn.textContent = open ? ('Показать ещё ' + hidden.length) : 'Свернуть список';
+    });
+    list.parentNode.insertBefore(btn, list.nextSibling);
+    sec._moreBtn = btn;
+    sec._clamped = hidden;
+  });
+
+  function norm(s) { return (s || '').toLowerCase().replace(/ё/g, 'е').trim(); }
+
+  /* согласование числительных: «в 1 разделах» читается как небрежность */
+  function plural(n, one, few, many) {
+    var n10 = n % 10, n100 = n % 100;
+    if (n10 === 1 && n100 !== 11) return one;
+    if (n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14)) return few;
+    return many;
+  }
+
+  function apply() {
+    var needle = norm(q.value);
+    var shownSections = 0, shownWorks = 0;
+    sections.forEach(function (sec) {
+      var tierOk = !tier || sec.dataset.tier === tier;
+      var items = [].slice.call(sec.querySelectorAll('ul.works > li'));
+      var hit = 0;
+      if (needle) {
+        items.forEach(function (li) {
+          var match = norm(li.textContent).indexOf(needle) >= 0;
+          li.hidden = !match;
+          li.dataset.filtered = match ? '' : '1';
+          if (match) hit++;
+        });
+      } else {
+        items.forEach(function (li) {
+          delete li.dataset.filtered;
+          li.hidden = li.dataset.clamped === '1'
+            && sec._moreBtn && sec._moreBtn.getAttribute('aria-expanded') !== 'true';
+        });
+        hit = items.length;
+      }
+      var labelHit = needle && norm(sec.dataset.label).indexOf(needle) >= 0;
+      if (labelHit && needle) {           /* совпало название раздела — показываем его целиком */
+        items.forEach(function (li) { li.hidden = false; delete li.dataset.filtered; });
+        hit = items.length;
+      }
+      var visible = tierOk && (!needle || hit > 0);
+      sec.hidden = !visible;
+      if (sec._moreBtn) sec._moreBtn.hidden = !!needle;
+      if (visible) {
+        shownSections++;
+        shownWorks += hit;
+        if (needle) sec.open = true;      /* результат должен быть виден без лишнего клика */
+      }
+    });
+
+    /* оглавление следует за фильтром — иначе ведёт в скрытые разделы */
+    tocLinks.forEach(function (a) {
+      var sec = document.getElementById(a.dataset.anchor);
+      a.parentNode.hidden = !!(sec && sec.hidden);
+    });
+
+    if (needle || tier) {
+      stat.innerHTML = 'Найдено: <b>' + shownWorks + '</b> ' + plural(shownWorks, 'произведение', 'произведения', 'произведений')
+        + ' в <b>' + shownSections + '</b> ' + plural(shownSections, 'разделе', 'разделах', 'разделах')
+        + (needle ? ' · <a href="#" id="reset" style="color:inherit">сбросить</a>' : '');
+      var r = document.getElementById('reset');
+      if (r) r.addEventListener('click', function (e) {
+        e.preventDefault(); q.value = ''; setTier(''); apply(); q.focus();
+      });
+    } else {
+      stat.textContent = '';
+    }
+    empty.classList.toggle('on', shownSections === 0);
+  }
+
+  function setTier(t) {
+    tier = t;
+    chips.forEach(function (c) { c.setAttribute('aria-pressed', String((c.dataset.tier || '') === t)); });
+  }
+
+  var timer;
+  q.addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(apply, 120); });
+  q.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { q.value = ''; apply(); }
+  });
+  chips.forEach(function (c) {
+    c.addEventListener('click', function () { setTier(c.dataset.tier || ''); apply(); });
+  });
+
+  toggleAll.addEventListener('click', function () {
+    var open = toggleAll.getAttribute('aria-expanded') !== 'true';
+    sections.forEach(function (sec) { if (!sec.hidden) sec.open = open; });
+    toggleAll.setAttribute('aria-expanded', String(open));
+    toggleAll.textContent = open ? 'Свернуть все' : 'Развернуть все';
+  });
+
+  /* слежение за прокруткой: подсветка текущего раздела в оглавлении */
+  if ('IntersectionObserver' in window && tocLinks.length) {
+    var byId = {};
+    tocLinks.forEach(function (a) { byId[a.dataset.anchor] = a; });
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        var a = byId[en.target.id];
+        if (!a) return;
+        tocLinks.forEach(function (x) { x.classList.remove('on'); });
+        a.classList.add('on');
+        if (window.innerWidth >= 1040) {
+          var box = a.closest('.toc');
+          if (box && a.offsetTop < box.scrollTop || a.offsetTop > box.scrollTop + box.clientHeight - 60) {
+            box.scrollTop = Math.max(0, a.offsetTop - box.clientHeight / 2);
+          }
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+    sections.forEach(function (sec) { io.observe(sec); });
+  }
+
+  /* переход по ссылке оглавления: раскрыть раздел и закрыть меню на телефоне */
+  tocLinks.forEach(function (a) {
+    a.addEventListener('click', function () {
+      var sec = document.getElementById(a.dataset.anchor);
+      if (sec) sec.open = true;
+      if (window.innerWidth < 1040 && tocBox) tocBox.open = false;
+    });
+  });
+
+  /* прямая ссылка на раздел (#anchor) должна открывать его, а не упираться в свёрнутый */
+  function openFromHash() {
+    var id = (location.hash || '').replace('#', '');
+    if (!id) return;
+    var sec = document.getElementById(id);
+    if (sec && sec.classList.contains('corp')) {
+      sec.open = true;
+      sec.scrollIntoView({ block: 'start' });
+    }
+  }
+  openFromHash();
+  window.addEventListener('hashchange', openFromHash);
+
+  /* «наверх» */
+  var toTop = document.getElementById('toTop');
+  toTop.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    q.focus({ preventScroll: true });
+  });
+  window.addEventListener('scroll', function () {
+    toTop.classList.toggle('on', window.scrollY > 800);
+  }, { passive: true });
+
+  apply();
+})();
+</script>
 </body>
 </html>
