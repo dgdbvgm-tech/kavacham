@@ -116,52 +116,164 @@
     <header class="doc" id="main">
     <p class="eyebrow">Справочник проекта</p>
     <h1 class="title">Словарь терминов</h1>
-    <p class="intro">Короткие пояснения понятий, которые встречаются в проекте и в ответах помощника. Нажмите на термин, чтобы раскрыть.</p>
+    <p class="intro">Единый живой словарь Лаборатории: <b id="glTotal">53</b> термина, пополняется с каждым разбором. Эти же определения работают в текстах разборов — как всплывающие пояснения у пунктирных слов и как «Словарь терминов» в конце страницы. Нажмите на термин, чтобы раскрыть.</p>
   </header>
 
   <hr class="thread">
 
 <section id="faq">
   <style>
-    #faq .faq-intro{text-align:center;max-width:640px;margin:.4rem auto 1.4rem;opacity:.8}
     #faq .faq-list{display:grid;gap:.55rem;max-width:760px;margin:0 auto}
     #faq details{border:1px solid var(--gold-lo,rgba(176,141,74,.3));border-radius:10px;background:rgba(176,141,74,.04);overflow:hidden}
-    #faq summary{cursor:pointer;padding:.75rem 1.05rem;font-weight:600;list-style:none;display:flex;align-items:baseline;gap:.55rem}
+    #faq summary{cursor:pointer;padding:.75rem 1.05rem;font-weight:600;list-style:none;display:flex;align-items:baseline;gap:.55rem;flex-wrap:wrap}
     #faq summary::-webkit-details-marker{display:none}
     #faq summary::before{content:"+";color:var(--gold,#b08d4a);font-weight:700;font-size:1.1em;line-height:1}
     #faq details[open] summary::before{content:"–"}
     #faq details[open] summary{color:var(--gold-hi,#c9a35a)}
     #faq .faq-a{margin:0;padding:0 1.05rem 1rem 2.3rem;line-height:1.6;opacity:.9}
+    #faq .gl-en{font-family:var(--sans);font-size:.78rem;font-weight:400;color:var(--dim);font-style:italic}
+    #faq .gl-group{margin:1.9rem 0}
+    #faq .gl-h{text-align:center;font-size:clamp(1.05rem,3.4vw,1.3rem);margin-bottom:.8rem}
+    #faq .gl-n{font-family:var(--sans);font-size:.72rem;font-weight:400;color:var(--dim);vertical-align:middle;
+      border:1px solid var(--rule);border-radius:999px;padding:.1rem .55rem;margin-left:.35rem}
+    .gl-tools{max-width:760px;margin:0 auto 1.6rem;display:flex;gap:.8rem;align-items:center;flex-wrap:wrap}
+    .gl-tools input{flex:1;min-width:14rem;font-family:var(--sans);font-size:.95rem;color:var(--ink);
+      background:rgba(255,255,255,0.04);border:1px solid var(--rule);border-radius:10px;padding:.65rem .95rem;outline:none}
+    .gl-tools input:focus{border-color:var(--gold)}
+    .gl-tools input::placeholder{color:var(--dim);opacity:.8}
+    .gl-count{font-family:var(--sans);font-size:.78rem;color:var(--dim);white-space:nowrap}
+    .gl-empty{display:none;text-align:center;color:var(--dim);font-style:italic;margin:1.4rem 0}
   </style>
-    <div class="faq-list">
-    <details><summary>Парампара</summary><p class="faq-a">Цепь ученической преемственности, по которой знание передаётся от учителя к ученику без искажений (Б.-г. 4.2). KAVACHAM берёт источники только внутри парампары.</p></details>
-    <details><summary>Сиддханта</summary><p class="faq-a">Выверенный философский вывод, заключение писаний. Противоположность — апасиддханта.</p></details>
-    <details><summary>Апасиддханта</summary><p class="faq-a">Учение, расходящееся с выводом шастр и парампары. KAVACHAM создан, чтобы распознавать и разбирать её (ритвик-вада, майявада, атеизм) методом Шрилы Прабхупады.</p></details>
-    <details><summary>Ньяя</summary><p class="faq-a">Санскритская логика и искусство корректного рассуждения, методология доказательного разбора (одна из шести даршан).</p></details>
-    <details><summary>Прамана</summary><p class="faq-a">Источник достоверного познания. Высшая прамана здесь — шабда (свидетельство шастр), выше чувственного восприятия (пратьякша) и умозаключения (анумана).</p></details>
-    <details><summary>Пурвапакша</summary><p class="faq-a">Позиция оппонента, которую честно и в самой сильной форме излагают перед разбором (близко к принципу «steelman»).</p></details>
-    <details><summary>Апологетика</summary><p class="faq-a">Обоснованная защита учения средствами логики и первоисточников; профиль KAVACHAM.</p></details>
-    <details><summary>Чатур-доша</summary><p class="faq-a">«Четыре изъяна» обусловленного познания: бхрама (ошибка), прамада (невнимательность), випралипса (склонность обманывать), каранапатава (несовершенство чувств). В проекте — прообраз «галлюцинации» ИИ, снимаемой опорой на шабда-праману.</p></details>
-    <details><summary>Юкта-вайрагья</summary><p class="faq-a">«Уместное отречение»: занимать любые средства, включая технологии, в служении, не привязываясь к ним (принцип Шрилы Рупы Госвами).</p></details>
-    <details><summary>Брихат-мриданга</summary><p class="faq-a">«Большая мриданга» Шрилы Бхактисиддханты Сарасвати: печатный станок и, шире, самый мощный канал эпохи как инструмент проповеди.</p></details>
-    <details><summary>Ритвик-вада</summary><p class="faq-a">Отклонение, по которому после ухода Шрилы Прабхупады посвящение якобы даётся лишь формально «от его имени», без живого учителя; ИСККОН и GBC отвергают его как апасиддханту.</p></details>
-    <details><summary>Майявада</summary><p class="faq-a">Имперсоналистская философия (Абсолют в конечном счёте безличен), которую вайшнавская веданта опровергает.</p></details>
-    <details><summary>RAG (Retrieval-Augmented Generation)</summary><p class="faq-a">«Поиск + генерация»: сначала находят точные фрагменты в библиотеке источников, затем нейросеть отвечает строго по ним со ссылками. Так устроено ядро KAVACHAM.</p></details>
-    <details><summary>RLM (рекурсивные языковые модели)</summary><p class="faq-a">Следующий горизонт: агент с рекурсивными подагентами для многошагового разбора, где поиск и Конституция становятся его инструментами.</p></details>
-    <details><summary>Эмбеддинги и векторизация</summary><p class="faq-a">Перевод текста в числовые векторы смысла, чтобы искать по смыслу, а не по словам (модель multilingual-e5: русский вопрос находит английский стих).</p></details>
-    <details><summary>OKF (Open Knowledge Format)</summary><p class="faq-a">Открытый формат знания: markdown плюс структурированные метаданные; на нём построена библиотека GJK.</p></details>
-    <details><summary>GJK (Gaudiya Jnana Kosh)</summary><p class="faq-a">«Сокровищница знания гаудия»: локальная библиотека первоисточников, фундамент проекта.</p></details>
-    <details><summary>Ноль энтропии</summary><p class="faq-a">Кредо проекта: точность важнее скорости; честное молчание лучше правдоподобной ошибки.</p></details>
-    <details><summary>KAVACHAM</summary><p class="faq-a">Санскр. «броня» (кавача, отсылка к Нараяна-кавачам, ШБ 6.8) и акроним: Knowledge-Anchored Vaishnava Apologetics &amp; Citation Hub with Authoritative Mantras.</p></details>
-    <details><summary>Шабда-прамана</summary><p class="faq-a">Свидетельство авторитетного источника — писаний и парампары — как способ достоверного познания; в гаудия-веданте высшая прамана. В ньяе определена как «наставление достойного доверия» (НС 1.1.7).</p></details>
-    <details><summary>Пратьякша</summary><p class="faq-a">Чувственное восприятие, первая из праман (НС 1.1.4); в вайшнавской эпистемологии несовершенна из-за четырёх изъянов познающего (чатур-доша).</p></details>
-    <details><summary>Анумана</summary><p class="faq-a">Умозаключение, логический вывод из признака (НС 1.1.5); вторая прамана; в нашей традиции подчинена шабде.</p></details>
-    <details><summary>Хетвабхаса</summary><p class="faq-a">Псевдоаргумент — довод, лишь выглядящий доказательством; в ньяе пять классов (НС 1.2.4–9). Рабочая типология ошибок аргументации в разборах.</p></details>
-    <details><summary>Панча-аваява</summary><p class="faq-a">Пятичленный вывод ньяи (НС 1.1.32–39): тезис (пратиджня) — основание (хету) — пример (удахарана) — применение (упаная) — заключение (нигамана). Каркас доказательной части разбора.</p></details>
-    <details><summary>Вада</summary><p class="faq-a">Честный диспут ради установления истины (НС 1.2.1) — единственный режим полемики, принятый в KAVACHAM.</p></details>
-    <details><summary>Джалпа</summary><p class="faq-a">Состязательный спор ради победы любыми корректно выглядящими средствами (НС 1.2.2); KAVACHAM в него не вступает.</p></details>
-    <details><summary>Витанда</summary><p class="faq-a">Деструктивная критика без собственной позиции (НС 1.2.3); распознаётся и не поддерживается.</p></details>
+
+  <div class="gl-tools">
+    <input id="glq" type="search" placeholder="Поиск: термин или слово из определения…"
+           aria-label="Поиск по словарю" autocomplete="off">
+    <span class="gl-count" id="glCount" aria-live="polite"></span>
   </div>
+  <p class="gl-empty" id="glEmpty">Ничего не нашлось. Не хватает термина? Спросите помощника на главной — и термин попадёт в словарь.</p>
+
+  <div id="gl-terms">
+  <section class="gl-group">
+    <h2 class="gl-h">Эпистемология: источники знания <span class="gl-n">8</span></h2>
+    <div class="faq-list">
+    <details id="t-siddhanta"><summary>Сиддханта <span class="gl-en">Siddhānta</span></summary><p class="faq-a">Выверенный философский вывод, заключение писаний. Противоположность — апасиддханта.</p></details>
+    <details id="t-apasiddhanta"><summary>Апасиддханта <span class="gl-en">Apasiddhānta</span></summary><p class="faq-a">Учение, расходящееся с выводом шастр и парампары. KAVACHAM создан, чтобы распознавать и разбирать её (ритвик-вада, майявада, атеизм) методом Шрилы Прабхупады.</p></details>
+    <details id="t-pramana"><summary>Прамана <span class="gl-en">Pramāṇa</span></summary><p class="faq-a">Источник достоверного познания. Высшая прамана здесь — шабда (свидетельство шастр), выше чувственного восприятия (пратьякша) и умозаключения (анумана).</p></details>
+    <details id="t-chatur-dosha"><summary>Чатур-доша <span class="gl-en">Catur-doṣa</span></summary><p class="faq-a">«Четыре изъяна» обусловленного познания: бхрама (ошибка), прамада (невнимательность), випралипса (склонность обманывать), каранапатава (несовершенство чувств). В проекте — прообраз «галлюцинации» ИИ, снимаемой опорой на шабда-праману.</p></details>
+    <details id="t-shabda-pramana"><summary>Шабда-прамана <span class="gl-en">Śabda-pramāṇa</span></summary><p class="faq-a">Свидетельство авторитетного источника — писаний и парампары — как способ достоверного познания; в гаудия-веданте высшая прамана. В ньяе определена как «наставление достойного доверия» (НС 1.1.7).</p></details>
+    <details id="t-pratyaksha"><summary>Пратьякша <span class="gl-en">Pratyakṣa</span></summary><p class="faq-a">Чувственное восприятие, первая из праман (НС 1.1.4); в вайшнавской эпистемологии несовершенна из-за четырёх изъянов познающего (чатур-доша).</p></details>
+    <details id="t-anumana"><summary>Анумана <span class="gl-en">Anumāna</span></summary><p class="faq-a">Умозаключение, логический вывод из признака (НС 1.1.5); вторая прамана; в нашей традиции подчинена шабде.</p></details>
+    <details id="t-desha-kala-patra"><summary>Деша-кала-патра <span class="gl-en">deśa-kāla-pātra</span></summary><p class="faq-a">«Место–время–обстоятельства»: условия, при которых дано наставление; без их учёта указание толковать нельзя.</p></details>
+    </div>
+  </section>
+  <section class="gl-group">
+    <h2 class="gl-h">Метод разбора: ньяя <span class="gl-n">15</span></h2>
+    <div class="faq-list">
+    <details id="t-nyaya"><summary>Ньяя <span class="gl-en">Nyāya</span></summary><p class="faq-a">Санскритская логика и искусство корректного рассуждения, методология доказательного разбора (одна из шести даршан).</p></details>
+    <details id="t-purvapaksha"><summary>Пурвапакша <span class="gl-en">Pūrvapakṣa</span></summary><p class="faq-a">Позиция оппонента, которую честно и в самой сильной форме излагают перед разбором (близко к принципу «steelman»).</p></details>
+    <details id="t-apologetics"><summary>Апологетика <span class="gl-en">Apologetics</span></summary><p class="faq-a">Обоснованная защита учения средствами логики и первоисточников; профиль KAVACHAM.</p></details>
+    <details id="t-hetvabhasa"><summary>Хетвабхаса <span class="gl-en">Hetvābhāsa</span></summary><p class="faq-a">Псевдоаргумент — довод, лишь выглядящий доказательством; в ньяе пять классов (НС 1.2.4–9). Рабочая типология ошибок аргументации в разборах.</p></details>
+    <details id="t-pancha-avayava"><summary>Панча-аваява <span class="gl-en">Pañca-avayava</span></summary><p class="faq-a">Пятичленный вывод ньяи (НС 1.1.32–39): тезис (пратиджня) — основание (хету) — пример (удахарана) — применение (упаная) — заключение (нигамана). Каркас доказательной части разбора.</p></details>
+    <details id="t-vada"><summary>Вада <span class="gl-en">Vāda</span></summary><p class="faq-a">Честный диспут ради установления истины (НС 1.2.1) — единственный режим полемики, принятый в KAVACHAM.</p></details>
+    <details id="t-jalpa"><summary>Джалпа <span class="gl-en">Jalpa</span></summary><p class="faq-a">Состязательный спор ради победы любыми корректно выглядящими средствами (НС 1.2.2); KAVACHAM в него не вступает.</p></details>
+    <details id="t-vitanda"><summary>Витанда <span class="gl-en">Vitaṇḍā</span></summary><p class="faq-a">Деструктивная критика без собственной позиции (НС 1.2.3); распознаётся и не поддерживается.</p></details>
+    <details id="t-khandana"><summary>Кхандана <span class="gl-en">khaṇḍana</span></summary><p class="faq-a">Опровержение довода по правилам логики; ход разбора, где каждому доводу оппонента ставится имя его логического изъяна.</p></details>
+    <details id="t-badhita"><summary>Бадхита <span class="gl-en">bādhita</span></summary><p class="faq-a">Вид хетвабхасы: вывод довода опровергнут более сильной праманой (в разборах — шабдой).</p></details>
+    <details id="t-savyabhichara"><summary>Савьябхичара (анайкантика) <span class="gl-en">savyabhicāra</span></summary><p class="faq-a">Вид хетвабхасы: «блуждающее» основание — довод присутствует и там, где вывода нет, поэтому сам по себе ничего не доказывает.</p></details>
+    <details id="t-viruddha"><summary>Вируддха <span class="gl-en">viruddha</span></summary><p class="faq-a">Вид хетвабхасы: довод доказывает противоположное тому, что хотел доказать выдвинувший его.</p></details>
+    <details id="t-ardha-kukkuti-nyaya"><summary>Ардха-куккути-ньяя <span class="gl-en">ardha-kukkuṭī-nyāya</span></summary><p class="faq-a">«Логика половины курицы»: принять удобную часть свидетельства и отбросить неудобную. Классическое имя ошибки выборочного цитирования.</p></details>
+    <details id="t-asiddha"><summary>Асиддха <span class="gl-en">asiddha</span></summary><p class="faq-a">Вид хетвабхасы: недоказанная посылка — довод опирается на то, что само не установлено (в том числе «аргумент от молчания»).</p></details>
+    <details id="t-mukhya-gauna"><summary>Мукхья- и гауна-вритти <span class="gl-en">mukhya- / gauṇa-vṛtti</span></summary><p class="faq-a">Прямое (мукхья) и переносное, второстепенное (гауна) значение слова; подмена одного другим — герменевтическая ошибка.</p></details>
+    </div>
+  </section>
+  <section class="gl-group">
+    <h2 class="gl-h">Гуру и преемственность <span class="gl-n">7</span></h2>
+    <div class="faq-list">
+    <details id="t-parampara"><summary>Парампара <span class="gl-en">Paramparā</span></summary><p class="faq-a">Цепь ученической преемственности, по которой знание передаётся от учителя к ученику без искажений (Б.-г. 4.2). KAVACHAM берёт источники только внутри парампары.</p></details>
+    <details id="t-ritvik-vada"><summary>Ритвик-вада <span class="gl-en">Ṛtvik-vāda</span></summary><p class="faq-a">Отклонение, по которому после ухода Шрилы Прабхупады посвящение якобы даётся лишь формально «от его имени», без живого учителя; ИСККОН и GBC отвергают его как апасиддханту.</p></details>
+    <details id="t-diksha-guru"><summary>Дикша-гуру <span class="gl-en">dīkṣā-guru</span></summary><p class="faq-a">Духовный учитель, дающий формальное посвящение (дикшу) и связывающий ученика с парампарой.</p></details>
+    <details id="t-shiksha-guru"><summary>Шикша-гуру <span class="gl-en">śikṣā-guru</span></summary><p class="faq-a">Наставляющий духовный учитель — ведёт ученика наставлениями; дикша- и шикша-гуру — две живые функции гуру в парампаре.</p></details>
+    <details id="t-ritvik"><summary>Ритвик (жрец) <span class="gl-en">ṛtvik</span></summary><p class="faq-a">Жрец, проводящий обряд от имени другого (officiating priest); плод обряда принадлежит доверителю, а не исполнителю. Термин, из которого выросло название ритвик-вады.</p></details>
+    <details id="t-adhikara"><summary>Адхикара <span class="gl-en">adhikāra</span></summary><p class="faq-a">Квалификация, право на действие; уттама-, мадхьяма- и каништха-адхикари — высшая, средняя и начальная ступени квалификации вайшнава.</p></details>
+    <details id="t-acharya-founder"><summary>Ачарья-основатель <span class="gl-en">Founder-Ācārya</span></summary><p class="faq-a">Ачарья — учитель, который учит собственным примером; ачарья-основатель — Шрила Прабхупада как основатель и высший наставник ИСККОН, чья линия задаёт призму всех разборов.</p></details>
+    </div>
+  </section>
+  <section class="gl-group">
+    <h2 class="gl-h">Вайшнавские понятия <span class="gl-n">4</span></h2>
+    <div class="faq-list">
+    <details id="t-yukta-vairagya"><summary>Юкта-вайрагья <span class="gl-en">Yukta-vairāgya</span></summary><p class="faq-a">«Уместное отречение»: занимать любые средства, включая технологии, в служении, не привязываясь к ним (принцип Шрилы Рупы Госвами).</p></details>
+    <details id="t-brihat-mridanga"><summary>Брихат-мриданга <span class="gl-en">Bṛhat-mṛdaṅga</span></summary><p class="faq-a">«Большая мриданга» Шрилы Бхактисиддханты Сарасвати: печатный станок и, шире, самый мощный канал эпохи как инструмент проповеди.</p></details>
+    <details id="t-mayavada"><summary>Майявада <span class="gl-en">Māyāvāda</span></summary><p class="faq-a">Имперсоналистская философия (Абсолют в конечном счёте безличен), которую вайшнавская веданта опровергает.</p></details>
+    <details id="t-antarhita"><summary>Antarhita <span class="gl-en">antarhita</span></summary><p class="faq-a">Санскр. «незримо, сокрыто»: присутствие и действие, не явленные внешнему взгляду.</p></details>
+    </div>
+  </section>
+  <section class="gl-group">
+    <h2 class="gl-h">Текстология и источники <span class="gl-n">12</span></h2>
+    <div class="faq-list">
+    <details id="t-source-level"><summary>Уровень (текста)</summary><p class="faq-a">Ступень авторитетности источника: мула-стих (шлока) → комментарий ачарьи-основателя → комментарий пурвачарьи → эпос. Уровни не смешиваются и не подменяют друг друга.</p></details>
+    <details id="t-mula-text"><summary>Мула-текст (мула-стих) <span class="gl-en">mūla</span></summary><p class="faq-a">Санскр. mūla — «корень»: собственно стих первоисточника (шлока), в отличие от позднейшего комментария к нему.</p></details>
+    <details id="t-glossa"><summary>Глосса</summary><p class="faq-a">Краткое пояснение к отдельному слову или фразе текста в комментаторской традиции; толкование конкретного термина шлоки.</p></details>
+    <details id="t-locus"><summary>Локус</summary><p class="faq-a">Конкретное место в корпусе (книга, глава, стих или строка), где стоит цитата; точный адрес свидетельства.</p></details>
+    <details id="t-recensio"><summary>Рецензия (текста) <span class="gl-en">recensio</span></summary><p class="faq-a">Лат. recensio: конкретная редакция/версия текста, сложившаяся в отдельной рукописной традиции; у «Махабхараты» их несколько, и деталь может отличаться от версии к версии.</p></details>
+    <details id="t-varia-lectio"><summary>Varia lectio</summary><p class="faq-a">Лат. «разночтения»: расхождения одного места текста между рукописями; их сопоставление и отбор — суть работы критического издания.</p></details>
+    <details id="t-bori"><summary>BORI</summary><p class="faq-a">Bhandarkar Oriental Research Institute — научный институт в Пуне (Индия), осн. 1917. Подготовил Критическое издание «Махабхараты» (1919–1966): реконструкцию текста по ~1259 рукописям с фиксацией всех разночтений; стандарт текстологии эпоса.</p></details>
+    <details id="t-provenance"><summary>Провенанс</summary><p class="faq-a">Документированное происхождение источника: издание, переводчик, год. Без провенанса ссылка ненадёжна.</p></details>
+    <details id="t-ocr"><summary>OCR</summary><p class="faq-a">Оптическое распознавание символов — перевод скана книги в текст; даёт ошибки, поэтому такой текст требует ручной сверки.</p></details>
+    <details id="t-hermeneutics"><summary>Герменевтика</summary><p class="faq-a">Учение о принципах толкования текста: как правильно понимать смысл писания.</p></details>
+    <details id="t-public-domain"><summary>Общественное достояние <span class="gl-en">public domain</span></summary><p class="faq-a">Статус текста, на который истёк срок авторских прав: его можно свободно цитировать и распространять.</p></details>
+    <details id="t-source-status-marks"><summary>Пометки статуса источника</summary><p class="faq-a">Grey/OCR — серое издание, распознанное автоматически; verification: pending — дословная сверка ещё не завершена; trust: candidate — источник-кандидат; reference-карантин — материал держится отдельно. Все пометки значат одно: до ручной сверки такое место не служит самостоятельным доказательством.</p></details>
+    </div>
+  </section>
+  <section class="gl-group">
+    <h2 class="gl-h">Проект и технологии <span class="gl-n">7</span></h2>
+    <div class="faq-list">
+    <details id="t-rag"><summary>RAG (Retrieval-Augmented Generation) <span class="gl-en">RAG</span></summary><p class="faq-a">«Поиск + генерация»: сначала находят точные фрагменты в библиотеке источников, затем нейросеть отвечает строго по ним со ссылками. Так устроено ядро KAVACHAM.</p></details>
+    <details id="t-rlm"><summary>RLM (рекурсивные языковые модели) <span class="gl-en">RLM</span></summary><p class="faq-a">Следующий горизонт: агент с рекурсивными подагентами для многошагового разбора, где поиск и Конституция становятся его инструментами.</p></details>
+    <details id="t-embeddings"><summary>Эмбеддинги и векторизация <span class="gl-en">Embeddings</span></summary><p class="faq-a">Перевод текста в числовые векторы смысла, чтобы искать по смыслу, а не по словам (модель multilingual-e5: русский вопрос находит английский стих).</p></details>
+    <details id="t-okf"><summary>OKF (Open Knowledge Format) <span class="gl-en">OKF</span></summary><p class="faq-a">Открытый формат знания: markdown плюс структурированные метаданные; на нём построена библиотека GJK.</p></details>
+    <details id="t-gjk"><summary>GJK (Gaudiya Jnana Kosh) <span class="gl-en">GJK</span></summary><p class="faq-a">«Сокровищница знания гаудия»: локальная библиотека первоисточников, фундамент проекта.</p></details>
+    <details id="t-zero-entropy"><summary>Ноль энтропии <span class="gl-en">Zero Entropy</span></summary><p class="faq-a">Кредо проекта: точность важнее скорости; честное молчание лучше правдоподобной ошибки.</p></details>
+    <details id="t-kavacham"><summary>KAVACHAM</summary><p class="faq-a">Санскр. «броня» (кавача, отсылка к Нараяна-кавачам, ШБ 6.8) и акроним: Knowledge-Anchored Vaishnava Apologetics &amp; Citation Hub with Authoritative Mantras.</p></details>
+    </div>
+  </section>
+  </div><!-- /gl-terms -->
+
+  <script>
+  (function(){
+    var q = document.getElementById('glq'), count = document.getElementById('glCount'),
+        empty = document.getElementById('glEmpty'), box = document.getElementById('gl-terms');
+    if (!q || !box) return;
+    var items = [].slice.call(box.querySelectorAll('details'));
+    var texts = items.map(function(d){ return d.textContent.toLowerCase(); });
+    function apply(){
+      var needle = q.value.trim().toLowerCase(), shown = 0;
+      items.forEach(function(d, i){
+        var hit = !needle || texts[i].indexOf(needle) !== -1;
+        d.style.display = hit ? '' : 'none';
+        if (hit) shown++;
+      });
+      [].forEach.call(box.querySelectorAll('.gl-group'), function(g){
+        var any = [].some.call(g.querySelectorAll('details'),
+          function(d){ return d.style.display !== 'none'; });
+        g.style.display = any ? '' : 'none';
+      });
+      count.textContent = needle ? ('найдено: ' + shown + ' из ' + items.length)
+                                 : ('терминов: ' + items.length);
+      empty.style.display = shown ? 'none' : 'block';
+    }
+    q.addEventListener('input', apply);
+    // ?q= из шапки других страниц и переход по якорю #t-<id>
+    try {
+      var p = new URLSearchParams(location.search).get('q');
+      if (p) { q.value = p; }
+    } catch (e) {}
+    apply();
+    if (location.hash) {
+      var target = document.getElementById(location.hash.slice(1));
+      if (target && target.tagName === 'DETAILS') { target.open = true; }
+    }
+  })();
+  </script>
 </section>
 
 <footer class="doc">
