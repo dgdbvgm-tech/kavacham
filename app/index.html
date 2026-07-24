@@ -8,9 +8,13 @@
   <title>КАВАЧАМ: Лаборатория</title>
   <meta name="description" content="KAVACHAM Lab — испытательный стенд: терминал заявок, полигон разборов, доверенный контур корпусов. Дословная цитата + проверяемая ссылка.">
   <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <!-- Ранний preconnect к серверу Лаборатории: TLS-рукопожатие идёт параллельно
+       загрузке скрипта — первые запросы Терминала стартуют быстрее.
+       crossorigin: запросы идут через fetch (CORS), без атрибута соединение не переиспользуется. -->
+  <link rel="preconnect" href="https://kavacham-bot-928986955802.us-central1.run.app" crossorigin>
   <link rel="stylesheet" href="../styles.css">
   <!-- метку ?v= поднимать при каждом деплое app.js/app.css — иначе клиенты Telegram держат старый кэш -->
-  <link rel="stylesheet" href="app.css?v=2026072422">
+  <link rel="stylesheet" href="app.css?v=2026072423">
 
   <!-- SDK Telegram — self-hosted копия, никаких CDN в рантайме.
        В <head> (как рекомендует Telegram): тогда colorScheme известен ДО первой отрисовки. -->
@@ -66,6 +70,28 @@
   <!-- ——— Экраны ——— -->
   <main id="main" class="tma-main" tabindex="-1">
 
+    <!-- Фолбэк при павшем app.js: все экраны ниже спрятаны атрибутом hidden,
+         показывает их только route(). Этот блок — наоборот: ВИДИМ по умолчанию,
+         route() прячет его первой строкой. Если app.js не загрузился
+         (блокировщик, прокси, обрыв сети) — человек видит не пустую страницу,
+         а честное объяснение и рабочие пути. -->
+    <div class="state" id="jsFallback">
+      <p>Приложение не загрузилось. Обновите страницу — или читайте нас напрямую:</p>
+      <p>
+        <a class="btn btn-ghost" href="https://t.me/kavacham_lab_bot" target="_blank" rel="noopener">Бот-приёмная</a>
+        <a class="btn btn-ghost" href="https://t.me/+8zzg7sB9VHcxZWNi" target="_blank" rel="noopener">Канал Лаборатории</a>
+        <a class="btn btn-ghost" href="https://dgdbvgm-tech.github.io/kavacham/" target="_blank" rel="noopener">Сайт проекта</a>
+      </p>
+    </div>
+    <noscript>
+      <div class="state">
+        <p>Приложению нужен JavaScript. Без него читайте нас напрямую:
+          <a href="https://dgdbvgm-tech.github.io/kavacham/" target="_blank" rel="noopener">сайт проекта</a>,
+          <a href="https://t.me/kavacham_lab_bot" target="_blank" rel="noopener">бот-приёмная</a>,
+          <a href="https://t.me/+8zzg7sB9VHcxZWNi" target="_blank" rel="noopener">канал Лаборатории</a>.</p>
+      </div>
+    </noscript>
+
     <!-- ═══ 1. ТЕРМИНАЛ ═══════════════════════════════════════════════
          Заголовок экрана намеренно скрыт визуально: его роль играет строка
          статуса (она же — «шапка» по ТЗ), а название вкладки уже подписано
@@ -76,11 +102,19 @@
       <!-- Строка статуса оператора -->
       <p class="ops" id="opsLine" role="status" aria-live="polite"></p>
 
+      <!-- Первая фраза экрана отвечает «что это?»: раньше суть проекта жила
+           только на 4-й вкладке «О проекте» — новичок её не находил. -->
+      <p class="cta-h">КАВАЧАМ находит дословные цитаты первоисточников под ваш вопрос; каждую проверяет человек. <a href="#/about">Как это работает →</a></p>
+
+      <!-- Мост к чтению: со стартового экрана на готовые разборы раньше
+           не вела ни одна ссылка — новичку негде было посмотреть примеры. -->
+      <p><a class="btn btn-ghost" href="#/polygon">Читать готовые разборы →</a></p>
+
       <!-- Главное действие -->
       <button class="cta" id="btnInit" type="button" aria-expanded="false" aria-controls="initPanel">
-        <span class="cta-br" aria-hidden="true">[</span><span class="cta-t">Инициировать разбор</span><span class="cta-br" aria-hidden="true">]</span>
+        <span class="cta-br" aria-hidden="true">[</span><span class="cta-t">Задать вопрос на разбор</span><span class="cta-br" aria-hidden="true">]</span>
       </button>
-      <p class="cta-h">Ссылка на статью, изложение спора или сформулированный вопрос. Движок подберёт праманы для ответа.</p>
+      <p class="cta-h">Ссылка на статью, изложение спора или сформулированный вопрос. Движок подберёт праманы — дословные цитаты первоисточников — для ответа.</p>
 
       <!-- Панель заявки: раскрывается кнопкой выше -->
       <div class="panel" id="initPanel" hidden>
@@ -102,13 +136,13 @@
           <p class="stub-badge">Форма работает внутри Telegram</p>
           <p>Заявку нужно подписать вашим аккаунтом Telegram — вне приложения Telegram подписи нет, и отправить отсюда нечего. Изображать отправку мы не станем.</p>
           <p><strong>Тот же приём — в боте:</strong> там же выбор корпусов и анонимность (по умолчанию — «участник Лаборатории»).</p>
-          <button class="btn btn-primary" data-open-bot type="button">Прислать вызов в боте</button>
+          <button class="btn btn-primary" data-open-bot type="button">Задать вопрос в боте</button>
         </div>
 
         <!-- В Telegram: форма-зеркало черновика бота -->
         <form class="form" id="submitForm" hidden novalidate>
           <div class="field">
-            <label class="field-l" for="reqText">Вызов или вопрос</label>
+            <label class="field-l" for="reqText">Вопрос на разбор</label>
             <!-- Чипы-шаблоны (v6.2): вставляют маркер режима в начало текста.
                  Режим сохраняется в паспорте заявки (query_mode) — под него оператор
                  подбирает режим конвейера разбора. -->
@@ -164,6 +198,9 @@
           <fieldset class="field">
             <legend class="field-l">Корпуса разбора</legend>
             <p class="field-h" id="scopeBase">🕉 Шрила Прабхупада — основа; можно снять — включится исследовательский режим.</p>
+            <!-- Разрешение «можно не трогать»: дефолт безопасен (основа включена),
+                 но новичку об этом нужно сказать словами. -->
+            <p class="field-h">Не знаете, что выбрать — оставьте как есть: поиск пойдёт по книгам Шрилы Прабхупады.</p>
             <!-- Дерево «группа → книги»: приходит авторизованным с сервера;
                  если дерева нет — ниже остаются плоские чипы слоёв, форма работает всегда -->
             <div class="ctree" id="corpusTree" role="group" aria-label="Корпуса разбора: группы и книги" hidden></div>
@@ -199,7 +236,7 @@
 
           <p class="form-err" id="submitErr" role="alert" hidden></p>
           <div class="form-actions">
-            <button class="btn btn-primary" id="btnSend" type="submit">Отправить вызов</button>
+            <button class="btn btn-primary" id="btnSend" type="submit">Отправить заявку</button>
             <!-- v6.2 §2.3: парковка «сложного узла» — текст уходит в Архив
                  черновиков (серверный, статус draft), форма освобождается -->
             <button class="btn btn-ghost" id="btnDraft" type="button">💾 Отложить в Архив</button>
@@ -215,8 +252,13 @@
       <section class="block" id="mineBlock" aria-labelledby="mineH">
         <div class="block-top">
           <h2 class="block-h" id="mineH">Мои испытания</h2>
+          <!-- Вход в Лог событий раньше был только с конверта в шапке — из блока
+               заявок к ленте их событий не вела ни одна ссылка. -->
+          <a class="mini" href="#/log">Лог событий</a>
           <button class="mini" id="mineRefresh" type="button" hidden>Обновить</button>
         </div>
+        <!-- Связка терминов одного экрана: «испытания» в заголовке = «заявки» в списке -->
+        <p class="field-h">Ваши заявки и их путь по конвейеру.</p>
         <!-- v6.2 §2.3: подраздел «Архив черновиков» — переключатель списка -->
         <div class="chips mine-tabs" id="mineTabs" role="tablist" hidden>
           <button class="chip on" type="button" id="mineTabReq" role="tab" aria-selected="true">Заявки</button>
@@ -234,26 +276,28 @@
         <div class="sortbar" id="mineSort" hidden></div>
         <ul class="reqs" id="profileList" hidden></ul>
 
+        <!-- Легенда конвейера — сразу под списком заявок, чтобы стадии читались
+             рядом с бейджами, а не за пулом мега-разборов. Список вместо абзаца:
+             три короткие строки сканируются, простыня — нет. -->
+        <ul class="foot-note">
+          <li>Маршрут заявки: <b class="mono">в очереди</b> → <b class="mono">разведка ядром</b> → <b class="mono">сверка праман</b> → <b class="mono">опубликовано</b> (или <b class="mono">отклонена</b> — без публичного разбора).</li>
+          <li>Каждую цитату сверяет человек — движок сам себя не публикует: это красная линия проекта.</li>
+          <li>То же в боте: <code>/status</code>.</li>
+        </ul>
+
         <!-- 🌌 Пул мега-разборов (ТЗ «Мега-разборы»): открытая витрина заявок
              глубиной >108 + голосование. Раз в неделю тема-победитель уходит
-             оператором в тяжёлый процессинг. -->
+             оператором в глубокий разбор. -->
         <section class="block" id="megaBlock" aria-labelledby="megaH" hidden>
           <div class="block-top">
             <h2 class="block-h" id="megaH">🌌 Пул мега-разборов</h2>
             <button class="mini" id="megaRefresh" type="button">Обновить</button>
           </div>
-          <p class="field-h">Фундаментальные исследования (глубина больше 108 цитат) копятся здесь и не стопорят основную очередь. Раз в неделю тема с наибольшей поддержкой уходит в тяжёлый процессинг.</p>
+          <p class="field-h">Фундаментальные исследования (глубина больше 108 цитат) копятся здесь и не стопорят основную очередь. Раз в неделю тема с наибольшей поддержкой уходит в глубокий разбор.</p>
           <div class="state" id="megaState" role="status" aria-live="polite" hidden></div>
           <ul class="reqs" id="megaList" hidden></ul>
         </section>
 
-        <!-- Конвейер: маршрут заявки + кто именно ставит подпись под разбором -->
-        <p class="foot-note">
-          Конвейер разбора: <b class="mono">в очереди</b> → <b class="mono">разведка ядром</b> → <b class="mono">сверка праман</b> → <b class="mono">опубликовано</b> (или <b class="mono">отклонена</b> — без публичного разбора).
-          Черновик собирает движок, но <b>сверку праман делает человек</b>: он сверяет каждую цитату с источником. Движок сам себя не публикует — это красная линия проекта.
-          Стадии, которой у заявки не было, в списке не появится: у ранних заявок путь короткий, и мы показываем ровно то, что было, — без дорисованных шагов.
-          Те же данные в боте: <code>/status</code>.
-        </p>
       </section>
     </section>
 
@@ -281,8 +325,8 @@
       <!-- Раздел Б: Индекс SRI -->
       <div class="pane" id="pane-sri" hidden>
         <p class="disclaimer">
-          <b>Siddhanta Resolution Index.</b> Реестр исторических парадоксов. Здесь движок не выносит вердиктов,
-          а прозрачно показывает все уровни цитат (Прабхупада, Ачарьи, GBC), оставляя право на молчание.
+          <b>Индекс SRI</b> — реестр исторически спорных вопросов (Siddhanta Resolution Index). Здесь движок не выносит вердиктов,
+          а прозрачно показывает все уровни цитат — Шрила Прабхупада, ачарьи, руководящий совет ИСККОН (GBC), — оставляя право на молчание.
         </p>
 
         <div id="sriState" class="state" role="status" aria-live="polite">Загружаю материалы SRI…</div>
@@ -291,7 +335,7 @@
         <p class="foot-note">
           <span class="tag-warn">Реестр узлов в работе</span>
           Отдельных карточек-узлов (SRI-001 и далее) в приложении пока нет: узел становится узлом
-          только после ратификации автором проекта. Придумывать номера, за которыми ничего не стоит, — та же энтропия.
+          только после утверждения автором проекта. Придумывать номера, за которыми ничего не стоит, — та же энтропия.
         </p>
 
         <button class="btn btn-ghost" type="button" data-go-form>Предложить сложный узел</button>
@@ -493,11 +537,11 @@
       <p class="about-p">Обычную мридангу слышно на квартал, «брихат-мридангу» — по всему миру. Каждый ачарья брал самый мощный канал своей эпохи: типография, радио, телевидение. Технология меняется, послание — нет.</p>
 
       <h2 class="about-h">Прозрачная методика</h2>
-      <p class="about-p">Каждую заявку движок обрабатывает по направляющему промпту — инжекту. У каждого инжекта есть <strong>паспорт</strong>: версия, дата, криптографический отпечаток текста и журнал калибровок. На карточке заявки видно, инжектом какой версии велась разведка. Молчаливых правок нет: методика меняется только с отметкой в журнале — это встроено в сборку.</p>
+      <p class="about-p">Каждую заявку движок обрабатывает по рабочей инструкции (внутри проекта её называют «инжект»). У каждой инструкции есть <strong>паспорт</strong>: версия, дата, контрольный отпечаток текста — он подтверждает, что инструкция не менялась незаметно, — и журнал калибровок. На карточке заявки видно, инструкцией какой версии велась разведка. Молчаливых правок нет: методика меняется только с отметкой в журнале — это встроено в сборку.</p>
       <p class="about-cta"><a class="btn btn-primary" href="#/prompts">Открыть Панель прозрачности →</a></p>
 
       <h2 class="about-h">Правила Лаборатории</h2>
-      <p class="about-p">Это не витрина, а полигон. Участники присылают вызовы: софизмы, искажения сиддханты, споры. Движок разбирает их по праманам, а <strong>ответ утверждает человек</strong> — наружу без проверки не выходит ничего.</p>
+      <p class="about-p">Это не витрина, а полигон. Участники присылают заявки: софизмы, искажения сиддханты, споры. Движок разбирает их по праманам — дословным цитатам первоисточников, — а <strong>ответ утверждает человек</strong>: наружу без проверки не выходит ничего.</p>
       <ul class="principles">
         <li><strong>Анонимность по умолчанию.</strong> В публикациях заявитель — «участник Лаборатории». Имя раскрывается только с вашего согласия.</li>
         <li><strong>Тонкие темы — живым людям.</strong> Религиозная травма, семейные кризисы и сокровенные вопросы уходят к наставникам. Движок такие узлы не решает. Это принцип, а не отговорка.</li>
@@ -511,7 +555,7 @@
       <ul class="links-list">
         <li><a class="cite" href="https://dgdbvgm-tech.github.io/kavacham/" target="_blank" rel="noopener">Лендинг проекта</a> — зачем это всё, полностью</li>
         <li><a class="cite" href="https://t.me/+8zzg7sB9VHcxZWNi" target="_blank" rel="noopener">Канал Лаборатории</a> — публикации и обсуждение</li>
-        <li><a class="cite" href="https://t.me/kavacham_lab_bot" target="_blank" rel="noopener">Бот-приёмная</a> — прислать вызов, узнать статус, связаться с разработчиком</li>
+        <li><a class="cite" href="https://t.me/kavacham_lab_bot" target="_blank" rel="noopener">Бот-приёмная</a> — задать вопрос, узнать статус, связаться с разработчиком</li>
       </ul>
 
       <p class="about-note">Проект ведёт Даял-Говинда дас — как служение делу систематизации и защиты наследия Шрилы Прабхупады в парампаре.</p>
@@ -551,6 +595,10 @@
         <p>Этот раздел — админский пульт Лаборатории. Права проверяет сервер по подписи Telegram; пароля здесь нет и не будет.</p>
         <p>Если вы ищете свои заявки — они на «Терминале», блок «Мои испытания».</p>
         <a class="btn btn-ghost" href="#/terminal">На Терминал</a>
+        <!-- Для админа, у которого стартовая проверка прав упала по сети:
+             повторный запрос вместо перезапуска приложения. Не-админу кнопка
+             безвредна — сервер снова ответит false. Обработчик — в app.js. -->
+        <button class="btn btn-ghost" data-recheck-admin type="button">Проверить ещё раз</button>
       </div>
 
       <div id="hqBody" hidden>
@@ -578,9 +626,8 @@
           <ul class="reqs" id="hqContribList" hidden></ul>
         </section>
 
-        <!-- Обновления GBC/SAC: последний отчёт сверки официальных страниц
-             gbc.iskcon.org с библиотекой (пишет refresh_iskcon_docs.py --push:
-             ежемесячный launchd на Mac + ручные прогоны). Только чтение. -->
+        <!-- Обновления GBC/SAC: отчёт сверки официальных страниц с библиотекой;
+             данные обновляются автоматически. Только чтение. -->
         <section class="block" aria-labelledby="hqDocsH">
           <div class="block-top">
             <h2 class="block-h" id="hqDocsH">Обновления GBC/SAC</h2>
@@ -590,8 +637,7 @@
           <div id="hqDocsBody" hidden></div>
         </section>
 
-        <!-- HTML-реестры GBC (Law Book, реестр гуру): контент-хеш-дифф,
-             html_registry_monitor.py --push → lab_config/html_registry_report. -->
+        <!-- HTML-реестры GBC (Law Book, реестр гуру): данные обновляются автоматически. -->
         <section class="block" aria-labelledby="hqHtmlH">
           <div class="block-top">
             <h2 class="block-h" id="hqHtmlH">HTML-реестры GBC</h2>
@@ -602,7 +648,7 @@
         </section>
 
         <!-- Новости ИСККОН (СЕРЫЙ КОНТУР): ISKCON News / Dandavats, отдельный
-             канал, news_feed_monitor.py → lab_config/news_feed_report. НЕ прамана. -->
+             канал; данные обновляются автоматически. НЕ прамана. -->
         <section class="block" aria-labelledby="hqNewsH">
           <div class="block-top">
             <h2 class="block-h" id="hqNewsH">Новости ИСККОН · 🟡 серый контур</h2>
@@ -704,8 +750,8 @@
         </section>
 
         <p class="foot-note">
-          Открыто публикуются название, версия, дата и суть изменений; sha256-отпечаток подтверждает,
-          что текст инструкции не менялся без следа. Полные тексты инструкций не публикуются —
+          Открыто публикуются название, версия, дата и суть изменений; контрольный отпечаток текста подтверждает,
+          что инструкция не менялась незаметно. Полные тексты инструкций не публикуются —
           открытый промпт облегчил бы целенаправленный подбор обходов. Это осознанный компромисс
           прозрачности и устойчивости; решение о полной публикации — за автором проекта.
         </p>
@@ -738,6 +784,9 @@
           <button class="btn btn-primary" id="btnShare" type="button">Поделиться</button>
           <a class="btn btn-ghost" id="btnPage" href="#" target="_blank" rel="noopener">Открыть как страницу</a>
           <button class="btn btn-ghost" id="btnFix" type="button">Нашёл неточность</button>
+          <!-- Мост после чтения: раньше конец разбора был тупиком без выхода
+               на подачу своей заявки. Обработчик data-go-form уже есть в app.js. -->
+          <button class="btn btn-ghost" type="button" data-go-form>Прислать свой вопрос</button>
         </div>
         <p class="reading-foot muted">
           Нашли расхождение с источником — это ценно. Пришлите его в бота: назовите разбор и цитату,
@@ -760,14 +809,16 @@
        строки (терминал), ◈ огранённая призма (полигон смотрит на источник через
        призму), ⬗ наполняющаяся форма (вклад со-создателя), ⛨ щит — «кавача». -->
   <nav class="tabbar" id="tabbar" aria-label="Разделы">
+    <!-- Вторая строка .tab-sub отвечает «что здесь делать»: бренд-имена вкладок
+         остаются, но новичку метафоры движка сами по себе ничего не говорят. -->
     <a class="tab" href="#/terminal" data-tab="terminal">
-      <span class="tab-i" aria-hidden="true">▶_</span><span class="tab-t">Терминал</span>
+      <span class="tab-i" aria-hidden="true">▶_</span><span class="tab-t">Терминал</span><span class="tab-sub">подать заявку</span>
     </a>
     <a class="tab" href="#/polygon" data-tab="polygon">
-      <span class="tab-i" aria-hidden="true">◈</span><span class="tab-t">Полигон</span>
+      <span class="tab-i" aria-hidden="true">◈</span><span class="tab-t">Полигон</span><span class="tab-sub">читать разборы</span>
     </a>
     <a class="tab" href="#/enrich" data-tab="enrich">
-      <span class="tab-i" aria-hidden="true">⬗&#xFE0E;</span><span class="tab-t">Обогащение</span>
+      <span class="tab-i" aria-hidden="true">⬗&#xFE0E;</span><span class="tab-t">Обогащение</span><span class="tab-sub">помочь проекту</span>
     </a>
     <a class="tab" href="#/about" data-tab="about">
       <!-- U+FE0E принуждает ТЕКСТОВЫЙ рендер: без него iOS рисует U+26E8 цветным эмодзи -->
@@ -781,6 +832,6 @@
   </nav>
 
   <!-- метку ?v= поднимать при каждом деплое app.js/app.css — иначе клиенты Telegram держат старый кэш -->
-  <script src="app.js?v=2026072422"></script>
+  <script src="app.js?v=2026072423"></script>
 </body>
 </html>

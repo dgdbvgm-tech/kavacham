@@ -147,6 +147,30 @@
   }
   function authed() { return initData().length > 0; }
 
+  // Таймаут сети: fetch без предела ждёт вечно, и человек смотрит на «Загружаю…»
+  // без кнопки «Повторить». AbortController по таймеру переводит зависший запрос
+  // в честную ошибку — дальше срабатывают уже существующие .catch с «Повторить».
+  // Совсем старый клиент без AbortController — деградация в обычный fetch.
+  var FETCH_TIMEOUT = 15000;
+  function fetchT(url, opts, ms) {
+    if (typeof AbortController !== 'function') return fetch(url, opts);
+    var ctl = new AbortController();
+    var o = {}, k, src = opts || {};
+    for (k in src) { if (Object.prototype.hasOwnProperty.call(src, k)) o[k] = src[k]; }
+    o.signal = ctl.signal;
+    var timer = setTimeout(function () { try { ctl.abort(); } catch (e) {} }, ms || FETCH_TIMEOUT);
+    return fetch(url, o).then(function (r) {
+      clearTimeout(timer);
+      return r;
+    }, function (e) {
+      clearTimeout(timer);
+      if (e && e.name === 'AbortError') {
+        throw new Error('Сервер не ответил вовремя. Проверьте связь и попробуйте ещё раз.');
+      }
+      throw e;
+    });
+  }
+
   // Один сетевой шов на все вызовы API: подпись в заголовке, ошибка — по-русски.
   function api(path, opts) {
     var o = opts || {};
@@ -156,7 +180,7 @@
       headers['Content-Type'] = 'application/json';
       init.body = JSON.stringify(o.body);
     }
-    return fetch(API_BASE + path, init).then(function (r) {
+    return fetchT(API_BASE + path, init).then(function (r) {
       return r.text().then(function (t) {
         var data = null;
         try { data = t ? JSON.parse(t) : null; } catch (e) { data = null; }
@@ -360,8 +384,10 @@
     enrich:   { el: 'screen-enrich',   tab: 'enrich',   back: false },
     about:    { el: 'screen-about',    tab: 'about',    back: false },
     hq:       { el: 'screen-hq',       tab: 'hq',       back: false },
-    // Лог событий (v6.3): вкладки не имеет, вход с конверта в шапке
-    log:      { el: 'screen-log',      tab: 'terminal', back: true  },
+    // Лог событий (v6.3): вкладки не имеет, вход с конверта в шапке.
+    // tab: null — на экране лога НИ ОДНА вкладка не подсвечивается: подсветка
+    // «Терминала» врала бы о местонахождении (аудит UX №35).
+    log:      { el: 'screen-log',      tab: null,       back: true  },
     // Панель прозрачности (v6.5): версии инжектов; вход из формы и «О проекте»
     prompts:  { el: 'screen-prompts',  tab: 'about',    back: true  }
   };
@@ -433,8 +459,10 @@
       return { redirect: '#/terminal?focus=mine' };
     }
 
-    if (head === 'reading' && parts[1]) {
-      return { name: 'reading', slug: parts[1], seg: 'razbory', rubric: null, tag: null };
+    if (head === 'reading') {
+      // Без слага (#/reading/) — slug:null: loadReading честно покажет
+      // «Разбор не найден» с кнопкой «В Полигон», а не молча уведёт на Терминал.
+      return { name: 'reading', slug: parts[1] || null, seg: 'razbory', rubric: null, tag: null };
     }
     if (SCREENS[head] && head !== 'reading') {
       return {
@@ -503,8 +531,17 @@
 
   // куда возвращает «назад» из разбора: в тот же срез ленты, из которого ушли
   var lastFeedHash = polygonHash('razbory', null);
+  // …и МЕСТО в ней: scrollY ленты в момент ухода в разбор. Иначе «назад»
+  // бросает наверх, и человек заново листает до места, где остановился.
+  var lastFeedScroll = 0;      // запомнено при уходе polygon → reading
+  var feedScrollPending = 0;   // сколько восстановить после отрисовки ленты
 
   function route() {
+    // Статический фолбэк «приложение не загрузилось» из index.html: раз route()
+    // выполняется — JS жив, заглушку прячем первой строкой.
+    var jf = document.getElementById('jsFallback');
+    if (jf) jf.hidden = true;
+
     var r = parseHash();
 
     if (r.redirect) { location.replace(r.redirect); return; }
@@ -512,13 +549,24 @@
     var prev = current;
     current = r;
 
+    // Память мест: уход из ленты в разбор — запоминаем прокрутку ленты;
+    // возврат из разбора в ленту — помечаем её к восстановлению (см. loadFeed).
+    if (prev.name === 'polygon' && r.name === 'reading') lastFeedScroll = window.scrollY || 0;
+    feedScrollPending = (prev.name === 'reading' && r.name === 'polygon') ? lastFeedScroll : 0;
+    // Позиция чтения длинного разбора — по слагу в sessionStorage: повторное
+    // открытие в этой же сессии продолжает с того же места (см. renderReading).
+    if (prev.name === 'reading' && prev.slug) {
+      try { sessionStorage.setItem('kv.read.pos.' + prev.slug, String(window.scrollY || 0)); } catch (e) {}
+    }
+
     Object.keys(SCREENS).forEach(function (name) {
       $(SCREENS[name].el).hidden = (name !== r.name);
     });
 
     var tab = SCREENS[r.name].tab;
     Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (a) {
-      if (a.dataset.tab === tab) a.setAttribute('aria-current', 'page');
+      // tab === null (лог событий) — безопасно: подсветка снимается со всех
+      if (tab && a.dataset.tab === tab) a.setAttribute('aria-current', 'page');
       else a.removeAttribute('aria-current');
     });
 
@@ -592,10 +640,12 @@
       return w;
     }
 
-    el.appendChild(cell('Оператор', known ? name : 'гость'));
-    el.appendChild(cell('Статус', 'тестировщик'));
+    // «Лаборант», не «Оператор»: Оператором в приложении зовут администратора
+    // (аудит UX №39 — одно слово означало двух разных людей).
+    el.appendChild(cell('Лаборант', known ? name : 'гость'));
+    el.appendChild(cell('Статус', 'участник песочницы'));
     // вне Telegram подписи нет — говорим об этом прямо, а не делаем вид, что всё как обычно
-    if (!authed()) el.appendChild(cell('Режим', 'чтение', 'ops-warn'));
+    if (!authed()) el.appendChild(cell('Режим', 'чтение (подача заявок — в Telegram)', 'ops-warn'));
   }
 
   function openForm() {
@@ -648,6 +698,9 @@
     syncTerminalMain();
 
     if (r.focus === 'mine') scrollToEl($('mineBlock'));
+    // #/terminal?focus=mega — прямая ссылка на голосование мега-пула: на неё
+    // ведут разборы-голосования из ленты (иначе виджет в глубине Терминала не найти)
+    else if (r.focus === 'mega') scrollToEl($('megaBlock'));
     else if (r.form) scrollToEl($('initPanel'));
   }
 
@@ -695,9 +748,49 @@
     return (rubricByKey[key] && rubricByKey[key].title) || KIND_LABEL[key] || 'Материал';
   }
 
+  // ——— «Новое с прошлого визита» ————————————————————————————
+  // localStorage kv.feed.seen = ISO-дата последнего просмотра ленты. Карточки
+  // новее метки получают класс .card-new, а таб «Полигон» — счётчик непрочитанного
+  // (по образцу конверта). Базлайн фиксируется на сессию при первом показе ленты:
+  // иначе метки «новое» гасли бы при первой же смене рубрики.
+  var FEED_SEEN_KEY = 'kv.feed.seen';
+  var feedSeenMark = null;   // дата прошлого визита, замороженная на эту сессию
+
+  function feedSeenGet() {
+    try { return localStorage.getItem(FEED_SEEN_KEY) || ''; } catch (e) { return ''; }
+  }
+  function isNewSince(it, seen) {
+    return !!(seen && it && it.date && String(it.date).slice(0, 10) > seen);
+  }
+  // Счётчик «новых» на табе «Полигон». Бейдж рисуем сами (разметку таббара не
+  // трогаем): тот же класс .bell-n, что у конверта; якорь — position:relative.
+  function syncFeedBadge() {
+    var tabEl = document.querySelector('.tab[data-tab="polygon"]');
+    if (!tabEl) return;
+    var seen = feedSeenGet(), n = 0;
+    feedItems.forEach(function (it) { if (isNewSince(it, seen)) n++; });
+    var b = tabEl.querySelector('.bell-n');
+    if (!b) {
+      if (!n) return;                       // нуль — и рисовать нечего
+      tabEl.style.position = 'relative';    // якорь для абсолютного бейджа
+      b = document.createElement('span');
+      b.className = 'bell-n';
+      b.setAttribute('aria-hidden', 'true'); // текст таба и так читается, цифра — украшение
+      tabEl.appendChild(b);
+    }
+    b.textContent = n > 9 ? '9+' : String(n);
+    b.hidden = !n;
+  }
+  // Визит в ленту состоялся: замораживаем базлайн сессии, двигаем метку, гасим бейдж.
+  function feedSeenTouch() {
+    if (feedSeenMark === null) feedSeenMark = feedSeenGet();
+    try { localStorage.setItem(FEED_SEEN_KEY, new Date().toISOString().slice(0, 10)); } catch (e) {}
+    syncFeedBadge();
+  }
+
   function fetchFeed() {
     if (!feedPromise) {
-      feedPromise = fetch('data/feed.json', { cache: 'no-cache' })
+      feedPromise = fetchT('data/feed.json', { cache: 'no-cache' })
         .then(function (r) {
           if (!r.ok) throw new Error('HTTP ' + r.status);
           return r.json();
@@ -731,6 +824,13 @@
     }
     return feedPromise;
   }
+
+  // Один тихий GET ленты на старте: счётчик «новых разборов» на табе «Полигон»
+  // должен быть виден ещё ДО захода в Полигон — иначе бейджу некого звать.
+  // Побочный плюс: к первому переходу в ленту она уже в кэше.
+  fetchFeed().then(syncFeedBadge).catch(function () {
+    feedPromise = null;   // неудачу не кэшируем — заход в Полигон попробует снова
+  });
 
   // Адреса разбора: сперва контракт ленты, и только если элемента нет
   // (прямой deep-link на разбор, которого нет в ленте) — договорная раскладка.
@@ -818,10 +918,13 @@
 
     fetchFeed()
       .then(function (items) {
+        feedSeenTouch();   // визит в ленту: базлайн «нового» + метка + гашение бейджа
         if (!items.length) {
           showState(stateEl,
             '<span class="state-h">Лента пока пуста</span>' +
-            'Первые разборы появятся здесь сразу после публикации. Пока их можно читать в канале Лаборатории.', false);
+            'Первые разборы появятся здесь сразу после публикации. Пока их можно читать в канале Лаборатории.' +
+            '<br><a class="btn btn-ghost" href="https://t.me/+8zzg7sB9VHcxZWNi" target="_blank" rel="noopener">Открыть канал Лаборатории</a>' +
+            '<button class="btn btn-ghost" type="button" data-open-bot>Открыть бота</button>', false);
           listEl.hidden = true;
           navEl.hidden = true;
           $('tagFilter').hidden = true;
@@ -866,6 +969,18 @@
         }), listEl);
         stateEl.hidden = true;
         listEl.hidden = false;
+
+        // Возврат из разбора: route() уже сбросил прокрутку в ноль — возвращаем
+        // человека к месту, где он остановился (следующий кадр: после раскладки).
+        if (feedScrollPending > 0) {
+          var y = feedScrollPending;
+          feedScrollPending = 0;
+          lastFeedScroll = 0;
+          setTimeout(function () {
+            try { window.scrollTo({ top: y, left: 0, behavior: 'instant' }); }
+            catch (e) { window.scrollTo(0, y); }
+          }, 0);
+        }
       })
       .catch(function (err) {
         // упавший промис нельзя кэшировать: иначе «Повторить» переиспользует ту же
@@ -875,7 +990,8 @@
         showState(stateEl,
           '<span class="state-h">Не удалось загрузить ленту</span>' +
           'Похоже, нет связи. Разборы всегда доступны в боте и на сайте — это и есть запасной путь.' +
-          '<br><button class="btn btn-ghost" type="button" data-retry-feed>Повторить</button>', true);
+          '<br><button class="btn btn-ghost" type="button" data-retry-feed>Повторить</button>' +
+          '<button class="btn btn-ghost" type="button" data-open-bot>Открыть бота</button>', true);
         listEl.hidden = true;
         navEl.hidden = true;
         if (window.console) console.warn('[kavacham] feed:', err && err.message);
@@ -889,8 +1005,15 @@
     var navEl = $('rubrics');
     navEl.textContent = '';
 
+    // При активном теге счётчики считаем по ПЕРЕСЕЧЕНИЮ с ним: чип, обещающий
+    // N материалов, обязан вести к N материалам, а не в «Ничего не нашлось».
+    // Рубрики с нулём при этом прячутся сами (фильтр shown ниже).
+    var base = tag
+      ? feedItems.filter(function (it) { return itemHasTag(it, tag); })
+      : feedItems;
+
     var counts = Object.create(null);
-    feedItems.forEach(function (it) {
+    base.forEach(function (it) {
       var k = itemRubric(it);
       counts[k] = (counts[k] || 0) + 1;
     });
@@ -914,7 +1037,7 @@
       return a;
     }
 
-    navEl.appendChild(chip(null, 'Все', feedItems.length));
+    navEl.appendChild(chip(null, 'Все', base.length));
     shown.forEach(function (r) { navEl.appendChild(chip(r.key, r.title, counts[r.key])); });
     navEl.hidden = false;
 
@@ -940,6 +1063,8 @@
       var li = document.createElement('li');
       var a = document.createElement('a');
       a.className = 'feed-card';
+      // опубликовано после прошлого визита — метка «новое» (класс рисует app.css)
+      if (isNewSince(it, feedSeenMark)) a.classList.add('card-new');
       a.href = '#/reading/' + encodeURIComponent(it.slug || '');
 
       var rk = itemRubric(it);
@@ -955,6 +1080,13 @@
         num.className = 'num';
         num.textContent = '№' + it.number;
         top.appendChild(num);
+      }
+      // материал с тегом «голосование» — прямо на карточке видно, что тема живая
+      if (itemHasTag(it, 'голосование')) {
+        var vote = document.createElement('span');
+        vote.className = 'num card-vote';
+        vote.textContent = '🗳 идёт голосование';
+        top.appendChild(vote);
       }
       a.appendChild(top);
 
@@ -996,6 +1128,15 @@
           // а кликабельный span: клик/Enter уводят в ленту с фильтром по тегу.
           tags.appendChild(makeTagEl(t, current.rubric));
         });
+        // Скрытых тегов не прячем молча: бейдж «+N» говорит, что темы есть ещё.
+        // Некликабельный span — тап проходит на карточку, полный список внутри разбора.
+        if (tagList.length > 3) {
+          var more = document.createElement('span');
+          more.className = 'tag tag-more';
+          more.textContent = '+' + (tagList.length - 3);
+          more.title = tagList.slice(3).join(' · ');
+          tags.appendChild(more);
+        }
         a.appendChild(tags);
       }
 
@@ -1035,7 +1176,9 @@
   function isSriItem(it) {
     var s = String((it && it.slug) || '');
     var t = String((it && it.title) || '');
-    return /(^|[-_])sri([-_]|$)/i.test(s) || /\bSRI\b/.test(t);
+    // теги — такие же данные ленты, как слаг и заголовок: материал с тегом «SRI»
+    // обязан попадать в сегмент, даже если слово не влезло в название
+    return /(^|[-_])sri([-_]|$)/i.test(s) || /\bSRI\b/.test(t) || itemHasTag(it, 'SRI');
   }
 
   function loadSri() {
@@ -1090,7 +1233,7 @@
     treeEl.hidden = true;
     showState(stateEl, 'Загружаю корпуса…', false);
 
-    fetch('data/corpus_tree.json', { cache: 'no-cache' })
+    fetchT('data/corpus_tree.json', { cache: 'no-cache' })
       .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function (payload) {
         if (!payload || !Array.isArray(payload.tree) || !payload.tree.length) throw new Error('дерево пустое');
@@ -1311,7 +1454,7 @@
       scopesReq = null;
       showState(stateEl,
         '<span class="state-h">Не удалось загрузить корпуса</span>' +
-        (err && err.message ? err.message : '') +
+        escText(err && err.message ? err.message : '') +
         '<br><button class="btn btn-ghost" type="button" data-retry-corp>Повторить</button>', true);
     });
   }
@@ -1348,7 +1491,7 @@
     fetchFeed()
       .catch(function () { return null; })
       .then(function () {
-        return fetch(readingUrlFor(slug), { cache: 'no-cache' });
+        return fetchT(readingUrlFor(slug), { cache: 'no-cache' });
       })
       .then(function (r) {
         if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -1367,7 +1510,10 @@
           '<span class="state-h">Не удалось открыть разбор</span>' +
           (known
             ? 'Тот же текст открывается как обычная страница — она работает, даже когда приложение недоступно.' +
-              '<br><a class="btn btn-ghost" href="' + pagesUrlFor(slug).replace(/"/g, '%22') +
+              // «Повторить» — первое действие: чаще всего это мигнувшая сеть,
+              // и уводить человека из приложения из-за неё — перебор
+              '<br><button class="btn btn-ghost" type="button" data-retry-reading>Повторить</button>' +
+              '<a class="btn btn-ghost" href="' + pagesUrlFor(slug).replace(/"/g, '%22') +
               '" target="_blank" rel="noopener">Открыть как страницу</a>'
             : 'Такого разбора в протоколах нет — возможно, ссылка устарела или в ней опечатка.' +
               '<br><a class="btn btn-ghost" href="' + polygonHash('razbory', null) + '">В Полигон</a>'), true);
@@ -1464,8 +1610,14 @@
     stateEl.hidden = true;
     rootEl.hidden = false;
 
-    // якорь из хэша обрабатывать нечем (у нас хэш занят роутером) — просто наверх
-    window.scrollTo(0, 0);
+    // Позиция чтения: повторное открытие того же разбора в этой сессии продолжает
+    // с сохранённого места (запись — при уходе с экрана, см. route()). Впервые —
+    // наверх; якорей из хэша нет (хэш занят роутером).
+    var savedPos = 0;
+    try {
+      savedPos = parseInt(sessionStorage.getItem('kv.read.pos.' + (current.slug || slug)) || '0', 10) || 0;
+    } catch (e) { /* приватный режим — начинаем сверху */ }
+    window.scrollTo(0, savedPos > 0 ? savedPos : 0);
   }
 
   // Пост-обработка тела: таблицы — в свой скроллер (страница не должна ездить вбок);
@@ -1479,10 +1631,43 @@
       wrap.appendChild(t);
     });
 
+    // Свои же разборы не должны выбрасывать из приложения на Pages: ссылка,
+    // совпадающая с pages_url элемента ленты (или с раскладкой LANDING +
+    // reading/<slug>.html), переписывается на внутренний маршрут #/reading/<slug>.
+    // Карта строится один раз на вызов; без прочитанной ленты (feedOk=false)
+    // ручаться не за что — оставляем внешнее открытие.
+    var pagesMap = null;
+    function internalSlugFor(href) {
+      if (!feedOk) return null;
+      var clean = href.split('#')[0].split('?')[0];
+      if (pagesMap === null) {
+        pagesMap = Object.create(null);
+        Object.keys(feedIndex).forEach(function (s) {
+          var it = feedIndex[s];
+          if (!it || typeof it.pages_url !== 'string' || !it.pages_url) return;
+          try { pagesMap[new URL(it.pages_url, APP_BASE).href.split('#')[0].split('?')[0]] = s; }
+          catch (e) { /* кривой адрес в данных — просто не перепишем */ }
+        });
+      }
+      if (pagesMap[clean]) return pagesMap[clean];
+      if (clean.indexOf(LANDING) === 0) {
+        var m = /^reading\/([a-zA-Z0-9][a-zA-Z0-9._-]{0,120})\.html$/.exec(clean.slice(LANDING.length));
+        if (m && feedIndex[m[1]]) return m[1];
+      }
+      return null;
+    }
+
     Array.prototype.forEach.call(body.querySelectorAll('a[href]'), function (a) {
       var href = a.getAttribute('href') || '';
       if (/^#/.test(href)) return; // якорь оглавления — не трогаем
       if (!/^https?:/i.test(href)) return;
+      var ownSlug = internalSlugFor(href);
+      if (ownSlug) {
+        a.setAttribute('href', '#/reading/' + encodeURIComponent(ownSlug));
+        a.removeAttribute('target');
+        a.addEventListener('click', function () { haptic('light'); });
+        return;
+      }
       a.setAttribute('target', '_blank');
       a.setAttribute('rel', 'noopener');
       a.addEventListener('click', function (e) {
@@ -2320,7 +2505,14 @@
       scopesReq = null;
       showState(stateEl,
         'Не удалось загрузить список корпусов. Разбор всё равно пойдёт по основе — Шрила Прабхупада. ' +
-        (err && err.message ? err.message : ''), true);
+        escText(err && err.message ? err.message : '') +
+        '<br><button class="btn btn-ghost" type="button" data-retry-scopes>Повторить</button>', true);
+      // обработчик локальный: состояние живёт только внутри этого блока формы
+      var rb = stateEl.querySelector('[data-retry-scopes]');
+      if (rb) rb.addEventListener('click', function () {
+        haptic('light');
+        loadCorpusSelector();   // после падения зайдёт заново: дерево авторизованным, чипы остальным
+      });
     });
   }
 
@@ -2358,12 +2550,23 @@
     el.textContent = msg;
     el.hidden = false;
     haptic('error');
+    // Ошибка обязана попасть в кадр: отправка идёт и нижней кнопкой Telegram,
+    // а #submitErr живёт в глубине длинной формы — без прокрутки её не видно.
+    scrollToEl(el);
   }
 
   // Генеративные стоп-слова (v6.2 §2.3). Текст с маркером [T-…] пропускаем:
   // внутри шаблона может лежать ЦИТАТА оппонента с любыми словами — шаблон и есть
   // то русло, куда Alert предлагает направить запрос.
-  var STOP_GEN = /(напиши|состав(?:ь|ьте)|придумай|эссе|конспект)/i;
+  // Ловим НАМЕРЕНИЕ, а не упоминание: императив в начале запроса либо глагол
+  // написания в паре с «эссе/конспект». Честный вопрос «Проверьте цитату из
+  // конспекта лекции…» блокировать нельзя (аудит UX №12).
+  var STOP_GEN = /^\s*["«']?(напиши(?:те)?|состав(?:ь|ьте)|придумай(?:те)?)\b/i;
+  var STOP_GEN_PAIR = /(напиши|напишите|состав(?:ь|ьте|ить)|придумай(?:те)?)[^.!?\n]{0,60}(эссе|конспект)/i;
+
+  // Нетронутая заготовка чипа-шаблона — где угодно в тексте: «{вставьте текст}»
+  // не вопрос, отправлять его в очередь бессмысленно (аудит UX №9).
+  var TPL_PLACEHOLDER_ANY = /\{(?:вставьте текст|вставьте цитату|сформулируйте вопрос)\}/;
 
   function trySend() {
     if (sending) return;
@@ -2373,13 +2576,18 @@
     if (n < 15) { formErr('Вызов слишком короткий: нужно не меньше 15 символов, сейчас ' + n + '. Опишите суть — так разбор будет точнее.'); return; }
     if (n > 4000) { formErr('Слишком длинно: до 4000 символов, сейчас ' + n + '. Пришлите главное, остальное дополните в боте.'); return; }
     var rawText = $('reqText').value;
-    if (!/^\s*\[T-/.test(rawText) && STOP_GEN.test(rawText)) {
+    if (!/^\s*\[T-/.test(rawText) && (STOP_GEN.test(rawText) || STOP_GEN_PAIR.test(rawText))) {
       formErr('⚠️ Нецелевой запрос: КАВАЧАМ — аналитик, а не писатель, эссе и конспекты он не пишет. ' +
-              'Выберите шаблон над полем (софизм · цитата · учебный узел) и сформулируйте вопрос к первоисточникам.');
+              'Если это цитата оппонента или честный вопрос — нажмите чип-шаблон над полем: тот же текст пройдёт.');
+      return;
+    }
+    if (TPL_PLACEHOLDER_ANY.test(rawText)) {
+      formErr('В тексте осталась заготовка шаблона вида {вставьте текст} — замените её своим вопросом или цитатой.');
       return;
     }
     if (!baseOn && !scopeSel.length) {
-      formErr('Основа снята, а слои не выбраны — разбору не по чему искать. Включите основу или отметьте хотя бы один слой.');
+      formErr('Основа снята, а другие источники не отмечены — разбору не по чему искать. ' +
+              'Включите основу (Шрила Прабхупада) или отметьте хотя бы один корпус в списке выше.');
       return;
     }
 
@@ -2479,7 +2687,9 @@
     $('depthVal').textContent = String(d);
     $('megaNote').hidden = d <= MEGA_T;
     Array.prototype.forEach.call(document.querySelectorAll('.depth-presets [data-depth]'), function (b) {
-      b.classList.toggle('on', parseInt(b.getAttribute('data-depth'), 10) === d);
+      var on = parseInt(b.getAttribute('data-depth'), 10) === d;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-pressed', String(on));   // состояние — не только классом: скринридер тоже должен его слышать
     });
   }
 
@@ -2507,12 +2717,18 @@
         : 'Заявка встала в общую очередь. Она идёт по порядку поступления.';
     }
     html += ' Когда разбор выйдет, бот пришлёт вам ссылку.';
+    // Честно про сроки: обещать часы или дни нельзя (очередь живая), но человек
+    // должен знать, где смотреть продвижение.
+    html += ' Срок зависит от очереди; стадия всегда видна в блоке "Мои испытания" ниже и по /status в боте.';
     html += '<br><button class="btn btn-ghost" type="button" data-go-mine>Мои испытания</button>' +
             '<button class="btn btn-ghost" type="button" data-again>Прислать ещё вызов</button>';
 
     doneShown = true;
     showState($('submitDone'), html, false);
     $('submitForm').hidden = true;
+    // Итог — в кадр: при отправке нижней кнопкой Telegram экран мог стоять
+    // на селекторе корпусов, и «Заявка принята» оставалась за кадром.
+    scrollToEl($('submitDone'));
 
     mineDirty = true;
     mountProfile();          // новая заявка должна появиться в списке сразу
@@ -2660,7 +2876,9 @@
     // Подсветка выбранной категории: одна активная на оба ряда; выбор ступени
     // подсвечивает и родительский чип «Учебный узел».
     Array.prototype.forEach.call(document.querySelectorAll('#qmChips [data-qm], #qmEduRow [data-qm]'), function (b) {
-      b.classList.toggle('on', b.getAttribute('data-qm') === code);
+      var on = b.getAttribute('data-qm') === code;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-pressed', String(on));   // выбранная категория слышна скринридеру
     });
     $('qmEdu').classList.toggle('on', /^T-EDU-/.test(code || ''));
   }
@@ -2720,6 +2938,15 @@
      оператор уводит в тяжёлый процессинг обычным «в разведку».
      ══════════════════════════════════════════════════════════════════ */
 
+  // Текст ошибки сервера (data.error) — чужая строка: перед вставкой в innerHTML
+  // (showState) её обязательно экранировать, иначе сервер (или прокси по пути)
+  // мог бы дорисовать нам разметку. Свои статические шаблоны не трогаем.
+  function escText(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
   var megaAt = 0;
   var MEGA_TTL = 60 * 1000;
 
@@ -2757,6 +2984,7 @@
         var vb = document.createElement('button');
         vb.type = 'button';
         vb.className = 'chip' + (it.my_vote ? ' on' : '');
+        vb.setAttribute('aria-pressed', String(!!it.my_vote));   // «мой голос» — состояние, слышное скринридеру
         vb.textContent = '🗳 ' + it.votes + ' · ' + (it.my_vote ? 'ваш голос учтён' : 'поддержать');
         vb.addEventListener('click', function () {
           haptic('select');
@@ -2764,6 +2992,7 @@
           api('/api/mega-pool/' + it.key + '/vote', { method: 'POST', body: {} })
             .then(function (r) {
               vb.classList.toggle('on', !!(r && r.voted));
+              vb.setAttribute('aria-pressed', String(!!(r && r.voted)));
               vb.textContent = '🗳 ' + ((r && r.votes) || 0) + ' · ' +
                 (r && r.voted ? 'ваш голос учтён' : 'поддержать');
             })
@@ -2778,7 +3007,7 @@
     }).catch(function (err) {
       block.hidden = false;
       listEl.hidden = true;
-      showState(stateEl, 'Пул сейчас недоступен: ' + (err && err.message ? err.message : ''), true);
+      showState(stateEl, 'Пул сейчас недоступен: ' + escText(err && err.message ? err.message : ''), true);
     });
   }
 
@@ -2865,7 +3094,7 @@
     }).catch(function (err) {
       promptsAt = 0;
       showState(stateEl, '<span class="state-h">Реестр недоступен</span>' +
-        (err && err.message ? err.message : ''), true);
+        escText(err && err.message ? err.message : ''), true);
     });
   }
 
@@ -2905,7 +3134,7 @@
       })
       .catch(function (err) {
         haptic('error');
-        showState($('profileState'), (err && err.message) || 'Не получилось — сервер обновляется, попробуйте позже.', true);
+        showState($('profileState'), escText((err && err.message) || 'Не получилось — сервер обновляется, попробуйте позже.'), true);
       });
   }
 
@@ -3109,6 +3338,13 @@
   var IN_WORK = { scouting: 1, verifying: 1 };   // заявка в руках движка/человека
   var PIPE_MARK = { past: '✓', now: '◉', next: '○' };
   var PIPE_SR = { past: ' — пройдено', now: ' — сейчас', next: ' — предстоит' };
+  // Расшифровка стадий-жаргонизмов у самого бейджа (тултип + текст скринридеру):
+  // легенда в подвале блока есть, но до неё ещё надо доскроллить. «Праманы»
+  // расшифровываем на месте — дословные цитаты первоисточников (стандарт словаря проекта).
+  var STAGE_HINT = {
+    scouting:  'Разведка: движок ищет дословные цитаты в библиотеке.',
+    verifying: 'Сверка праман: человек сверяет каждую цитату с первоисточником. Праманы — дословные цитаты первоисточников.'
+  };
 
   var mineDirty = true;    // список заявок устарел (первый вход / после отправки)
   var mineAt = 0;          // когда загружали в последний раз
@@ -3152,7 +3388,9 @@
         showState(stateEl,
           '<span class="state-h">Испытаний пока нет</span>' +
           'Пришлите вызов — софизм, мем, искажение или сложный вопрос. Разбор придёт сюда и в бота.' +
-          '<br><button class="btn btn-ghost" type="button" data-go-form>Инициировать разбор</button>', false);
+          '<br><button class="btn btn-ghost" type="button" data-go-form>Задать вопрос на разбор</button>' +
+          // прежде чем подавать своё — можно посмотреть, как выглядит готовый разбор
+          ' <a class="btn btn-ghost" href="#/polygon">Посмотреть готовые разборы</a>', false);
         return;
       }
       renderMineView();
@@ -3161,7 +3399,7 @@
     }).catch(function (err) {
       showState(stateEl,
         '<span class="state-h">Не удалось загрузить заявки</span>' +
-        (err && err.message ? err.message : '') +
+        escText(err && err.message ? err.message : '') +
         '<br><button class="btn btn-ghost" type="button" data-retry-mine>Повторить</button>', true);
     });
   }
@@ -3196,10 +3434,10 @@
       var idx = (typeof s.index === 'number') ? s.index : i;
       var e = last[s.key];
       if (e && idx <= edge) {
-        rows.push({ label: s.label, at: e.at, state: (s.key === curKey ? 'now' : 'past') });
+        rows.push({ label: s.label, at: e.at, state: (s.key === curKey ? 'now' : 'past'), key: s.key });
       } else if (!final && idx > edge) {
         // предстоит; если стадия уже была — это возврат на доработку, не прячем
-        rows.push({ label: s.label, at: null, state: 'next', again: !!e });
+        rows.push({ label: s.label, at: null, state: 'next', again: !!e, key: s.key });
       }
       // иначе стадию ПРОПУСТИЛИ (записи нет, а заявка уже дальше) — не рисуем её
       // вовсе: «пройденной» она не была, врать о ней нельзя
@@ -3228,9 +3466,12 @@
       var label = document.createElement('span');
       label.className = 'pipe-l';
       label.textContent = r.label;
+      // жаргонная стадия объясняется прямо в строке: тултип зрячему, sr-only — скринридеру
+      if (r.key && STAGE_HINT[r.key]) label.title = STAGE_HINT[r.key];
       var sr = document.createElement('span');
       sr.className = 'sr-only';
-      sr.textContent = PIPE_SR[r.state] || '';
+      sr.textContent = (PIPE_SR[r.state] || '') +
+        (r.key && STAGE_HINT[r.key] ? '. ' + STAGE_HINT[r.key] : '');
       label.appendChild(sr);
       li.appendChild(label);
 
@@ -3249,7 +3490,7 @@
     if (it.status === 'queued') return 'В очереди. Порядок — по времени поступления.';
     if (it.status === 'rejected') return 'Заявка не пошла в разбор. Причину можно спросить в боте.';
     if (it.status === 'done') return it.post_url ? 'Разбор опубликован.' : 'Разбор готов. Ссылку пришлёт бот.';
-    return 'Состояние заявки — как его вернул сервер.';
+    return 'Заявка в работе. Подробности — в боте: /status.';
   }
 
   function addFoot(li, text) {
@@ -3283,6 +3524,32 @@
   $('mineTabReq').addEventListener('click', function () { mineView = 'req'; haptic('select'); renderMineView(); });
   $('mineTabDrafts').addEventListener('click', function () { mineView = 'drafts'; haptic('select'); renderMineView(); });
 
+  // Разбор, который уже есть в ленте приложения, читаем ВНУТРИ приложения:
+  // сверяем адрес публикации с pages_url элементов ленты (и с раскладкой
+  // LANDING + reading/<slug>.html — та же логика, что у hydrateBody). Без
+  // прочитанной ленты (feedOk=false) ручаться не за что — вернём null, и
+  // кнопка честно уведёт на внешний адрес (запасной путь).
+  function readingHashFor(url) {
+    if (!feedOk || !url) return null;
+    var clean;
+    try { clean = new URL(url, APP_BASE).href.split('#')[0].split('?')[0]; }
+    catch (e) { return null; }
+    var found = null;
+    Object.keys(feedIndex).forEach(function (s) {
+      if (found) return;
+      var it = feedIndex[s];
+      if (!it || typeof it.pages_url !== 'string' || !it.pages_url) return;
+      try {
+        if (new URL(it.pages_url, APP_BASE).href.split('#')[0].split('?')[0] === clean) found = s;
+      } catch (e) { /* кривой адрес в данных — просто не совпадёт */ }
+    });
+    if (!found && clean.indexOf(LANDING) === 0) {
+      var m = /^reading\/([a-zA-Z0-9][a-zA-Z0-9._-]{0,120})\.html$/.exec(clean.slice(LANDING.length));
+      if (m && feedIndex[m[1]]) found = m[1];
+    }
+    return found ? '#/reading/' + encodeURIComponent(found) : null;
+  }
+
   function renderMine(items, pipeline) {
     var listEl = $('profileList');
     listEl.textContent = '';
@@ -3309,6 +3576,13 @@
       var badge = document.createElement('span');
       badge.className = 'req-st ' + cls;
       badge.textContent = label;
+      if (STAGE_HINT[key]) {
+        badge.title = STAGE_HINT[key];
+        var bsr = document.createElement('span');
+        bsr.className = 'sr-only';
+        bsr.textContent = ' — ' + STAGE_HINT[key];
+        badge.appendChild(bsr);
+      }
       head.appendChild(badge);
 
       if (it.created_at) {
@@ -3385,10 +3659,15 @@
       if (it.post_url && /^https?:\/\//i.test(it.post_url)) {
         var a = document.createElement('a');
         a.className = 'btn btn-ghost';
-        a.href = it.post_url;
-        a.target = '_blank';
-        a.rel = 'noopener';
         a.textContent = 'Открыть разбор';
+        var innerHash = readingHashFor(it.post_url);
+        if (innerHash) {
+          a.href = innerHash;            // читаем внутри приложения, не в браузере
+        } else {
+          a.href = it.post_url;          // публикация вне приложения — внешний адрес
+          a.target = '_blank';
+          a.rel = 'noopener';
+        }
         li.appendChild(a);
       }
 
@@ -3856,7 +4135,7 @@
       stateEl.hidden = true;
       bodyEl.hidden = false;
     }).catch(function (err) {
-      showState(stateEl, 'Отчёт реестров недоступен: ' + (err && err.message ? err.message : ''), true);
+      showState(stateEl, 'Отчёт реестров недоступен: ' + escText(err && err.message ? err.message : ''), true);
     });
   }
 
@@ -3900,7 +4179,7 @@
       stateEl.hidden = true;
       bodyEl.hidden = false;
     }).catch(function (err) {
-      showState(stateEl, 'Новости недоступны: ' + (err && err.message ? err.message : ''), true);
+      showState(stateEl, 'Новости недоступны: ' + escText(err && err.message ? err.message : ''), true);
     });
   }
 
@@ -3955,7 +4234,7 @@
       stateEl.hidden = true;
       bodyEl.hidden = false;
     }).catch(function (err) {
-      showState(stateEl, 'Отчёт сверки недоступен: ' + (err && err.message ? err.message : ''), true);
+      showState(stateEl, 'Отчёт сверки недоступен: ' + escText(err && err.message ? err.message : ''), true);
     });
   }
 
@@ -4006,7 +4285,7 @@
     }).catch(function (err) {
       showState(stateEl,
         '<span class="state-h">Не удалось загрузить заявки</span>' +
-        (err && err.message ? err.message : '') +
+        escText(err && err.message ? err.message : '') +
         '<br><button class="btn btn-ghost" type="button" data-retry-hq>Повторить</button>', true);
     });
   }
@@ -4254,12 +4533,29 @@
       doneBtn.textContent = key === 'done' ? 'Обновить ссылку' : 'Опубликовано';
       doneBtn.addEventListener('click', function () {
         var u = urlInp.value.trim();
-        if (u && !/^https?:\/\/[^\s]+$/i.test(u)) {
+        // Пустую ссылку не принимаем: заявитель получит уведомление «разбор
+        // опубликован» — а читать будет нечего.
+        if (!u) {
+          hqCardErr(li, 'Нужна ссылка на публикацию: без неё заявку не закрываем.');
+          return;
+        }
+        if (!/^https?:\/\/[^\s]+$/i.test(u)) {
           hqCardErr(li, 'Ссылка должна начинаться с http(s):// и быть без пробелов.');
           return;
         }
-        haptic('medium');
-        hqAction(li, it, '/done', { url: u });
+        if (key === 'done') {
+          // уже опубликована — просто правим ссылку, это обратимо
+          haptic('medium');
+          hqAction(li, it, '/done', { url: u });
+          return;
+        }
+        // закрытие необратимо (HQ_MOVES.done = []) и сразу уведомляет заявителя —
+        // подтверждение по образцу «Отклонить»
+        askConfirm('Опубликовать заявку №' + it.id + '? Заявитель сразу получит уведомление со ссылкой; вернуть закрытую заявку в работу нельзя.', function (ok) {
+          if (!ok) return;
+          haptic('medium');
+          hqAction(li, it, '/done', { url: u });
+        });
       });
       urlRow.appendChild(urlInp);
       urlRow.appendChild(doneBtn);
@@ -4376,7 +4672,7 @@
     }).catch(function (err) {
       showState(stateEl,
         '<span class="state-h">Не удалось загрузить вклады</span>' +
-        (err && err.message ? err.message : ''), true);
+        escText(err && err.message ? err.message : ''), true);
     });
   }
 
@@ -4406,6 +4702,10 @@
     var b = $('bellN');
     if (n > 0) { b.textContent = n > 9 ? '9+' : String(n); b.hidden = false; }
     else b.hidden = true;
+    // бейдж «9+» — отдельный span, скринридер его с кнопкой не свяжет:
+    // число дублируем в подписи самой кнопки
+    $('btnBell').setAttribute('aria-label',
+      n > 0 ? 'Лог событий, непрочитанных: ' + n : 'Лог событий');
   }
 
   // Тихая проверка почты на старте: один GET, без повторов по таймеру —
@@ -4519,7 +4819,7 @@
     }).catch(function (err) {
       $('logSort').hidden = true;
       showState(stateEl, '<span class="state-h">Лента недоступна</span>' +
-        (err && err.message ? err.message : ''), true);
+        escText(err && err.message ? err.message : ''), true);
     });
   }
 
@@ -4672,7 +4972,7 @@
     boardsAt = now;
 
     var devState = $('kbDevState');
-    var fetchDev = fetch('kanban.json', { cache: 'no-cache' }).then(function (r) {
+    var fetchDev = fetchT('kanban.json', { cache: 'no-cache' }).then(function (r) {
       if (!r.ok) throw new Error('нет снапшота');
       return r.json();
     });
@@ -4742,7 +5042,7 @@
       });
     }).catch(function (err) {
       showState(labState, 'Конвейер сейчас недоступен: ' +
-        (err && err.message ? err.message : ''), true);
+        escText(err && err.message ? err.message : ''), true);
       labEl.hidden = true;
       fetchDev.then(renderDevBoard).catch(function () {
         showState(devState, 'Снапшот доски ещё не выгружен — появится со следующей публикацией кода.', false);
@@ -4854,7 +5154,7 @@
       listEl.hidden = false;
     }).catch(function (err) {
       showState(stateEl, '<span class="state-h">Переписка недоступна</span>' +
-        (err && err.message ? err.message : ''), true);
+        escText(err && err.message ? err.message : ''), true);
     });
   }
 
@@ -4967,6 +5267,15 @@
 
     if (t.closest('[data-open-bot]')) { haptic('medium'); openTelegram(BOT_URL); return; }
 
+    // Гейт Штаба: «Проверить ещё раз» — повторный вопрос серверу «я админ?».
+    // Настоящему не-админу кнопка безвредна: сервер снова ответит false.
+    if (t.closest('[data-recheck-admin]')) {
+      haptic('light');
+      if (authed()) showToast('Проверяю доступ…');
+      checkAdmin();
+      return;
+    }
+
     // Обогащение: кнопка вектора раскрывает форму ПОД своей карточкой (повторное
     // нажатие — сворачивает). Открыт может быть только один вектор: сперва закрываем
     // прежний, иначе форма-одиночка осталась бы висеть в чужой карточке.
@@ -4993,6 +5302,7 @@
     if (t.closest('[data-again]')) { haptic('light'); openForm(); return; }
 
     if (t.closest('[data-retry-feed]')) { loadFeed(current.rubric, current.tag); return; }
+    if (t.closest('[data-retry-reading]')) { haptic('light'); loadReading(current.slug); return; }
     if (t.closest('[data-retry-sri]')) { loadSri(); return; }
     if (t.closest('[data-retry-hq]')) { loadHqRequests(); return; }
     if (t.closest('[data-retry-corp]')) { loadCorpus(); return; }
@@ -5052,4 +5362,23 @@
 
   // Почта (v6.3): один тихий запрос на старте — цифра на конверте в шапке.
   bellSync();
+
+  // За сессию конверт и список заявок не должны протухать. Таймеров по-прежнему
+  // нет: перечитываем в ОСМЫСЛЕННЫЕ моменты — возврат в приложение (свернули
+  // Telegram или вкладку) и смена экрана. Каждый вызов — всё тот же один GET.
+  function onReactivate() {
+    bellSync();
+    mineDirty = true;   // «Мои испытания» перезагрузятся при следующем входе на Терминал
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) onReactivate();
+  });
+  if (inTelegram && typeof tg.onEvent === 'function') {
+    // событие есть не во всех версиях клиента — подписка в try, деградация тихая
+    try { tg.onEvent('activated', onReactivate); } catch (e) {}
+  }
+  window.addEventListener('hashchange', function () {
+    // на самом экране лога не дёргаем: loadLog и так читает почту и гасит бейдж
+    if (location.hash.indexOf('#/log') !== 0) bellSync();
+  });
 })();

@@ -118,7 +118,7 @@
   h1, h2, h3 { font-family: var(--serif); font-weight: 600; text-wrap: balance; letter-spacing: -0.01em; margin: 0; }
   p { margin: 0; }
   a { color: inherit; }
-  :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 3px; }
+  :focus-visible { outline: 2px solid var(--focus, var(--gold)); outline-offset: 3px; border-radius: 3px; } /* --focus задаёт app.css (контраст светлой темы); без него — прежнее золото */
 
   /* ——— НАВБАР (frosted «хром», со сплошным fallback) ——— */
   .nav {
