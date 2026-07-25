@@ -190,6 +190,10 @@
                                 : 'Сервер ответил ошибкой (' + r.status + ').');
           var err = new Error(msg);
           err.status = r.status;
+          // Структурные ошибки: код + ссылка-приглашение доезжают до обработчика —
+          // гейт подписки рисует попап с кнопкой, а не голый текст.
+          if (data && data.code) err.code = data.code;
+          if (data && data.invite_url) err.inviteUrl = data.invite_url;
           throw err;
         }
         if (!data) throw new Error('Сервер вернул пустой ответ.');
@@ -2555,6 +2559,49 @@
     scrollToEl(el);
   }
 
+  // Гейт подписки: вместо голого текста с некликабельной ссылкой —
+  // нативный попап Telegram с кнопкой «Вступить» + те же кнопки в самой форме
+  // (попап закрылся — путь остался). Ссылка t.me открывается ВНУТРИ Telegram
+  // (openTelegramLink), человек вступает и жмёт «Отправить снова» — без буфера
+  // обмена и браузера (фидбек PO 25.07: «квест — энтропия»).
+  function showSubGate(err) {
+    var url = err.inviteUrl || 'https://t.me/+8zzg7sB9VHcxZWNi';
+    function join() {
+      if (inTelegram && typeof tg.openTelegramLink === 'function') tg.openTelegramLink(url);
+      else window.open(url, '_blank', 'noopener');
+    }
+    var el = $('submitErr');
+    el.textContent = '';
+    var p = document.createElement('div');
+    p.textContent = 'Лаборатория принимает заявки от участников канала KAVACHAM Lab. ' +
+      'Вступите по кнопке — и, когда админ одобрит, пришлите заявку ещё раз. 🙏';
+    var row = document.createElement('div');
+    row.style.marginTop = '10px';
+    var btnJoin = document.createElement('button');
+    btnJoin.type = 'button'; btnJoin.className = 'btn';
+    btnJoin.textContent = '📣 Вступить в канал Lab';
+    btnJoin.addEventListener('click', join);
+    var btnRetry = document.createElement('button');
+    btnRetry.type = 'button'; btnRetry.className = 'btn btn-ghost';
+    btnRetry.textContent = 'Я вступил — отправить снова';
+    btnRetry.addEventListener('click', function () { formErr(null); trySend(); });
+    row.appendChild(btnJoin); row.appendChild(btnRetry);
+    el.appendChild(p); el.appendChild(row);
+    el.hidden = false;
+    haptic('error');
+    scrollToEl(el);
+    if (inTelegram && typeof tg.showPopup === 'function') {
+      try {
+        tg.showPopup({
+          title: 'Нужно вступить в канал',
+          message: 'Заявки принимаются от участников канала KAVACHAM Lab. После одобрения админом пришлите заявку ещё раз.',
+          buttons: [{ id: 'join', type: 'default', text: 'Вступить в канал' },
+                    { id: 'later', type: 'cancel', text: 'Позже' }]
+        }, function (btnId) { if (btnId === 'join') join(); });
+      } catch (e) { /* старый клиент — inline-кнопок в форме достаточно */ }
+    }
+  }
+
   // Генеративные стоп-слова (v6.2 §2.3). Текст с маркером [T-…] пропускаем:
   // внутри шаблона может лежать ЦИТАТА оппонента с любыми словами — шаблон и есть
   // то русло, куда Alert предлагает направить запрос.
@@ -2662,7 +2709,8 @@
       syncDepth(20);          // глубина — решение на конкретную заявку, не «навсегда»
       showDone(res);
     }).catch(function (err) {
-      formErr(err && err.message ? err.message : 'Не удалось отправить заявку.');
+      if (err && err.code === 'subscription_required') showSubGate(err);
+      else formErr(err && err.message ? err.message : 'Не удалось отправить заявку.');
     }).then(function () {
       sending = false;
       $('btnSend').disabled = false;
