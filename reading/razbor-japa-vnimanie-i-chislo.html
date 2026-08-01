@@ -83,13 +83,16 @@ body.rd-hide-tr .rd-tr{display:none}
   border:1px solid var(--rule);box-shadow:0 6px 18px rgba(0,0,0,.18);
   transition:opacity .2s,transform .2s,visibility .2s,color .2s,border-color .2s}
 .rd-dock button:hover,.rd-dock button:focus-visible{border-color:var(--accent);color:var(--accent)}
-.rd-trfloat{border-radius:999px;padding:.4rem .85rem;font-size:.76rem;line-height:1.2;
-  white-space:nowrap}
-.rd-top{width:44px;height:44px;border-radius:999px;display:grid;place-items:center;
-  font-size:1.05rem;line-height:1;
-  opacity:0;visibility:hidden;transform:translateY(10px)}
+/* Обе кнопки — одного компактного размера: пилюля с текстом «Скрыть перевод»
+   съедала треть ширины телефона и тянула взгляд на себя (замечание автора
+   проекта 01.08.2026). Надпись «RU» читается рядом с английской цитатой как
+   «русский текст»; погашенное состояние показывает, что перевод скрыт. */
+.rd-dock button{width:38px;height:38px;border-radius:999px;display:grid;place-items:center;
+  line-height:1;padding:0}
+.rd-trfloat{font-size:.72rem;font-weight:600;letter-spacing:.02em}
+.rd-trfloat[aria-pressed="false"]{opacity:.55}
+.rd-top{font-size:1rem;opacity:0;visibility:hidden;transform:translateY(10px)}
 .rd-top.rd-top-on{opacity:1;visibility:visible;transform:none}
-@media (max-width:680px){.rd-trfloat{font-size:.72rem;padding:.35rem .7rem}}
 @media print{.rd-dock{display:none}}
 .rd-tablewrap{overflow-x:auto;overscroll-behavior-x:contain}
 .rd-tablewrap table{border-collapse:collapse;min-width:100%}
@@ -347,7 +350,9 @@ footer :focus-visible{outline-color:var(--gold)}
     function trApply(off) {
       document.body.classList.toggle('rd-hide-tr', off);
       if (!trb) return;
-      trb.textContent = off ? 'Вернуть перевод' : 'Скрыть перевод';
+      trb.title = off ? 'Вернуть перевод' : 'Скрыть перевод';
+      trb.setAttribute('aria-label', off ? 'Вернуть русский перевод цитат'
+                                         : 'Скрыть русский перевод цитат');
       trb.setAttribute('aria-pressed', off ? 'false' : 'true');
     }
     try { if (localStorage.getItem('kv-tr') === 'off') trApply(true); } catch (e) {}

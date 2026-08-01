@@ -83,13 +83,16 @@ body.rd-hide-tr .rd-tr{display:none}
   border:1px solid var(--rule);box-shadow:0 6px 18px rgba(0,0,0,.18);
   transition:opacity .2s,transform .2s,visibility .2s,color .2s,border-color .2s}
 .rd-dock button:hover,.rd-dock button:focus-visible{border-color:var(--accent);color:var(--accent)}
-.rd-trfloat{border-radius:999px;padding:.4rem .85rem;font-size:.76rem;line-height:1.2;
-  white-space:nowrap}
-.rd-top{width:44px;height:44px;border-radius:999px;display:grid;place-items:center;
-  font-size:1.05rem;line-height:1;
-  opacity:0;visibility:hidden;transform:translateY(10px)}
+/* Обе кнопки — одного компактного размера: пилюля с текстом «Скрыть перевод»
+   съедала треть ширины телефона и тянула взгляд на себя (замечание автора
+   проекта 01.08.2026). Надпись «RU» читается рядом с английской цитатой как
+   «русский текст»; погашенное состояние показывает, что перевод скрыт. */
+.rd-dock button{width:38px;height:38px;border-radius:999px;display:grid;place-items:center;
+  line-height:1;padding:0}
+.rd-trfloat{font-size:.72rem;font-weight:600;letter-spacing:.02em}
+.rd-trfloat[aria-pressed="false"]{opacity:.55}
+.rd-top{font-size:1rem;opacity:0;visibility:hidden;transform:translateY(10px)}
 .rd-top.rd-top-on{opacity:1;visibility:visible;transform:none}
-@media (max-width:680px){.rd-trfloat{font-size:.72rem;padding:.35rem .7rem}}
 @media print{.rd-dock{display:none}}
 .rd-tablewrap{overflow-x:auto;overscroll-behavior-x:contain}
 .rd-tablewrap table{border-collapse:collapse;min-width:100%}
@@ -205,7 +208,7 @@ footer :focus-visible{outline-color:var(--gold)}
       <h1 class="rd-title">Мега-разбор №1 · Ведическая космология и наука</h1>
       <p class="rd-sub">«Опровергнута наукой»? Луна, Раху, «плоская Земля» — что на самом деле говорят первоисточники и где граница знания</p>
       <p class="rd-meta"><span>мега-разбор</span><span>№1</span><span>2026-07-12</span><span>168 праман</span><span>165 со ссылкой на первоисточник</span></p>
-      <p class="rd-trbar">У английских цитат — рабочий перевод Лаборатории. Источник истины — оригинал: спорное место сверяйте по нему. Переводы скрываются кнопкой в правом нижнем углу.</p>
+      <p class="rd-trbar">У английских цитат — рабочий перевод Лаборатории. Источник истины — оригинал: спорное место сверяйте по нему. Переводы скрываются кнопкой «RU» в правом нижнем углу.</p>
       <nav class="rd-toc" aria-label="Оглавление">
         <p class="eyebrow">Оглавление</p>
         <ol><li class="l2"><a href="#s-1-chto-na-samom-dele-skazano-v-istochnikah-10-liniy-168-pram">1. Что на самом деле сказано в источниках (10 линий, 168 праман)</a></li><li class="l3"><a href="#s-1-bhu-mandala-opisana-ne-forma-planety-a-plan-vselennoy">1. Бху-мандала: описана не форма планеты, а план вселенной</a></li><li class="l3"><a href="#s-2-zemlya-shar-bhu-gola-i-snyatie-protivorechiya-cherez-achin">2. Земля-шар: «бху-гола» и снятие противоречия через ачинтью</a></li><li class="l3"><a href="#s-3-luna-vysshaya-obitaemaya-planeta-vyshe-solnca">3. Луна: высшая обитаемая планета, выше Солнца</a></li><li class="l3"><a href="#s-4-rahu-i-zatmeniya">4. Раху и затмения</a></li><li class="l3"><a href="#s-5-solnce-kolesnica-yodzhany">5. Солнце, колесница, йоджаны</a></li><li class="l3"><a href="#s-6-koren-rashozhdeniya-epistemologiya-praman">6. Корень расхождения: эпистемология праман</a></li><li class="l3"><a href="#s-7-zachem-eta-kosmologiya-duhovnaya-geografiya-ne-astrofizika">7. Зачем эта космология: духовная география, не астрофизика</a></li><li class="l3"><a href="#s-8-achari-ni-bukvalizm-ni-kapitulyaciya">8. Ачарьи: ни буквализм, ни капитуляция</a></li><li class="l3"><a href="#s-9-russkiy-sloy-e-s-bhakti-vigyana-gosvami-dalee-bvgm">9. Русский слой: Е.С. Бхакти Вигьяна Госвами (далее — БВГМ)</a></li><li class="l3"><a href="#s-10-instituciya-hram-vedicheskogo-planetariya-tovp">10. Институция: Храм Ведического Планетария (TOVP)</a></li><li class="l2"><a href="#s-2-vyzov">2. Вызов</a></li><li class="l2"><a href="#s-3-argument-opponenta-v-silneyshey-forme-purvapaksha">3. Аргумент оппонента — в сильнейшей форме (пурвапакша)</a></li><li class="l2"><a href="#s-4-razreshenie-purvapakshi-chto-dvizhok-sdelal-i-chego-ne-del">4. Разрешение пурвапакши — что движок сделал и чего НЕ делал</a></li><li class="l2"><a href="#s-5-granicy-sri-uzly-gde-dvizhok-soznatelno-molchit">5. Границы (SRI-узлы) — где движок сознательно молчит</a></li><li class="l2"><a href="#s-6-chestnye-probely-korpusa">6. Честные пробелы корпуса</a></li><li class="l2"><a href="#s-7-metod-v-cifrah">7. Метод в цифрах</a></li><li class="l2"><a href="#s-8-chto-eto-za-otchet-i-kak-ego-chitat">8. Что это за отчёт и как его читать</a></li><li class="l2"><a href="#s-itog">Итог</a></li></ol>
@@ -444,7 +447,7 @@ footer :focus-visible{outline-color:var(--gold)}
   <p class="bbt-notice">Цитаты книг Шрилы Прабхупады — добросовестное цитирование · © The Bhaktivedanta Book Trust International, Inc. · <a href="https://vedabase.io/" target="_blank" rel="noopener noreferrer">vedabase.io</a> · <a href="../pravovaya-osnova.html">Правовая основа</a></p>
   <p class="rd-sig">KAVACHAM · DGD · ZERO ENTROPY</p>
 </footer>
-<div class="rd-dock"><button class="rd-trfloat" id="rdTrToggle" type="button" aria-pressed="true">Скрыть перевод</button><button class="rd-top" id="rdTop" type="button" aria-label="Вернуться в начало страницы" title="В начало">↑</button></div>
+<div class="rd-dock"><button class="rd-trfloat" id="rdTrToggle" type="button" aria-pressed="true" aria-label="Скрыть русский перевод цитат" title="Скрыть перевод">RU</button><button class="rd-top" id="rdTop" type="button" aria-label="Вернуться в начало страницы" title="В начало">↑</button></div>
 <script>
   (function () {
     var doc = document.documentElement;
@@ -530,7 +533,9 @@ footer :focus-visible{outline-color:var(--gold)}
     function trApply(off) {
       document.body.classList.toggle('rd-hide-tr', off);
       if (!trb) return;
-      trb.textContent = off ? 'Вернуть перевод' : 'Скрыть перевод';
+      trb.title = off ? 'Вернуть перевод' : 'Скрыть перевод';
+      trb.setAttribute('aria-label', off ? 'Вернуть русский перевод цитат'
+                                         : 'Скрыть русский перевод цитат');
       trb.setAttribute('aria-pressed', off ? 'false' : 'true');
     }
     try { if (localStorage.getItem('kv-tr') === 'off') trApply(true); } catch (e) {}

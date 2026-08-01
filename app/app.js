@@ -1635,7 +1635,9 @@
     document.body.classList.toggle('rd-hide-tr', off);
     var b = $('rdTrToggle');
     if (!b) return;
-    b.textContent = off ? 'Вернуть перевод' : 'Скрыть перевод';
+    b.title = off ? 'Вернуть перевод' : 'Скрыть перевод';
+    b.setAttribute('aria-label', off ? 'Вернуть русский перевод цитат'
+                                     : 'Скрыть русский перевод цитат');
     b.setAttribute('aria-pressed', off ? 'false' : 'true');
   }
 

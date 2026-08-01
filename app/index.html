@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://kavacham-bot-928986955802.us-central1.run.app" crossorigin>
   <link rel="stylesheet" href="../styles.css">
   <!-- метку ?v= поднимать при каждом деплое app.js/app.css — иначе клиенты Telegram держат старый кэш -->
-  <link rel="stylesheet" href="app.css?v=2026080120">
+  <link rel="stylesheet" href="app.css?v=2026080122">
 
   <!-- SDK Telegram — self-hosted копия, никаких CDN в рантайме.
        В <head> (как рекомендует Telegram): тогда colorScheme известен ДО первой отрисовки. -->
@@ -800,7 +800,8 @@
        только на разборе. Переключатель переводов и возврат в начало нужны в любой
        точке длинного текста — за кнопкой в шапке приходилось прыгать вверх. -->
   <div class="rd-dock" id="rdDock" hidden>
-    <button class="rd-trfloat" id="rdTrToggle" type="button" aria-pressed="true" hidden>Скрыть перевод</button>
+    <button class="rd-trfloat" id="rdTrToggle" type="button" aria-pressed="true"
+            aria-label="Скрыть русский перевод цитат" title="Скрыть перевод" hidden>RU</button>
     <button class="rd-top" id="rdTop" type="button" aria-label="Вернуться в начало разбора" title="В начало">↑</button>
   </div>
 
@@ -839,6 +840,6 @@
   </nav>
 
   <!-- метку ?v= поднимать при каждом деплое app.js/app.css — иначе клиенты Telegram держат старый кэш -->
-  <script src="app.js?v=2026080120"></script>
+  <script src="app.js?v=2026080122"></script>
 </body>
 </html>
