@@ -17,6 +17,15 @@
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="stylesheet" href="../styles.css">
 <style>
+.rd-top{position:fixed;right:14px;bottom:14px;z-index:90;width:44px;height:44px;
+  border-radius:999px;display:grid;place-items:center;cursor:pointer;font:inherit;
+  font-size:1.05rem;line-height:1;color:var(--text-2);background:var(--panel);
+  border:1px solid var(--rule);box-shadow:0 6px 18px rgba(0,0,0,.18);
+  opacity:0;visibility:hidden;transform:translateY(10px);
+  transition:opacity .2s,transform .2s,visibility .2s,color .2s,border-color .2s}
+.rd-top.rd-top-on{opacity:1;visibility:visible;transform:none}
+.rd-top:hover,.rd-top:focus-visible{border-color:var(--accent);color:var(--accent)}
+@media print{.rd-top{display:none}}
 .rd-head{padding-bottom:1.4rem;border-bottom:1px solid var(--rule)}
 .rd-head .eyebrow{margin:0}
 .rd-sandbox{display:inline-block;font-size:.72rem;line-height:1.4;color:var(--text-dim);
@@ -121,7 +130,7 @@ footer :focus-visible{outline-color:var(--gold)}
       </div>
     </div>
     <ul class="rx-list" id="rxList">
-      <li class="rx-item" data-rubric="mega" data-tags="ИИ-имитации|проверяемость|вани|праманы|мега-разбор" data-date="2026-08-01" data-title="синтетический голос ачарьи-основателя: как отличить его подлинные слова от подделки"><a href="mega-03-ai-imitatsiya.html"><h3>Синтетический голос ачарьи-основателя: как отличить его подлинные слова от подделки</h3><p>Нейросети научились писать «цитаты» с точными на вид адресами и говорить его голосом. Разбор по первоисточникам: что в традиции делает слово учителя подлинным, почему он сам при жизни опровергал приписанное ему — и как любой человек может проверить цитату за две минуты</p><p class="rx-meta"><span class="rx-rub">мега-разбор</span><span>№3</span><span>2026-08-01</span><span>340 праман</span></p></a></li>
+      <li class="rx-item" data-rubric="mega" data-tags="ИИ-имитации|проверяемость|вани|праманы|мега-разбор" data-date="2026-08-01" data-title="синтетический голос ачарьи-основателя: как отличить его подлинные слова от подделки"><a href="mega-03-ai-imitatsiya.html"><h3>Синтетический голос ачарьи-основателя: как отличить его подлинные слова от подделки</h3><p>Нейросети научились писать «цитаты» с точными на вид адресами и говорить его голосом. Разбор по первоисточникам: что в традиции делает слово учителя подлинным, почему он сам при жизни опровергал приписанное ему — и как любой человек может проверить цитату за две минуты</p><p class="rx-meta"><span class="rx-rub">мега-разбор</span><span>№3</span><span>2026-08-01</span><span>351 прамана</span></p></a></li>
       <li class="rx-item" data-rubric="devlog" data-tags="перевод|бхава-анувада|проверяемость|движок" data-date="2026-08-01" data-title="цитаты теперь с русским переводом — и с честной пометкой, кто его сделал"><a href="devlog-perevod-citat.html"><h3>Цитаты теперь с русским переводом — и с честной пометкой, кто его сделал</h3><p></p><p class="rx-meta"><span class="rx-rub">дневник разработки</span><span>2026-08-01</span></p></a></li>
       <li class="rx-item" data-rubric="razbor" data-tags="перевод|варамукхья|Шримад-Бхагаватам|бхава-анувада|Дварака|текстология" data-date="2026-07-25" data-title="«танцовщицы» или «куртизанки»? одно слово из шримад-бхагаватам — и вопрос, адресованный не тому переводчику"><a href="razbor-varamukhya-tancovshchitsy-ili-kurtizanki.html"><h3>«Танцовщицы» или «куртизанки»? Одно слово из Шримад-Бхагаватам — и вопрос, адресованный не тому переводчику</h3><p>Живой вопрос с форума: в новом русском издании Первой песни — «сотни танцовщиц», у Шрилы Прабхупады — «сотни знаменитых куртизанок». Сверка по словарю, соседним стихам и пословным переводам — каждая цитата с кликабельной ссылкой на первоисточник.</p><p class="rx-meta"><span class="rx-rub">разбор</span><span>2026-07-25</span><span>4 праманы</span></p></a></li>
       <li class="rx-item" data-rubric="analytics" data-tags="мега-разбор|голосование|апасиддханта|разведпроход" data-date="2026-07-24" data-title="мега-разбор №3: выбираем тему вместе"><a href="mega-03-vybiraem-temu.html"><h3>Мега-разбор №3: выбираем тему вместе</h3><p></p><p class="rx-meta"><span class="rx-rub">аналитика</span><span>2026-07-24</span><span>15 ссылок</span></p></a></li>
@@ -178,7 +187,19 @@ footer :focus-visible{outline-color:var(--gold)}
   <p class="bbt-notice">Цитаты книг Шрилы Прабхупады — добросовестное цитирование · © The Bhaktivedanta Book Trust International, Inc. · <a href="https://vedabase.io/" target="_blank" rel="noopener noreferrer">vedabase.io</a> · <a href="../pravovaya-osnova.html">Правовая основа</a></p>
   <p class="rd-sig">KAVACHAM · DGD · ZERO ENTROPY</p>
 </footer>
+<button class="rd-top" id="rdTop" type="button" aria-label="Вернуться в начало страницы" title="В начало">↑</button>
 <script>
+(function(){
+  var top=document.getElementById('rdTop');
+  if(!top)return;
+  var doc=document.documentElement;
+  var t=function(){top.classList.toggle('rd-top-on',doc.scrollTop>700);};
+  document.addEventListener('scroll',t,{passive:true});t();
+  top.addEventListener('click',function(){
+    var soft=!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+    window.scrollTo({top:0,behavior:soft?'smooth':'auto'});
+  });
+})();
 (function(){
   var list=document.getElementById('rxList');
   if(!list)return;

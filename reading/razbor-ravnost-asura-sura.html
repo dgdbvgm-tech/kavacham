@@ -40,7 +40,53 @@ p.rd-note-in.rd-note-in{margin:.6rem 0 0;font-size:.86rem;line-height:1.6;color:
 .rd-tooltip:focus,.rd-tooltip:hover{border-bottom-color:var(--gold)}
 .rd-tooltip:focus::after,.rd-tooltip:hover::after{opacity:1;color:var(--gold)}
 .rd-tooltip:focus .rd-tooltip-box,.rd-tooltip:hover .rd-tooltip-box{visibility:visible;opacity:1;pointer-events:auto}
-.rd-tooltip-box{visibility:hidden;position:absolute;z-index:100;bottom:100%;left:0;width:280px;max-width:85vw;margin-bottom:8px;padding:.75rem 1rem;border-radius:8px;background:var(--panel);border:1px solid var(--rule);box-shadow:0 8px 24px rgba(0,0,0,.2);color:var(--text);font-size:.85rem;line-height:1.5;font-family:system-ui,sans-serif;font-weight:400;opacity:0;transition:opacity .2s;pointer-events:none;text-indent:0;white-space:normal}
+.rd-tooltip-box{visibility:hidden;position:absolute;z-index:120;bottom:100%;left:0;width:280px;max-width:min(85vw,280px);margin-bottom:8px;padding:.75rem 1rem;border-radius:8px;background:var(--panel);border:1px solid var(--rule);box-shadow:0 8px 24px rgba(0,0,0,.2);color:var(--text);font-size:.85rem;line-height:1.5;font-family:system-ui,sans-serif;font-weight:400;opacity:0;transition:opacity .2s;pointer-events:none;text-indent:0;white-space:normal}
+/* Подсказка словаря на узком экране. Абсолютное позиционирование от самого термина
+   уводило коробку за правый край: термин у края строки + ширина 280px = обрезка
+   (замечание автора проекта 01.08.2026, воспроизводилось на всех разборах).
+   На телефоне подсказка становится панелью у нижней кромки окна — обрезаться
+   физически негде; на широком экране её дополнительно поджимает JS. */
+@media (max-width:680px){
+  .rd-tooltip-box{position:fixed;left:12px;right:12px;bottom:12px;top:auto;width:auto;
+    max-width:none;margin:0;z-index:1200;box-shadow:0 -6px 28px rgba(0,0,0,.35)}
+}
+/* Рабочий перевод цитаты. Виден как отдельный голос: своя полоса слева, шрифт без
+   засечек, подпись «перевод Лаборатории» — чтобы его нельзя было принять за
+   дословный текст источника или за официальное издание. */
+.rd-tr{margin:.75rem 0 0;padding:.45rem 0 .1rem .9rem;border-left:2px solid var(--rule);
+  font-family:system-ui,sans-serif;font-size:.92em;line-height:1.62;color:var(--text-2)}
+.rd-tr::before{content:"перевод Лаборатории";display:block;font-size:.65rem;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--text-dim);margin:0 0 .3rem}
+.rd-tr-warn{display:inline-block;margin-left:.45rem;font-size:.68rem;color:var(--text-dim);
+  border:1px solid var(--rule);border-radius:999px;padding:.02rem .5rem;white-space:nowrap}
+body.rd-hide-tr .rd-tr{display:none}
+.rd-trbar{display:flex;flex-wrap:wrap;gap:.6rem;align-items:baseline;margin:0 0 2rem;
+  font-size:.78rem;line-height:1.6;color:var(--text-dim)}
+.rd-trbar button{font:inherit;font-size:.78rem;cursor:pointer;color:var(--text-2);
+  background:var(--panel);border:1px solid var(--rule);border-radius:999px;padding:.28rem .8rem}
+.rd-trbar button:hover,.rd-trbar button:focus-visible{border-color:var(--accent);color:var(--accent)}
+/* Сворачиваемый блок: длинная реконструкция позиции оппонента не должна выталкивать
+   разбор вниз — читатель разворачивает её сам. */
+.rd-fold{margin:1.6rem 0;border:1px solid var(--rule);border-radius:6px;background:var(--panel)}
+.rd-fold>summary{cursor:pointer;padding:.85rem 1.1rem;font-family:var(--serif);line-height:1.45;
+  list-style:none;color:var(--text)}
+.rd-fold>summary::-webkit-details-marker{display:none}
+.rd-fold>summary::before{content:"▸ ";color:var(--accent)}
+.rd-fold[open]>summary::before{content:"▾ "}
+.rd-fold>summary:hover,.rd-fold>summary:focus-visible{color:var(--accent)}
+.rd-fold-body{padding:0 1.1rem .4rem}
+.rd-fold-body>*:first-child{margin-top:0}
+/* Возврат к началу. Разборы длинные (мега-разбор — сотни экранов); без этой кнопки
+   читатель прокручивал вручную. Правило: кнопка есть на КАЖДОЙ странице разбора. */
+.rd-top{position:fixed;right:14px;bottom:14px;z-index:90;width:44px;height:44px;
+  border-radius:999px;display:grid;place-items:center;cursor:pointer;font:inherit;
+  font-size:1.05rem;line-height:1;color:var(--text-2);background:var(--panel);
+  border:1px solid var(--rule);box-shadow:0 6px 18px rgba(0,0,0,.18);
+  opacity:0;visibility:hidden;transform:translateY(10px);
+  transition:opacity .2s,transform .2s,visibility .2s,color .2s,border-color .2s}
+.rd-top.rd-top-on{opacity:1;visibility:visible;transform:none}
+.rd-top:hover,.rd-top:focus-visible{border-color:var(--accent);color:var(--accent)}
+@media print{.rd-top{display:none}}
 .rd-tablewrap{overflow-x:auto;overscroll-behavior-x:contain}
 .rd-tablewrap table{border-collapse:collapse;min-width:100%}
 .rd-tablewrap th,.rd-tablewrap td{border:1px solid var(--rule);padding:.5rem .65rem;
@@ -155,6 +201,7 @@ footer :focus-visible{outline-color:var(--gold)}
       <h1 class="rd-title">Господь «равен ко всем» — почему полубог падает, а «демон» восходит?</h1>
       <p class="rd-sub">Полубог Индра оскорбляет гуру и теряет небеса, а «демон» Вритрасура уходит прямо к Богу как чистый преданный. «Сура/асура» меряет не Господа, а сердце дживы — работает один закон для обоих лагерей.</p>
       <p class="rd-meta"><span>разбор</span><span>2026-07-23</span><span>23 ссылки на первоисточники</span></p>
+
       <nav class="rd-toc" aria-label="Оглавление">
         <p class="eyebrow">Оглавление</p>
         <ol><li class="l2"><a href="#s-vopros">Вопрос</a></li><li class="l2"><a href="#s-1-sura-i-asura-eto-sklad-soznaniya-a-ne-poroda-dushi">1. «Сура» и «асура» — это склад сознания, а не порода души</a></li><li class="l2"><a href="#s-2-indra-padaet-za-svoyu-aparadhu-ne-po-nemilosti-gospoda">2. Индра падает за СВОЮ апарадху — не по немилости Господа</a></li><li class="l2"><a href="#s-3-demon-vozvyshen-ne-potomu-chto-demon-a-potomu-chto-predan">3. «Демон» возвышен не потому что демон — а потому что предан</a></li><li class="l2"><a href="#s-4-odin-zakon-dlya-oboih-lagerey-i-v-etom-ravnost">4. Один закон для обоих лагерей — и в этом равность</a></li><li class="l2"><a href="#s-5-dazhe-nakazanie-asuru-eto-milost">5. Даже наказание асуру — это милость</a></li><li class="l2"><a href="#s-6-i-dazhe-vrazhda-ne-otluchaet-no-eto-kray-dveri-ne-ee-centr">6. И даже вражда не отлучает — но это край двери, не её центр</a></li><li class="l2"><a href="#s-itog">Итог</a></li></ol>
@@ -216,6 +263,7 @@ footer :focus-visible{outline-color:var(--gold)}
   <p class="bbt-notice">Цитаты книг Шрилы Прабхупады — добросовестное цитирование · © The Bhaktivedanta Book Trust International, Inc. · <a href="https://vedabase.io/" target="_blank" rel="noopener noreferrer">vedabase.io</a> · <a href="../pravovaya-osnova.html">Правовая основа</a></p>
   <p class="rd-sig">KAVACHAM · DGD · ZERO ENTROPY</p>
 </footer>
+<button class="rd-top" id="rdTop" type="button" aria-label="Вернуться в начало страницы" title="В начало">↑</button>
 <script>
   (function () {
     var doc = document.documentElement;
@@ -254,6 +302,51 @@ footer :focus-visible{outline-color:var(--gold)}
       }, { rootMargin: '-8% 0px -72% 0px' });
       heads.forEach(function (h) { io.observe(h); });
     }
+
+    var top = document.getElementById('rdTop');
+    if (top) {
+      var toggleTop = function () {
+        top.classList.toggle('rd-top-on', doc.scrollTop > 700);
+      };
+      document.addEventListener('scroll', toggleTop, { passive: true });
+      toggleTop();
+      top.addEventListener('click', function () {
+        var soft = !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+        window.scrollTo({ top: 0, behavior: soft ? 'smooth' : 'auto' });
+        var skip = document.querySelector('.rd-title');
+        if (skip) { skip.setAttribute('tabindex', '-1'); skip.focus({ preventScroll: true }); }
+      });
+    }
+
+    var WIDE = 680;
+    var place = function (box) {
+      if (window.innerWidth <= WIDE) { box.style.left = ''; return; }
+      box.style.left = '0px';
+      var pad = 10;
+      var r = box.getBoundingClientRect();
+      var over = r.right - (window.innerWidth - pad);
+      if (over > 0) box.style.left = (-over) + 'px';
+      var r2 = box.getBoundingClientRect();
+      if (r2.left < pad) box.style.left = ((parseFloat(box.style.left) || 0) + (pad - r2.left)) + 'px';
+    };
+    document.querySelectorAll('.rd-tooltip').forEach(function (t) {
+      var box = t.querySelector('.rd-tooltip-box');
+      if (!box) return;
+      var run = function () { place(box); };
+      t.addEventListener('mouseenter', run);
+      t.addEventListener('focus', run);
+      t.addEventListener('touchstart', run, { passive: true });
+    });
+    window.addEventListener('resize', function () {
+      document.querySelectorAll('.rd-tooltip-box').forEach(function (b) { b.style.left = ''; });
+    });
+
+    var trb = document.getElementById('rdTrToggle');
+    if (trb) trb.addEventListener('click', function () {
+      var off = document.body.classList.toggle('rd-hide-tr');
+      trb.textContent = off ? 'Показать переводы' : 'Скрыть переводы';
+      trb.setAttribute('aria-pressed', off ? 'false' : 'true');
+    });
   })();
 </script>
 </body>
