@@ -106,7 +106,7 @@ p:has(> .rd-img){text-align:center;margin:1.6rem 0 .4rem}
 p:has(> .rd-img) + p{text-align:center;font-style:italic;font-size:.82rem;
   color:var(--text-dim);margin:0 auto 2rem;max-width:32rem}
 
-/* Протоколы: ОБВЯЗКА страницы (шапка/оглавление/подвал + типографика тела).
+/* Разборы: ОБВЯЗКА страницы (шапка/оглавление/подвал + типографика тела).
    Компоненты праманы — в SHARED_CSS: они общие с TMA.
    Дизайн НАСЛЕДУЕТСЯ из ../styles.css: компоновка (.band/.inner/.paper), ссылка-прамана
    (.cite), кнопки (.btn), надзаголовок (.eyebrow), тёмный подвал (footer.deep).
@@ -191,7 +191,7 @@ footer :focus-visible{outline-color:var(--gold)}
 <header class="nav nav--bare">
   <a class="brand" href="../#top">KAVACHAM</a>
   <nav class="links" aria-label="Навигация по сайту">
-    <a href="./">← Протоколы</a>
+    <a href="./">← Разборы</a>
     <a href="./?focus=search">Поиск</a>
   </nav>
   <button class="nav-theme" id="rdTheme" type="button" aria-label="Переключить светлую/тёмную тему">◐</button>
@@ -252,6 +252,7 @@ footer :focus-visible{outline-color:var(--gold)}
 <footer class="deep">
   <div class="rd-cta">
     <a class="btn btn-primary" href="https://t.me/kavacham_lab_bot" target="_blank" rel="noopener noreferrer">Нашли неточность / пришлите тему на разбор</a>
+    <a class="btn btn-ghost" href="./">Все разборы Лаборатории</a>
     <a class="btn btn-ghost" href="https://dgdbvgm-tech.github.io/kavacham/app/" target="_blank" rel="noopener noreferrer">В лабораторию</a>
     <a class="btn btn-ghost" href="../">О проекте — лендинг</a>
   </div>
@@ -340,7 +341,7 @@ footer :focus-visible{outline-color:var(--gold)}
     // Переключатель переводов — ОДИН на страницу, а не кнопка под каждой цитатой:
     // на разборе их до 350, и локальные тумблеры превратили бы текст в панель
     // управления. Чтобы глобальный переключатель не уступал локальному, выбор
-    // читателя запоминается и переносится на все страницы Протоколов.
+    // читателя запоминается и переносится на все страницы Разборов.
     var trb = document.getElementById('rdTrToggle');
     function trApply(off) {
       document.body.classList.toggle('rd-hide-tr', off);

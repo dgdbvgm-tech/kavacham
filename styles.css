@@ -4,7 +4,7 @@
 
    Файл наследуют (проверено ссылками в разметке):
      · лендинг   — index.html
-     · протоколы  — reading/<slug>.html  (../styles.css)
+     · Разборы    — reading/<slug>.html  (../styles.css)
      · приложение — app/index.html      (../styles.css)
 
    ВНИМАНИЕ, ограничение: страницы-документы
@@ -179,7 +179,7 @@
   }
   @media (prefers-reduced-motion: reduce) { .nav .links { transition: opacity .2s ease; } .nav-burger span { transition: none; } }
 
-  /* Вариант шапки без бургера (Протоколы, каталог, конституция, словарь): пунктов мало —
+  /* Вариант шапки без бургера (Разборы, каталог, конституция, словарь): пунктов мало —
      держим их в строку на любой ширине. Единственный источник компонента .nav — этот файл;
      страницы включают вариант классом .nav--bare (никаких локальных копий CSS шапки). */
   .nav--bare .links { position: static; transform: none; opacity: 1; pointer-events: auto;
@@ -201,7 +201,7 @@
     .nav--bare .links { gap: 0.8rem; }
   }
 
-  /* Переключатель светлой/тёмной темы (шапка страниц Протоколов) */
+  /* Переключатель светлой/тёмной темы (шапка страниц Разборов) */
   .nav-theme { flex: none; background: none; border: 1px solid var(--deep-rule); border-radius: 999px;
     width: 2rem; height: 2rem; line-height: 1; cursor: pointer; color: var(--gold-hi);
     font-size: 0.95rem; transition: border-color .2s, transform .18s; }
