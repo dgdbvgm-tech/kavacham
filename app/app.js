@@ -566,6 +566,7 @@
     Object.keys(SCREENS).forEach(function (name) {
       $(SCREENS[name].el).hidden = (name !== r.name);
     });
+    if (r.name !== 'reading') hideReadDock();   // панель живёт только на разборе
 
     var tab = SCREENS[r.name].tab;
     Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (a) {
@@ -1613,6 +1614,7 @@
 
     stateEl.hidden = true;
     rootEl.hidden = false;
+    showReadDock(body.querySelector('.rd-tr') !== null);
 
     // Позиция чтения: повторное открытие того же разбора в этой сессии продолжает
     // с сохранённого места (запись — при уходе с экрана, см. route()). Впервые —
@@ -1623,6 +1625,59 @@
     } catch (e) { /* приватный режим — начинаем сверху */ }
     window.scrollTo(0, savedPos > 0 ? savedPos : 0);
   }
+
+  // ── Плавающая панель чтения ───────────────────────────────────────────────
+  // Две кнопки, которые нужны В ЛЮБОЙ ТОЧКЕ разбора: скрыть/вернуть перевод и
+  // возврат в начало. Раньше переключатель стоял только в шапке страницы Pages
+  // (за ним приходилось прыгать вверх), а в приложении его не было вовсе.
+  // Ключ памяти 'kv-tr' общий со страницами Pages: выбор один на оба способа чтения.
+  function applyTr(off) {
+    document.body.classList.toggle('rd-hide-tr', off);
+    var b = $('rdTrToggle');
+    if (!b) return;
+    b.textContent = off ? 'Вернуть перевод' : 'Скрыть перевод';
+    b.setAttribute('aria-pressed', off ? 'false' : 'true');
+  }
+
+  function trStored() {
+    try { return localStorage.getItem('kv-tr') === 'off'; } catch (e) { return false; }
+  }
+
+  function showReadDock(hasTranslations) {
+    var dock = $('rdDock');
+    if (!dock) return;
+    dock.hidden = false;
+    $('rdTrToggle').hidden = !hasTranslations;
+    applyTr(hasTranslations && trStored());
+  }
+
+  function hideReadDock() {
+    var dock = $('rdDock');
+    if (!dock) return;
+    dock.hidden = true;
+    document.body.classList.remove('rd-hide-tr');   // класс не должен пережить экран
+  }
+
+  (function initReadDock() {
+    var trb = $('rdTrToggle');
+    if (trb) trb.onclick = function () {
+      var off = !document.body.classList.contains('rd-hide-tr');
+      haptic('light');
+      applyTr(off);
+      try { localStorage.setItem('kv-tr', off ? 'off' : 'on'); } catch (e) {}
+    };
+    var top = $('rdTop');
+    if (top) top.onclick = function () {
+      haptic('light');
+      try { window.scrollTo({ top: 0, left: 0, behavior: 'smooth' }); }
+      catch (e) { window.scrollTo(0, 0); }
+    };
+    var toggleTop = function () {
+      if (top) top.classList.toggle('rd-top-on', (window.scrollY || 0) > 700);
+    };
+    window.addEventListener('scroll', toggleTop, { passive: true });
+    toggleTop();
+  })();
 
   // Пост-обработка тела: таблицы — в свой скроллер (страница не должна ездить вбок);
   // внешние ссылки — открывать по-телеграмному.

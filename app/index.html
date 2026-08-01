@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://kavacham-bot-928986955802.us-central1.run.app" crossorigin>
   <link rel="stylesheet" href="../styles.css">
   <!-- метку ?v= поднимать при каждом деплое app.js/app.css — иначе клиенты Telegram держат старый кэш -->
-  <link rel="stylesheet" href="app.css?v=2026072423">
+  <link rel="stylesheet" href="app.css?v=2026080120">
 
   <!-- SDK Telegram — self-hosted копия, никаких CDN в рантайме.
        В <head> (как рекомендует Telegram): тогда colorScheme известен ДО первой отрисовки. -->
@@ -796,6 +796,14 @@
 
   </main>
 
+  <!-- Плавающая панель чтения: живёт вне экранов (position:fixed), показывается
+       только на разборе. Переключатель переводов и возврат в начало нужны в любой
+       точке длинного текста — за кнопкой в шапке приходилось прыгать вверх. -->
+  <div class="rd-dock" id="rdDock" hidden>
+    <button class="rd-trfloat" id="rdTrToggle" type="button" aria-pressed="true" hidden>Скрыть перевод</button>
+    <button class="rd-top" id="rdTop" type="button" aria-label="Вернуться в начало разбора" title="В начало">↑</button>
+  </div>
+
   <!-- ——— Подвал ——— -->
   <footer class="tma-footer">
     <p class="sig" style="max-width:40rem;margin:0 auto 0.5rem;line-height:1.5;opacity:.85;font-size:.72rem">Цитаты книг Шрилы Прабхупады — добросовестное цитирование · © The Bhaktivedanta Book Trust International, Inc. · <a href="https://vedabase.io/" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">vedabase.io</a> · <a href="https://dgdbvgm-tech.github.io/kavacham/pravovaya-osnova.html" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">Правовая основа</a></p>
@@ -831,6 +839,6 @@
   </nav>
 
   <!-- метку ?v= поднимать при каждом деплое app.js/app.css — иначе клиенты Telegram держат старый кэш -->
-  <script src="app.js?v=2026072512"></script>
+  <script src="app.js?v=2026080120"></script>
 </body>
 </html>

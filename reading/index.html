@@ -17,15 +17,19 @@
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="stylesheet" href="../styles.css">
 <style>
-.rd-top{position:fixed;right:14px;bottom:14px;z-index:90;width:44px;height:44px;
-  border-radius:999px;display:grid;place-items:center;cursor:pointer;font:inherit;
-  font-size:1.05rem;line-height:1;color:var(--text-2);background:var(--panel);
+/* Тот же компонент, что на страницах разбора (SHARED_CSS): у указателя в панели
+   одна кнопка — переводить здесь нечего. */
+.rd-dock{position:fixed;right:14px;bottom:14px;z-index:90;
+  display:flex;flex-direction:column;align-items:flex-end;gap:.5rem}
+.rd-dock button{cursor:pointer;font:inherit;color:var(--text-2);background:var(--panel);
   border:1px solid var(--rule);box-shadow:0 6px 18px rgba(0,0,0,.18);
-  opacity:0;visibility:hidden;transform:translateY(10px);
   transition:opacity .2s,transform .2s,visibility .2s,color .2s,border-color .2s}
+.rd-dock button:hover,.rd-dock button:focus-visible{border-color:var(--accent);color:var(--accent)}
+.rd-top{width:44px;height:44px;border-radius:999px;display:grid;place-items:center;
+  font-size:1.05rem;line-height:1;
+  opacity:0;visibility:hidden;transform:translateY(10px)}
 .rd-top.rd-top-on{opacity:1;visibility:visible;transform:none}
-.rd-top:hover,.rd-top:focus-visible{border-color:var(--accent);color:var(--accent)}
-@media print{.rd-top{display:none}}
+@media print{.rd-dock{display:none}}
 .rd-head{padding-bottom:1.4rem;border-bottom:1px solid var(--rule)}
 .rd-head .eyebrow{margin:0}
 .rd-sandbox{display:inline-block;font-size:.72rem;line-height:1.4;color:var(--text-dim);
@@ -188,7 +192,7 @@ footer :focus-visible{outline-color:var(--gold)}
   <p class="bbt-notice">Цитаты книг Шрилы Прабхупады — добросовестное цитирование · © The Bhaktivedanta Book Trust International, Inc. · <a href="https://vedabase.io/" target="_blank" rel="noopener noreferrer">vedabase.io</a> · <a href="../pravovaya-osnova.html">Правовая основа</a></p>
   <p class="rd-sig">KAVACHAM · DGD · ZERO ENTROPY</p>
 </footer>
-<button class="rd-top" id="rdTop" type="button" aria-label="Вернуться в начало страницы" title="В начало">↑</button>
+<div class="rd-dock"><button class="rd-top" id="rdTop" type="button" aria-label="Вернуться в начало страницы" title="В начало">↑</button></div>
 <script>
 (function(){
   var top=document.getElementById('rdTop');

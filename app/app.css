@@ -2390,3 +2390,52 @@ body.tma-in-telegram .tabbar {
 /* селектор глубины поиска (ТЗ «Мега-разборы») */
 .depth-range { width: 100%; margin: 0.5rem 0 0.6rem; accent-color: var(--accent); }
 .depth-presets { margin-bottom: 0.3rem; }
+
+/* ── Плавающая панель чтения (правило автора проекта 01.08.2026) ───────────
+   Переключатель переводов и возврат в начало нужны В ЛЮБОЙ ТОЧКЕ разбора.
+   Раньше переключатель стоял в шапке страницы Pages, а в приложении его не
+   было вовсе — читатель приложения не мог скрыть переводы никак. Ключ памяти
+   ('kv-tr') общий со страницами Pages: выбор один на оба способа чтения. */
+.rd-dock {
+  position: fixed;
+  right: 14px;
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+.rd-dock[hidden] { display: none; }
+.rd-dock button {
+  cursor: pointer;
+  font: inherit;
+  color: var(--text-2);
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+  transition: opacity 0.2s, transform 0.2s, visibility 0.2s, color 0.2s, border-color 0.2s;
+}
+.rd-dock button:hover,
+.rd-dock button:focus-visible { border-color: var(--accent); color: var(--accent); }
+.rd-trfloat {
+  border-radius: 999px;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.76rem;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.rd-top {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 1.05rem;
+  line-height: 1;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+}
+.rd-top.rd-top-on { opacity: 1; visibility: visible; transform: none; }
+@media (max-width: 680px) { .rd-trfloat { font-size: 0.72rem; padding: 0.35rem 0.7rem; } }

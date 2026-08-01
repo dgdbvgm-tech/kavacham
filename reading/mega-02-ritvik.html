@@ -60,11 +60,7 @@ p.rd-note-in.rd-note-in{margin:.6rem 0 0;font-size:.86rem;line-height:1.6;color:
 .rd-tr-warn{display:inline-block;margin-left:.45rem;font-size:.68rem;color:var(--text-dim);
   border:1px solid var(--rule);border-radius:999px;padding:.02rem .5rem;white-space:nowrap}
 body.rd-hide-tr .rd-tr{display:none}
-.rd-trbar{display:flex;flex-wrap:wrap;gap:.6rem;align-items:baseline;margin:0 0 2rem;
-  font-size:.78rem;line-height:1.6;color:var(--text-dim)}
-.rd-trbar button{font:inherit;font-size:.78rem;cursor:pointer;color:var(--text-2);
-  background:var(--panel);border:1px solid var(--rule);border-radius:999px;padding:.28rem .8rem}
-.rd-trbar button:hover,.rd-trbar button:focus-visible{border-color:var(--accent);color:var(--accent)}
+.rd-trbar{margin:0 0 2rem;font-size:.78rem;line-height:1.6;color:var(--text-dim)}
 /* Сворачиваемый блок: длинная реконструкция позиции оппонента не должна выталкивать
    разбор вниз — читатель разворачивает её сам. */
 .rd-fold{margin:1.6rem 0;border:1px solid var(--rule);border-radius:6px;background:var(--panel)}
@@ -76,17 +72,25 @@ body.rd-hide-tr .rd-tr{display:none}
 .rd-fold>summary:hover,.rd-fold>summary:focus-visible{color:var(--accent)}
 .rd-fold-body{padding:0 1.1rem .4rem}
 .rd-fold-body>*:first-child{margin-top:0}
-/* Возврат к началу. Разборы длинные (мега-разбор — сотни экранов); без этой кнопки
-   читатель прокручивал вручную. Правило: кнопка есть на КАЖДОЙ странице разбора. */
-.rd-top{position:fixed;right:14px;bottom:14px;z-index:90;width:44px;height:44px;
-  border-radius:999px;display:grid;place-items:center;cursor:pointer;font:inherit;
-  font-size:1.05rem;line-height:1;color:var(--text-2);background:var(--panel);
+/* Плавающая панель управления чтением. Держит переключатель переводов и возврат
+   к началу: обе кнопки нужны В ЛЮБОЙ ТОЧКЕ длинной страницы, а не только наверху.
+   Причина правила (автор проекта 01.08.2026): за переключателем, стоявшим в шапке,
+   приходилось прыгать вверх с середины разбора — то есть ровно та работа, ради
+   отмены которой кнопка и заводилась. */
+.rd-dock{position:fixed;right:14px;bottom:14px;z-index:90;
+  display:flex;flex-direction:column;align-items:flex-end;gap:.5rem}
+.rd-dock button{cursor:pointer;font:inherit;color:var(--text-2);background:var(--panel);
   border:1px solid var(--rule);box-shadow:0 6px 18px rgba(0,0,0,.18);
-  opacity:0;visibility:hidden;transform:translateY(10px);
   transition:opacity .2s,transform .2s,visibility .2s,color .2s,border-color .2s}
+.rd-dock button:hover,.rd-dock button:focus-visible{border-color:var(--accent);color:var(--accent)}
+.rd-trfloat{border-radius:999px;padding:.4rem .85rem;font-size:.76rem;line-height:1.2;
+  white-space:nowrap}
+.rd-top{width:44px;height:44px;border-radius:999px;display:grid;place-items:center;
+  font-size:1.05rem;line-height:1;
+  opacity:0;visibility:hidden;transform:translateY(10px)}
 .rd-top.rd-top-on{opacity:1;visibility:visible;transform:none}
-.rd-top:hover,.rd-top:focus-visible{border-color:var(--accent);color:var(--accent)}
-@media print{.rd-top{display:none}}
+@media (max-width:680px){.rd-trfloat{font-size:.72rem;padding:.35rem .7rem}}
+@media print{.rd-dock{display:none}}
 .rd-tablewrap{overflow-x:auto;overscroll-behavior-x:contain}
 .rd-tablewrap table{border-collapse:collapse;min-width:100%}
 .rd-tablewrap th,.rd-tablewrap td{border:1px solid var(--rule);padding:.5rem .65rem;
@@ -201,7 +205,7 @@ footer :focus-visible{outline-color:var(--gold)}
       <h1 class="rd-title">"Последнее распоряжение" Шрилы Прабхупады о ритвиках — навечно или на время?</h1>
       <p class="rd-sub">Разбор ритвик-вады по первоисточникам: что на самом деле означает "последнее распоряжение" об инициациях 1977 года — и что говорят о преемственности шастра-в-парампаре и собственные слова Шрилы Прабхупады</p>
       <p class="rd-meta"><span>мега-разбор</span><span>№2</span><span>2026-07-22</span><span>60 праман</span><span>60 со ссылкой на первоисточник</span></p>
-      <p class="rd-trbar"><button id="rdTrToggle" type="button" aria-pressed="true">Скрыть переводы</button><span>У английских цитат — рабочий перевод Лаборатории. Источник истины — оригинал: спорное место сверяйте по нему.</span></p>
+      <p class="rd-trbar">У английских цитат — рабочий перевод Лаборатории. Источник истины — оригинал: спорное место сверяйте по нему. Переводы скрываются кнопкой в правом нижнем углу.</p>
       <nav class="rd-toc" aria-label="Оглавление">
         <p class="eyebrow">Оглавление</p>
         <ol><li class="l2"><a href="#s-0-chto-eto-za-otchet-i-kak-ego-chitat">0. Что это за отчёт и как его читать</a></li><li class="l2"><a href="#s-1-vyzov">1. Вызов</a></li><li class="l2"><a href="#s-2-argument-opponenta-v-silneyshey-forme-purvapaksha">2. Аргумент оппонента — в сильнейшей форме (пурвапакша)</a></li><li class="l2"><a href="#s-3-khandana-oproverzhenie-po-nyae">3. Кхандана — опровержение по ньяе</a></li><li class="l3"><a href="#s-3-0-kto-arbitr-shabda-a-pismo-09-07-1977-vyavaharika-nizhe-s">3.0. Кто арбитр: шабда, а письмо 09.07.1977 — вьявахарика ниже шастры</a></li><li class="l3"><a href="#s-3-1-badhita-sterzhen-vyvod-pryamo-protivorechit-shabde">3.1. БАДХИТА-стержень: вывод прямо противоречит шабде</a></li><li class="l3"><a href="#s-3-2-savyabhichara-anaykantika-ignorirovanie-desha-kala-patra">3.2. САВЬЯБХИЧАРА / АНАЙКАНТИКА: игнорирование деша-кала-патра</a></li><li class="l3"><a href="#s-3-3-slova-besedy-28-05-1977-become-regular-guru-granddiscipl">3.3. Слова беседы 28.05.1977: &quot;become regular guru / granddisciple / by my order&quot;</a></li><li class="l3"><a href="#s-3-4-ardha-kukkuti-nyaya-logika-poloviny-kuricy">3.4. АРДХА-КУККУТИ-НЬЯЯ: &quot;логика половины курицы&quot;</a></li><li class="l3"><a href="#s-3-5-asiddha-argument-ot-molchaniya">3.5. АСИДДХА: аргумент от молчания</a></li><li class="l3"><a href="#s-3-6-inversiya-mukhya-gauna-vtorostepennoe-podmenyaet-glavnoe">3.6. Инверсия МУКХЬЯ / ГАУНА: второстепенное подменяет главное</a></li><li class="l3"><a href="#s-3-7-pratyaksha-protiv-shabdy-guru-padali-defekt-adhikary-a-n">3.7. ПРАТЬЯКША против ШАБДЫ: &quot;гуру падали&quot; — дефект адхикары, а не опровержение гуру-таттвы</a></li><li class="l3"><a href="#s-institucionalnoe-podtverzhdenie-vspomogatelnyy-sloy-ne-resha">Институциональное подтверждение (вспомогательный слой — не решающая прамана)</a></li><li class="l3"><a href="#s-itog-khandany">Итог кханданы</a></li><li class="l2"><a href="#s-4-siddhanta-polozhitelnaya-poziciya-parampary">4. Сиддханта — положительная позиция парампары</a></li><li class="l3"><a href="#s-4-1-shabda-uchrezhdaet-zhivuyu-peredachu-guru-funkcii">4.1. Шабда учреждает живую передачу гуру-функции</a></li><li class="l3"><a href="#s-4-2-parampara-zhivaya-cep-trebuyuschaya-zhivogo-zvena">4.2. Парампара — живая цепь, требующая живого звена</a></li><li class="l3"><a href="#s-4-3-kvalifikaciya-iniciirovat-stupeni-adhikari">4.3. Квалификация инициировать: ступени адхикари</a></li><li class="l3"><a href="#s-4-4-chto-henceforward-znachit-v-sobstvennom-kontekste-beseda">4.4. Что &quot;henceforward&quot; значит в собственном контексте (беседа 28.05.1977)</a></li><li class="l3"><a href="#s-4-5-finalnoe-voleizyavlenie-18-10-1977-delegaciya-vremennaya">4.5. Финальное волеизъявление 18.10.1977 — делегация ВРЕМЕННАЯ</a></li><li class="l3"><a href="#s-4-6-metod-pochemu-rastyazhenie-navsegda-germenevticheskaya-o">4.6. Метод: почему растяжение &quot;навсегда&quot; — герменевтическая ошибка</a></li><li class="l3"><a href="#s-4-7-guru-padayut-defekt-adhikary-otdelnyh-lic-a-ne-oproverzh">4.7. &quot;Гуру падают&quot; — дефект адхикары отдельных лиц, а не опровержение института</a></li><li class="l3"><a href="#s-4-8-institucionalnyy-sloy-vspomogatelnyy-verdikt-gbc">4.8. Институциональный слой (вспомогательный) — вердикт GBC</a></li><li class="l2"><a href="#s-5-chestnaya-granica-pravo-molchat">5. Честная граница · Право молчать</a></li><li class="l2"><a href="#s-6-slovar-terminov">6. Словарь терминов</a></li></ol>
@@ -439,7 +443,7 @@ footer :focus-visible{outline-color:var(--gold)}
   <p class="bbt-notice">Цитаты книг Шрилы Прабхупады — добросовестное цитирование · © The Bhaktivedanta Book Trust International, Inc. · <a href="https://vedabase.io/" target="_blank" rel="noopener noreferrer">vedabase.io</a> · <a href="../pravovaya-osnova.html">Правовая основа</a></p>
   <p class="rd-sig">KAVACHAM · DGD · ZERO ENTROPY</p>
 </footer>
-<button class="rd-top" id="rdTop" type="button" aria-label="Вернуться в начало страницы" title="В начало">↑</button>
+<div class="rd-dock"><button class="rd-trfloat" id="rdTrToggle" type="button" aria-pressed="true">Скрыть перевод</button><button class="rd-top" id="rdTop" type="button" aria-label="Вернуться в начало страницы" title="В начало">↑</button></div>
 <script>
   (function () {
     var doc = document.documentElement;
@@ -525,7 +529,7 @@ footer :focus-visible{outline-color:var(--gold)}
     function trApply(off) {
       document.body.classList.toggle('rd-hide-tr', off);
       if (!trb) return;
-      trb.textContent = off ? 'Показать переводы' : 'Скрыть переводы';
+      trb.textContent = off ? 'Вернуть перевод' : 'Скрыть перевод';
       trb.setAttribute('aria-pressed', off ? 'false' : 'true');
     }
     try { if (localStorage.getItem('kv-tr') === 'off') trApply(true); } catch (e) {}
