@@ -273,7 +273,7 @@ footer :focus-visible{outline-color:var(--gold)}
       </div>
     </article>
     <nav class="rd-pager" aria-label="Соседние материалы"><a class="rd-pager-prev" href="dapologetics.html"><span>← Предыдущий в рубрике</span><b>Апологетика в эпоху нейросетей</b></a><a class="rd-pager-next" href="mega-03-vybiraem-temu.html"><span>Следующий в рубрике →</span><b>Мега-разбор №3: выбираем тему вместе</b></a></nav>
-    <section class="rd-related" aria-label="Связанные материалы"><p class="eyebrow">Читать дальше</p><ul><li><a href="analytika-perevod-vsegda-interpretaciya.html"><span class="rr-rub">аналитика</span><span class="rr-t">Перевод как интерпретация: как рождается точность священных текстов</span></a></li><li><a href="razbor-vaishnavi-diksa-guru.html"><span class="rr-rub">разбор</span><span class="rr-t">Может ли вайшнави быть инициирующим (дикша) гуру? Открытый узел</span></a></li><li><a href="razbor-01-prizma-acharev.html"><span class="rr-rub">разбор</span><span class="rr-t">Разбор №1. Что такое &quot;призма ачарьев&quot; — и не &quot;обошёл&quot; ли я Шрилу Прабхупаду</span></a></li></ul></section>
+    <section class="rd-related" aria-label="Связанные материалы"><p class="eyebrow">Читать дальше</p><ul><li><a href="analytika-pravki-izdanij.html"><span class="rr-rub">аналитика</span><span class="rr-t">Правки в изданиях: что проверяется, а что остаётся расхождением</span></a></li><li><a href="analytika-perevod-vsegda-interpretaciya.html"><span class="rr-rub">аналитика</span><span class="rr-t">Перевод как интерпретация: как рождается точность священных текстов</span></a></li><li><a href="razbor-vaishnavi-diksa-guru.html"><span class="rr-rub">разбор</span><span class="rr-t">Может ли вайшнави быть инициирующим (дикша) гуру? Открытый узел</span></a></li></ul></section>
   </div>
 </main>
 
@@ -365,11 +365,22 @@ footer :focus-visible{outline-color:var(--gold)}
       document.querySelectorAll('.rd-tooltip-box').forEach(function (b) { b.style.left = ''; });
     });
 
+    // Переключатель переводов — ОДИН на страницу, а не кнопка под каждой цитатой:
+    // на разборе их до 350, и локальные тумблеры превратили бы текст в панель
+    // управления. Чтобы глобальный переключатель не уступал локальному, выбор
+    // читателя запоминается и переносится на все страницы Протоколов.
     var trb = document.getElementById('rdTrToggle');
-    if (trb) trb.addEventListener('click', function () {
-      var off = document.body.classList.toggle('rd-hide-tr');
+    function trApply(off) {
+      document.body.classList.toggle('rd-hide-tr', off);
+      if (!trb) return;
       trb.textContent = off ? 'Показать переводы' : 'Скрыть переводы';
       trb.setAttribute('aria-pressed', off ? 'false' : 'true');
+    }
+    try { if (localStorage.getItem('kv-tr') === 'off') trApply(true); } catch (e) {}
+    if (trb) trb.addEventListener('click', function () {
+      var off = !document.body.classList.contains('rd-hide-tr');
+      trApply(off);
+      try { localStorage.setItem('kv-tr', off ? 'off' : 'on'); } catch (e) {}
     });
   })();
 </script>

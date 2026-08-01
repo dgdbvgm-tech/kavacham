@@ -309,11 +309,22 @@ footer :focus-visible{outline-color:var(--gold)}
       document.querySelectorAll('.rd-tooltip-box').forEach(function (b) { b.style.left = ''; });
     });
 
+    // Переключатель переводов — ОДИН на страницу, а не кнопка под каждой цитатой:
+    // на разборе их до 350, и локальные тумблеры превратили бы текст в панель
+    // управления. Чтобы глобальный переключатель не уступал локальному, выбор
+    // читателя запоминается и переносится на все страницы Протоколов.
     var trb = document.getElementById('rdTrToggle');
-    if (trb) trb.addEventListener('click', function () {
-      var off = document.body.classList.toggle('rd-hide-tr');
+    function trApply(off) {
+      document.body.classList.toggle('rd-hide-tr', off);
+      if (!trb) return;
       trb.textContent = off ? 'Показать переводы' : 'Скрыть переводы';
       trb.setAttribute('aria-pressed', off ? 'false' : 'true');
+    }
+    try { if (localStorage.getItem('kv-tr') === 'off') trApply(true); } catch (e) {}
+    if (trb) trb.addEventListener('click', function () {
+      var off = !document.body.classList.contains('rd-hide-tr');
+      trApply(off);
+      try { localStorage.setItem('kv-tr', off ? 'off' : 'on'); } catch (e) {}
     });
   })();
 </script>
