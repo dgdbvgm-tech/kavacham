@@ -158,6 +158,23 @@ body.tma {
 }
 .tma-sandbox strong { color: var(--gold-hi); font-weight: 600; }
 
+/* ——— Объявление «сервер недоступен» ———
+   Тот же поясок, что у песочницы, но тревожного тона: человек должен заметить
+   его раньше, чем нажмёт на неработающую кнопку. Ссылки подчёркнуты — в поясе
+   мелкого текста цвет один контраст не держит. */
+.tma-outage {
+  padding: 0.5rem var(--tma-pad);
+  background: rgba(201, 162, 75, 0.13);
+  border-bottom: 1px solid var(--deep-rule);
+  color: var(--deep-ink);
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+.tma-outage strong { color: var(--gold-hi); font-weight: 600; }
+.tma-outage a { color: var(--gold-hi); text-decoration: underline; }
+.tma-outage[hidden] { display: none; }
+
 /* ——— Каркас экранов ——— */
 .tma-main {
   display: block;

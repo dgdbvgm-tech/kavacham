@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://kavacham-bot-928986955802.us-central1.run.app" crossorigin>
   <link rel="stylesheet" href="../styles.css">
   <!-- метку ?v= поднимать при каждом деплое app.js/app.css — иначе клиенты Telegram держат старый кэш -->
-  <link rel="stylesheet" href="app.css?v=2026080122">
+  <link rel="stylesheet" href="app.css?v=2026081401">
 
   <!-- SDK Telegram — self-hosted копия, никаких CDN в рантайме.
        В <head> (как рекомендует Telegram): тогда colorScheme известен ДО первой отрисовки. -->
@@ -65,6 +65,19 @@
   <!-- ——— Плашка «песочница» ——— -->
   <div class="tma-sandbox" role="note">
     <strong>Песочница.</strong> Стенд в калибровке, а не готовый продукт.
+  </div>
+
+  <!-- ——— Объявление: сервер недоступен ———
+       Показывает app.js при первой же неудаче запроса (сеть или ответ 5xx),
+       прячет при первом успешном. Прецедент 14.08.2026: сервер лёг из-за
+       закрытого платёжного аккаунта, и человек бился в мёртвую кнопку заявки
+       без единого намёка, куда идти. Живой человек и почта не зависят от
+       нашего хостинга — это и есть запасной путь. -->
+  <div class="tma-outage" id="outageBanner" role="alert" hidden>
+    <strong>Связи с сервером нет.</strong> Заявку примем вручную:
+    <a href="https://t.me/dmitriibagnin" target="_blank" rel="noopener noreferrer">написать в Telegram</a>
+    или <a href="mailto:kavacham.project@gmail.com">kavacham.project@gmail.com</a>
+    — поставим в очередь, ничего не потеряется.
   </div>
 
   <!-- ——— Экраны ——— -->
@@ -281,7 +294,7 @@
              три короткие строки сканируются, простыня — нет. -->
         <ul class="foot-note">
           <li>Маршрут заявки: <b class="mono">в очереди</b> → <b class="mono">разведка ядром</b> → <b class="mono">сверка праман</b> → <b class="mono">опубликовано</b> (или <b class="mono">отклонена</b> — без публичного разбора).</li>
-          <li>Каждую цитату сверяет человек — движок сам себя не публикует: это красная линия проекта.</li>
+          <li>Каждую цитату сверяет человек — движок сам себя не публикует: это граница, которую проект не переходит.</li>
           <li>То же в боте: <code>/status</code>.</li>
         </ul>
 
@@ -840,6 +853,6 @@
   </nav>
 
   <!-- метку ?v= поднимать при каждом деплое app.js/app.css — иначе клиенты Telegram держат старый кэш -->
-  <script src="app.js?v=2026080122"></script>
+  <script src="app.js?v=2026081401"></script>
 </body>
 </html>

@@ -222,10 +222,29 @@
   .ask-status .eq i:nth-child(4) { animation-delay: 0.36s; } .ask-status .eq i:nth-child(5) { animation-delay: 0.48s; }
   @keyframes eq { 0%, 100% { height: 5px; } 50% { height: 15px; } }
   @media (prefers-reduced-motion: reduce) { .ask-input button.rec { animation: none; } .ask-status .dot, .ask-status .eq i { animation: none; } }
+
+  /* Объявление «сервер недоступен» — поясок над шапкой. Появляется только
+     когда сервер заявок молчит; в обычной жизни страницы не видно. */
+  .outage { padding: 0.5rem var(--pad-x); background: rgba(201,162,75,0.13); border-bottom: 1px solid var(--deep-rule); color: var(--deep-ink); font-family: var(--sans); font-size: 0.82rem; line-height: 1.5; }
+  .outage strong { color: var(--gold-hi); font-weight: 600; }
+  .outage a { color: var(--gold-hi); text-decoration: underline; }
+  .outage[hidden] { display: none; }
 </style>
 </head>
 <body>
 <a class="skip" href="#main">К содержанию</a>
+
+<!-- ——— Объявление: сервер Лаборатории недоступен ———
+     Поднимает скрипт в конце страницы, если сервер заявок не отвечает.
+     Прецедент 14.08.2026: сервер лёг из-за закрытого платёжного аккаунта
+     хостинга — кнопки вели в молчащего бота, и человек упирался в тупик.
+     Живой человек и почта от нашего хостинга не зависят. -->
+<div class="outage" id="outageBanner" role="alert" hidden>
+  <strong>Связи с сервером нет.</strong> Заявку примем вручную:
+  <a href="https://t.me/dmitriibagnin" target="_blank" rel="noopener noreferrer">@dmitriibagnin</a>
+  или <a href="mailto:kavacham.project@gmail.com">kavacham.project@gmail.com</a>
+  — поставим в очередь, ничего не потеряется.
+</div>
 
 <header class="nav">
   <a class="brand" href="#top">KAVACHAM</a>
@@ -574,11 +593,11 @@
   <div class="inner">
     <p class="eyebrow reveal">Это не идея — это работающий фундамент</p>
     <h2 class="kicker reveal">Уже собрано и проверено.</h2>
-    <p class="lead reveal" style="color:var(--deep-dim)">Живая витрина проекта: чистая библиотека превращена в смысловой индекс — <span class="m-chunks-txt">1 375 238</span> фрагментов из 39&nbsp;000+ документов, поверх идут открытые испытания в Telegram-лаборатории. Карточки раскрываются по клику — внутри детали и пруфы. Витрина обновляется с каждым релизом.</p>
+    <p class="lead reveal" style="color:var(--deep-dim)">Живая витрина проекта: чистая библиотека превращена в смысловой индекс — <span class="m-chunks-txt">1 383 709</span> фрагментов из 39&nbsp;000+ документов, поверх идут открытые испытания в Telegram-лаборатории. Карточки раскрываются по клику — внутри детали и пруфы. Витрина обновляется с каждым релизом.</p>
     <div class="facts reveal">
       <details class="fact">
         <summary>
-          <div class="big" id="m-docs" data-count="68170" data-suffix="">68 170</div>
+          <div class="big" id="m-docs" data-count="68792" data-suffix="">68 792</div>
           <div class="lbl">документов в каталоге</div>
           <div class="sub"><b>валидация формата пройдена без ошибок</b> · единый открытый формат (OKF): 17 корпусов собраны «в одну кнопку»</div>
           <div class="hint"><span class="t-close">подробнее +</span><span class="t-open">свернуть −</span></div>
@@ -596,7 +615,7 @@
       </details>
       <details class="fact">
         <summary>
-          <div class="big" id="m-chunks" data-count="1375238" data-suffix="">1 375 238</div>
+          <div class="big" id="m-chunks" data-count="1383709" data-suffix="">1 383 709</div>
           <div class="lbl">смысловых фрагментов в гибридном индексе</div>
           <div class="sub" id="m-chunks-sub">Смысл + дословная лексика: русский вопрос находит английский стих</div>
           <div class="hint"><span class="t-close">подробнее +</span><span class="t-open">свернуть −</span></div>
@@ -632,7 +651,7 @@
         <div class="more">Ядро — собственный поисковый движок по выверенной библиотеке (RAG). Он LLM-agnostic: рассуждающую нейросеть можно заменить в любой момент — библиотека, индекс и ссылки остаются.
           <ul class="roadmap">
             <li class="done"><span class="st">✓</span>Библиотека 39&nbsp;000+ документов в едином формате</li>
-            <li class="done"><span class="st">✓</span>Смысловой индекс <span class="m-chunks-txt">1 375 238</span> фрагментов</li>
+            <li class="done"><span class="st">✓</span>Смысловой индекс <span class="m-chunks-txt">1 383 709</span> фрагментов</li>
             <li class="done"><span class="st">✓</span>Гибридный ретривер: точность ×4 на эталонных кейсах · глубина поиска до 200 цитат (мега-режим)</li>
             <li class="done"><span class="st">✓</span>Lab-полигон: <span class="m-razbory-txt">13</span> разборов + три мега-разбора, бот-приёмная 24/7</li>
             <li class="done"><span class="st">✓</span>Мини-приложение <b>KAVACHAM Lab</b>: Разборы Лаборатории, подача заявок с выбором корпусов (дерево до отдельных книг) и шаблонами (софизм · проверка цитаты · учебный узел со ступенями), голосовой ввод, архив черновиков, Лог событий с двусторонней связью с Оператором, доски «Разработка» и «Очередь Узлов», исследовательский режим</li>
@@ -1431,6 +1450,27 @@
         }
       })
       .catch(function () { /* резерв в разметке остаётся: ссылка на Разборы */ });
+  })();
+</script>
+
+<script>
+  /* ——— Живость сервера заявок ———
+     Один лёгкий запрос при загрузке. Молчит сервер — поднимаем поясок
+     #outageBanner с запасным путём (живой человек и почта). Повторов нет:
+     страница целиком читается и без сервера, а одного отказа человеку уже
+     достаточно, чтобы понять, куда идти с заявкой.
+     Источник github.io в списке разрешённых на сервере — значит отказ здесь
+     означает именно недоступность, а не запрет браузера. */
+  (function () {
+    var HEALTH = 'https://kavacham-bot-928986955802.us-central1.run.app/api/health';
+    var el = document.getElementById('outageBanner');
+    if (!el || !window.fetch) return;
+    var ctl = window.AbortController ? new AbortController() : null;
+    var timer = setTimeout(function () { try { if (ctl) ctl.abort(); } catch (e) {} }, 7000);
+    function down() { clearTimeout(timer); el.hidden = false; }
+    fetch(HEALTH, { cache: 'no-store', signal: ctl ? ctl.signal : undefined })
+      .then(function (r) { clearTimeout(timer); if (!r.ok) el.hidden = false; })
+      .catch(down);
   })();
 </script>
 </body>
