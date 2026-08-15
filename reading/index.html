@@ -71,7 +71,14 @@
 .rx-rub{text-transform:uppercase;letter-spacing:.06em;font-size:.68rem;color:var(--accent);
   border-color:var(--accent) !important}
 .rx-item[hidden]{display:none}
-.rd-cta{display:flex;flex-wrap:wrap;gap:.8rem;justify-content:center;margin:0 0 1.6rem}
+.rd-cta{display:flex;flex-wrap:wrap;gap:.8rem;justify-content:center;margin:0 0 1.6rem;max-width:100%}
+/* Кнопка подвала не имеет права обрезать свою подпись. `.btn` — inline-flex из общей
+   системы, и при узкой полосе (или другом наборе шрифта у читателя) длинная подпись
+   вылезала за кнопку и срезалась слева (замечание автора проекта 15.08.2026, скрин).
+   min-width:0 снимает автоминимум флекс-элемента, перенос и центрирование дают тексту
+   лечь в две строки вместо выхода за границы. Геометрию проверяет машинный гейт. */
+.rd-cta .btn{min-width:0;max-width:100%;justify-content:center;text-align:center;
+  white-space:normal;overflow-wrap:anywhere}
 .rd-note{font-size:.84rem;line-height:1.7;color:var(--deep-dim);max-width:46rem;margin:0 auto}
 .rd-sig{font-family:var(--serif);letter-spacing:.18em;font-size:.72rem;text-transform:uppercase;
   color:var(--gold);margin:1.8rem 0 0}

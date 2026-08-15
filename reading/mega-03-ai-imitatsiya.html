@@ -39,8 +39,13 @@ p.rd-note-in.rd-note-in{margin:.6rem 0 0;font-size:.86rem;line-height:1.6;color:
 .rd-tooltip::after{content:" ⓘ";font-size:.75em;vertical-align:super;opacity:.5;color:var(--text);transition:opacity .2s,color .2s}
 .rd-tooltip:focus,.rd-tooltip:hover{border-bottom-color:var(--gold)}
 .rd-tooltip:focus::after,.rd-tooltip:hover::after{opacity:1;color:var(--gold)}
-.rd-tooltip:focus .rd-tooltip-box,.rd-tooltip:hover .rd-tooltip-box{visibility:visible;opacity:1;pointer-events:auto}
-.rd-tooltip-box{visibility:hidden;position:absolute;z-index:120;bottom:100%;left:0;width:280px;max-width:min(85vw,280px);margin-bottom:8px;padding:.75rem 1rem;border-radius:8px;background:var(--panel);border:1px solid var(--rule);box-shadow:0 8px 24px rgba(0,0,0,.2);color:var(--text);font-size:.85rem;line-height:1.5;font-family:system-ui,sans-serif;font-weight:400;opacity:0;transition:opacity .2s;pointer-events:none;text-indent:0;white-space:normal}
+.rd-tooltip:focus .rd-tooltip-box,.rd-tooltip:hover .rd-tooltip-box{display:block;visibility:visible;opacity:1;pointer-events:auto}
+/* display:none в покое — не косметика. Коробка шириной 280px висит absolute от слова;
+   у термина возле правого края она торчала за экран ДАЖЕ невидимой и давала странице
+   горизонтальную прокрутку на пустом месте (поймано машинным гейтом геометрии на
+   ширинах 820 и 1024). Скрытый visibility место занимает, display — нет; видимую
+   коробку по-прежнему двигает скрипт при наведении и фокусе. */
+.rd-tooltip-box{display:none;visibility:hidden;position:absolute;z-index:120;bottom:100%;left:0;width:280px;max-width:min(85vw,280px);margin-bottom:8px;padding:.75rem 1rem;border-radius:8px;background:var(--panel);border:1px solid var(--rule);box-shadow:0 8px 24px rgba(0,0,0,.2);color:var(--text);font-size:.85rem;line-height:1.5;font-family:system-ui,sans-serif;font-weight:400;opacity:0;transition:opacity .2s;pointer-events:none;text-indent:0;white-space:normal}
 /* Подсказка словаря на узком экране. Абсолютное позиционирование от самого термина
    уводило коробку за правый край: термин у края строки + ширина 280px = обрезка
    (замечание автора проекта 01.08.2026, воспроизводилось на всех разборах).
@@ -144,7 +149,14 @@ p:has(> .rd-img) + p{text-align:center;font-style:italic;font-size:.82rem;
   border-left:2px solid var(--rule)}
 .rd-body blockquote p{margin:0}
 .rd-body .rd-tablewrap{margin:0 0 1.3rem}
-.rd-cta{display:flex;flex-wrap:wrap;gap:.8rem;justify-content:center;margin:0 0 1.6rem}
+.rd-cta{display:flex;flex-wrap:wrap;gap:.8rem;justify-content:center;margin:0 0 1.6rem;max-width:100%}
+/* Кнопка подвала не имеет права обрезать свою подпись. `.btn` — inline-flex из общей
+   системы, и при узкой полосе (или другом наборе шрифта у читателя) длинная подпись
+   вылезала за кнопку и срезалась слева (замечание автора проекта 15.08.2026, скрин).
+   min-width:0 снимает автоминимум флекс-элемента, перенос и центрирование дают тексту
+   лечь в две строки вместо выхода за границы. Геометрию проверяет машинный гейт. */
+.rd-cta .btn{min-width:0;max-width:100%;justify-content:center;text-align:center;
+  white-space:normal;overflow-wrap:anywhere}
 .rd-note{font-size:.84rem;line-height:1.7;color:var(--deep-dim);max-width:46rem;margin:0 auto}
 .rd-sig{font-family:var(--serif);letter-spacing:.18em;font-size:.72rem;text-transform:uppercase;
   color:var(--gold);margin:1.8rem 0 0}
