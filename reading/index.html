@@ -30,6 +30,12 @@
   opacity:0;visibility:hidden;transform:translateY(10px)}
 .rd-top.rd-top-on{opacity:1;visibility:visible;transform:none}
 @media print{.rd-dock{display:none}}
+/* Мостик к живому наставнику — не сноска мелким шрифтом: читатель обязан его увидеть,
+   поэтому блок отбит рамкой и стоит последним в теле разбора. */
+.rd-guru{margin:2.8rem 0 0;padding:1.2rem 1.4rem;border:1px solid var(--rule);
+  border-radius:4px;background:var(--panel)}
+.rd-guru .eyebrow{margin:0 0 .7rem}
+.rd-guru p{margin:0;line-height:1.7;color:var(--text-2)}
 .rd-head{padding-bottom:1.4rem;border-bottom:1px solid var(--rule)}
 .rd-head .eyebrow{margin:0}
 .rd-sandbox{display:inline-block;font-size:.72rem;line-height:1.4;color:var(--text-dim);
@@ -71,7 +77,14 @@
 .rx-rub{text-transform:uppercase;letter-spacing:.06em;font-size:.68rem;color:var(--accent);
   border-color:var(--accent) !important}
 .rx-item[hidden]{display:none}
-.rd-cta{display:flex;flex-wrap:wrap;gap:.8rem;justify-content:center;margin:0 0 1.6rem;max-width:100%}
+/* Ряд кнопок подвала — СЕТКА, а не флекс. Флекс переносит кнопки только пока
+   браузер честно применяет flex-wrap; если правило до него не доехало (старый
+   кэш, чужой движок), четыре кнопки встают в одну строку, ряд вылезает за колонку
+   и первая подпись уходит под плавающее оглавление — ровно то, что видел автор
+   проекта. Сетка auto-fit вылезти НЕ МОЖЕТ: колонки сжимаются под контейнер,
+   лишние переносятся на новую строку, а длинная подпись переносится внутри ячейки. */
+.rd-cta{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,14rem),1fr));
+  gap:.8rem;justify-content:center;margin:0 0 1.6rem;max-width:100%}
 /* Кнопка подвала не имеет права обрезать свою подпись. `.btn` — inline-flex из общей
    системы, и при узкой полосе (или другом наборе шрифта у читателя) длинная подпись
    вылезала за кнопку и срезалась слева (замечание автора проекта 15.08.2026, скрин).

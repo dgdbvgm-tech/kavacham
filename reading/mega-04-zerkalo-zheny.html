@@ -115,10 +115,16 @@ p:has(> .rd-img) + p{text-align:center;font-style:italic;font-size:.82rem;
    Компоненты праманы — в SHARED_CSS: они общие с TMA.
    Дизайн НАСЛЕДУЕТСЯ из ../styles.css: компоновка (.band/.inner/.paper), ссылка-прамана
    (.cite), кнопки (.btn), надзаголовок (.eyebrow), тёмный подвал (footer.deep).
-   ВАЖНО про токены: --deep*/--gold* ФИКСИРОВАНЫ (мир «щита», всегда тёмный), а тему
+   ВАЖНО про токены: группы --deep и --gold ФИКСИРОВАНЫ (мир «щита», всегда тёмный), а тему
    переключают семантические --ground/--panel/--text/--text-2/--text-dim/--rule/--accent.
    Тело обязано жить на семантических, иначе в светлой теме получим кремовый текст на
    пергаменте. --gold* используем только внутри .deep (подвал). */
+/* Мостик к живому наставнику — не сноска мелким шрифтом: читатель обязан его увидеть,
+   поэтому блок отбит рамкой и стоит последним в теле разбора. */
+.rd-guru{margin:2.8rem 0 0;padding:1.2rem 1.4rem;border:1px solid var(--rule);
+  border-radius:4px;background:var(--panel)}
+.rd-guru .eyebrow{margin:0 0 .7rem}
+.rd-guru p{margin:0;line-height:1.7;color:var(--text-2)}
 .rd-head{padding-bottom:1.4rem;border-bottom:1px solid var(--rule)}
 .rd-head .eyebrow{margin:0}
 .rd-sandbox{display:inline-block;font-size:.72rem;line-height:1.4;color:var(--text-dim);
@@ -149,7 +155,14 @@ p:has(> .rd-img) + p{text-align:center;font-style:italic;font-size:.82rem;
   border-left:2px solid var(--rule)}
 .rd-body blockquote p{margin:0}
 .rd-body .rd-tablewrap{margin:0 0 1.3rem}
-.rd-cta{display:flex;flex-wrap:wrap;gap:.8rem;justify-content:center;margin:0 0 1.6rem;max-width:100%}
+/* Ряд кнопок подвала — СЕТКА, а не флекс. Флекс переносит кнопки только пока
+   браузер честно применяет flex-wrap; если правило до него не доехало (старый
+   кэш, чужой движок), четыре кнопки встают в одну строку, ряд вылезает за колонку
+   и первая подпись уходит под плавающее оглавление — ровно то, что видел автор
+   проекта. Сетка auto-fit вылезти НЕ МОЖЕТ: колонки сжимаются под контейнер,
+   лишние переносятся на новую строку, а длинная подпись переносится внутри ячейки. */
+.rd-cta{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,14rem),1fr));
+  gap:.8rem;justify-content:center;margin:0 0 1.6rem;max-width:100%}
 /* Кнопка подвала не имеет права обрезать свою подпись. `.btn` — inline-flex из общей
    системы, и при узкой полосе (или другом наборе шрифта у читателя) длинная подпись
    вылезала за кнопку и срезалась слева (замечание автора проекта 15.08.2026, скрин).
@@ -712,6 +725,7 @@ footer :focus-visible{outline-color:var(--gold)}
 <blockquote class="rd-pramana"><p class="rd-quote">«He said, “When the girl is 8, she is betrothed to a husband from the same social strata. The families have already worked out their astrological compatibility. Then from 8 till 12 or 14, the girl would go to her husband’s house every day and his mother would train her how to take care of her son—the way he liked his food cooked and so on. Then as soon as she attained puberty, they would have sex life and she would never look at another man the rest of her life.” He said, “That is marriage. Anything else, I do not know.”»</p><p class="rd-tr" lang="ru">Он сказал: "Когда девочке 8 лет, её обручают с мужем из того же общественного слоя. Семьи к этому времени уже выверили их астрологическую совместимость. Затем с 8 до 12 или 14 лет девочка каждый день приходила в дом мужа, и его мать учила её заботиться о своём сыне — как он любит, чтобы ему готовили еду, и тому подобное. А как только она достигала половой зрелости, у них начиналась супружеская близость, и всю оставшуюся жизнь она уже никогда не смотрела на другого мужчину." Он сказал: "Вот это и есть брак. А всё остальное — я не знаю."</p><p class="rd-src"><a class="cite" href="https://vanipedia.org/wiki/Kulashekhara_das_Remembers_Srila_Prabhupada" target="_blank" rel="noopener noreferrer">Воспоминания Kulashekhara das: личный даршан о традиционной системе брака</a> · свидетельство · 🟢 · страница открыта и проверена человеком; текст дословен по корпусу</p></blockquote>
 <hr>
 <blockquote><p><strong>Прозрачность источников.</strong> 🟢 — источник открыт и проверен: ссылка ведёт на страницу, где цитата присутствует дословно. 🟡 — источник заявлен, но проверить его по живой странице не удалось; в этом разборе таких нет. Пометка говорит о доступности источника, а не о его весе: вес назван словом рядом со ссылкой — «комментарий», «письмо», «свидетельство». Воспоминание очевидца иллюстрирует, но не доказывает. <strong>Методология.</strong> Каждая цитата проверена трижды: дословность по локальному корпусу, присутствие на живой странице Vedabase, адверсариальная проверка контекста отдельным читателем. Рабочие переводы Лаборатории — смысловые, подписанные; оригинал остаётся главным.</p></blockquote>
+<section class="rd-guru" aria-label="Что этот разбор не заменяет"><p class="eyebrow">Что этот разбор не заменяет</p><p>Здесь разобран тезис — не чья-то семья, не чей-то путь и не ваш случай. Тонкие темы духовной жизни раскрываются в живом общении с наставником, который знает ваши обстоятельства: ни один текст такого общения не заменит, и решения о собственной жизни принимаются не по разбору. Лаборатория отвечает за другое — за то, что каждая цитата выше реальна, дословна и открывается по ссылке.</p></section>
       </div>
     </article>
     <nav class="rd-pager" aria-label="Соседние материалы"><a class="rd-pager-prev" href="mega-03-ai-imitatsiya.html"><span>← Предыдущий в рубрике</span><b>Синтетический голос ачарьи-основателя: как отличить его подлинные слова от подделки</b></a></nav>
