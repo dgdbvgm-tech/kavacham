@@ -1,9 +1,9 @@
 {
-  "chunks": 1744305,
-  "docs_indexed": 70367,
-  "docs_total": 70367,
+  "chunks": 1771960,
+  "docs_indexed": 70508,
+  "docs_total": 70508,
   "db_size": "20G",
-  "phase3_running": true,
+  "phase3_running": false,
   "funds_raised": null,
-  "updated": "2026-08-16 06:20"
+  "updated": "2026-08-16 09:48"
 }
