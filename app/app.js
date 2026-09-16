@@ -26,7 +26,7 @@
   var LANDING = 'https://dgdbvgm-tech.github.io/kavacham/';
   var CATALOG = LANDING + 'corpus.html';
   // REST API («Терминал»/«Мои испытания»/корпуса) — та же очередь, что у бота.
-  var API_BASE = 'https://kavacham-bot-928986955802.us-central1.run.app';
+  var API_BASE = 'https://bots.bagnin.com/kavacham-lab';
   // База, относительно которой раскрываются относительные пути ленты (pages_url)
   // в АБСОЛЮТНЫЕ — для шаринга. location.href тут не годится: с localhost
   // поделиться нечем.
@@ -3294,7 +3294,7 @@
      предупреждаем, по истечении останавливаем сами.
      ══════════════════════════════════════════════════════════════════ */
   (function () {
-    var STT_URL = 'https://kavacham-stt-928986955802.us-central1.run.app/api/stt';
+    var STT_URL = 'https://bots.bagnin.com/kavacham-stt/api/stt';
     var MAX_SEC = 60;
 
     var row = $('voiceRow'), mic = $('voiceMic'), status = $('voiceStatus'),

@@ -11,10 +11,10 @@
   <!-- Ранний preconnect к серверу Лаборатории: TLS-рукопожатие идёт параллельно
        загрузке скрипта — первые запросы Терминала стартуют быстрее.
        crossorigin: запросы идут через fetch (CORS), без атрибута соединение не переиспользуется. -->
-  <link rel="preconnect" href="https://kavacham-bot-928986955802.us-central1.run.app" crossorigin>
+  <link rel="preconnect" href="https://bots.bagnin.com/kavacham-lab" crossorigin>
   <link rel="stylesheet" href="../styles.css">
   <!-- метку ?v= поднимать при каждом деплое app.js/app.css — иначе клиенты Telegram держат старый кэш -->
-  <link rel="stylesheet" href="app.css?v=2026081401">
+  <link rel="stylesheet" href="app.css?v=2026091601">
 
   <!-- SDK Telegram — self-hosted копия, никаких CDN в рантайме.
        В <head> (как рекомендует Telegram): тогда colorScheme известен ДО первой отрисовки. -->
@@ -853,6 +853,6 @@
   </nav>
 
   <!-- метку ?v= поднимать при каждом деплое app.js/app.css — иначе клиенты Telegram держат старый кэш -->
-  <script src="app.js?v=2026081401"></script>
+  <script src="app.js?v=2026091601"></script>
 </body>
 </html>

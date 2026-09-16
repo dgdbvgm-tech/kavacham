@@ -1092,10 +1092,10 @@
       return s;
     }
     function fmtLLM(t) { return richFmt(t); }
-    var CHAT_URL = 'https://kavacham-stt-928986955802.us-central1.run.app/api/chat';
-    var ASK_URL = 'https://kavacham-stt-928986955802.us-central1.run.app/api/ask';
-    var CONTACT_URL = 'https://kavacham-stt-928986955802.us-central1.run.app/api/contact';
-    var STREAM_URL = 'https://kavacham-stt-928986955802.us-central1.run.app/api/contact/stream';
+    var CHAT_URL = 'https://bots.bagnin.com/kavacham-stt/api/chat';
+    var ASK_URL = 'https://bots.bagnin.com/kavacham-stt/api/ask';
+    var CONTACT_URL = 'https://bots.bagnin.com/kavacham-stt/api/contact';
+    var STREAM_URL = 'https://bots.bagnin.com/kavacham-stt/api/contact/stream';
 
     /* ——— ТЗ-3: прямая связь с оператором (виджет → бот → тема → ответ обратно по SSE) ——— */
     var opBtn = document.getElementById('askOp');
@@ -1229,8 +1229,8 @@
     form.onsubmit = function (e) { e.preventDefault(); var q = text.value.trim(); if (!q) return; (contactMode ? sendToOperator : answer)(q); text.value = ''; };
 
     /* ——— голосовой ввод: живой стриминг Deepgram (слова в реальном времени), фолбэки — батч и Web Speech ——— */
-    var STT_HTTP = 'https://kavacham-stt-928986955802.us-central1.run.app/api/stt';
-    var STT_WS = 'wss://kavacham-stt-928986955802.us-central1.run.app/api/stt/stream';
+    var STT_HTTP = 'https://bots.bagnin.com/kavacham-stt/api/stt';
+    var STT_WS = 'wss://bots.bagnin.com/kavacham-stt/api/stt/stream';
     var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     var canRecord = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
     var recActive = false, stream = null, mr = null, sock = null, finalT = '', stopFn = null;
@@ -1496,7 +1496,7 @@
      Источник github.io в списке разрешённых на сервере — значит отказ здесь
      означает именно недоступность, а не запрет браузера. */
   (function () {
-    var HEALTH = 'https://kavacham-bot-928986955802.us-central1.run.app/api/health';
+    var HEALTH = 'https://bots.bagnin.com/kavacham-lab/api/health';
     var el = document.getElementById('outageBanner');
     if (!el || !window.fetch) return;
     var ctl = window.AbortController ? new AbortController() : null;
