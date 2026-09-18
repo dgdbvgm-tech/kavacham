@@ -23,7 +23,7 @@
   var inTelegram = !!(tg && tg.platform && tg.platform !== 'unknown');
 
   var BOT_URL = 'https://t.me/kavacham_lab_bot';
-  var LANDING = 'https://dgdbvgm-tech.github.io/kavacham/';
+  var LANDING = 'https://kavacham.bagnin.com/';
   var CATALOG = LANDING + 'corpus.html';
   // REST API («Терминал»/«Мои испытания»/корпуса) — та же очередь, что у бота.
   var API_BASE = 'https://bots.bagnin.com/kavacham-lab';
@@ -3282,7 +3282,7 @@
      Ключ Deepgram живёт ТОЛЬКО на сервере: приложение шлёт сырое аудио
      на POST /api/stt и получает { transcript }. Тот же сервис и тот же
      батч-эндпоинт, что у виджета «О проекте» на лендинге, — origin
-     https://dgdbvgm-tech.github.io у них общий, CORS уже разрешён.
+     сайта у них общий (kavacham.bagnin.com), CORS уже разрешён.
 
      Честность интерфейса:
        • кнопка появляется ТОЛЬКО там, где запись реально возможна

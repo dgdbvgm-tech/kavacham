@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Как сайт KAVACHAM обращается с данными</title>
+<meta name="description" content="Какие данные собирает сайт KAVACHAM, зачем, кто их получает и как попросить их удалить.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Как сайт KAVACHAM обращается с данными">
+<meta property="og:description" content="Статистика посещений, вопросы помощнику, сообщения оператору и заявки в Лабораторию: что собирается и как это удалить.">
+<meta property="og:type" content="article">
+<link rel="canonical" href="https://kavacham.bagnin.com/privacy.html">
+<meta property="og:url" content="https://kavacham.bagnin.com/privacy.html">
+<meta property="og:image" content="https://kavacham.bagnin.com/og.png">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<style>
+  :root{
+    --deep:#0C1030; --deep-2:#131A44; --ink:#ECE6D4; --dim:#A2A6C8;
+    --rule:rgba(201,162,75,0.22); --gold:#C9A24B; --gold-lo:#A9863A; --gold-hi:#E7CE8C;
+    --serif:"Noto Serif","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --pad:clamp(1.1rem,5vw,2.2rem);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+  body{
+    background:
+      radial-gradient(1200px 500px at 50% -10%, rgba(201,162,75,0.08), transparent 60%),
+      var(--deep);
+    color:var(--ink); font-family:var(--serif); line-height:1.7;
+    padding:0 var(--pad) calc(3rem + env(safe-area-inset-bottom));
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:52rem;margin:0 auto}
+
+  /* верхняя навигация */
+  .topbar{position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center;gap:1rem;
+    padding:0.9rem 0;margin-bottom:1.4rem;border-bottom:1px solid var(--rule);
+    background:linear-gradient(180deg,var(--deep) 70%,rgba(12,16,48,0.6));backdrop-filter:blur(6px)}
+  .topbar a{font-family:var(--sans);font-size:0.74rem;letter-spacing:0.14em;text-transform:uppercase;
+    color:var(--dim);text-decoration:none;transition:color .2s}
+  .topbar a:hover{color:var(--gold-hi)}
+  .topbar .brand{color:var(--gold-hi);font-weight:600}
+
+  /* шапка документа */
+  header.doc{padding:1.6rem 0 1.2rem;text-align:center}
+  .eyebrow{font-family:var(--sans);font-size:0.72rem;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold);opacity:0.9}
+  h1.title{font-family:var(--serif);font-weight:700;font-size:clamp(1.8rem,6vw,2.7rem);letter-spacing:0.02em;
+    margin:0.5rem 0 0.4rem;color:var(--ink);text-wrap:balance}
+  .badge{display:inline-block;font-family:var(--sans);font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;
+    color:var(--gold-hi);border:1px solid var(--rule);border-radius:999px;padding:0.28rem 0.8rem;margin-top:0.3rem}
+  .intro{max-width:44rem;margin:1.3rem auto 0;font-style:italic;color:var(--dim);font-size:0.98rem;
+    border-left:2px solid var(--gold-lo);padding-left:1.1rem;text-align:left}
+
+  hr.thread{border:0;height:1px;background:linear-gradient(90deg,transparent,var(--rule),transparent);margin:2.2rem 0}
+
+  section{margin:2.2rem 0}
+  h2{font-family:var(--serif);font-weight:700;font-size:clamp(1.25rem,4vw,1.6rem);color:var(--gold-hi);
+    margin:0 0 0.5rem;line-height:1.25;text-wrap:balance}
+  h2 .num{font-family:var(--sans);font-size:0.8em;color:var(--gold);opacity:0.7;margin-right:0.5rem}
+  p{margin:0.7rem 0;color:var(--ink)}
+  p.sub,.dim{color:var(--dim)}
+  strong,b{color:var(--gold-hi);font-weight:600}
+  em{color:var(--ink)}
+  a.ref{color:var(--gold-hi);text-decoration:none;border-bottom:1px solid var(--rule)}
+  a.ref:hover{border-bottom-color:var(--gold-hi)}
+
+  ol,ul{margin:0.7rem 0 0.7rem 1.3rem}
+  li{margin:0.5rem 0}
+  li::marker{color:var(--gold)}
+
+  .callout{border:1px solid var(--rule);border-radius:12px;padding:1.1rem 1.25rem;background:rgba(255,255,255,0.02);margin:1.3rem 0}
+  .callout h3{margin-top:0;color:var(--gold-hi);font-family:var(--serif);font-weight:600;font-size:1.02rem}
+  .notice-text{font-style:italic;color:var(--dim);margin:0.4rem 0 0}
+
+  .note{font-family:var(--sans);font-size:0.82rem;color:var(--dim);opacity:0.85}
+
+  footer.doc{margin-top:2.6rem;padding-top:1.6rem;border-top:1px solid var(--rule);text-align:center;color:var(--dim)}
+  footer.doc .om{color:var(--gold-hi);font-size:1.3rem;margin-bottom:0.6rem}
+  footer.doc a{color:var(--gold-hi);text-decoration:none}
+  footer.doc .sign{margin-top:1.2rem;font-family:var(--sans);font-size:0.62rem;letter-spacing:0.3em;text-transform:uppercase;opacity:0.5}
+
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="topbar">
+    <a href="./"><span aria-hidden="true">←</span>&nbsp; <span class="brand">KAVACHAM</span></a>
+    <a href="pravovaya-osnova.html">Правовая основа</a>
+  </nav>
+
+  <header class="doc">
+    <p class="eyebrow">Данные посетителей</p>
+    <h1 class="title">Как сайт обращается с данными</h1>
+    <span class="badge">версия 1.0 · 19 сентября 2026</span>
+  </header>
+
+  <hr class="thread">
+
+  <section>
+    <h2><span class="num">1</span>Кто отвечает</h2>
+    <p>Сайт kavacham.bagnin.com, мини-приложение Лаборатории и бот @kavacham_lab_bot ведет автор проекта — Багнин Дмитрий Сергеевич, плательщик налога на профессиональный доход (самозанятый, Россия). Вопросы о данных и просьбы их удалить — на почту <a class="ref" href="mailto:kavacham.project@gmail.com">kavacham.project@gmail.com</a>. Отвечу и удалю данные не позже чем через десять рабочих дней.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">2</span>Что собирается</h2>
+    <p><b>Статистика посещений — Яндекс Метрика.</b> Какие страницы вы открыли, откуда пришли, с какого устройства и браузера, из какого примерно города, куда нажимали и докуда прокрутили. Вебвизор записывает, как вы двигались по странице, но не то, что вы вводите в поля. Для этого Метрика сохраняет в браузере cookie. Счетчик заведен на моем аккаунте Яндекса, данные обрабатывает Яндекс по моему поручению.</p>
+    <p><b>Вопросы помощнику «О проекте».</b> Текст вопроса или голос. Ответ пишет нейросеть Gemini по открытой базе знаний проекта, голос в текст переводит сервис Deepgram. Вопрос, на который помощник не нашел ответа, приходит мне в Телеграм без ваших контактов.</p>
+    <p><b>Сообщения оператору.</b> То, что вы напишете, и контакт, если оставите. Сообщения приходят мне в Телеграм, мой ответ возвращается в окно на сайте. Чтобы разговор не терялся при повторном заходе, браузер хранит у себя номер диалога.</p>
+    <p><b>Заявки в Лабораторию.</b> Через бота и мини-приложение: текст заявки, номер вашего аккаунта Телеграма и имя пользователя. Они хранятся в базе проекта на серверах Google. В опубликованном разборе автор заявки — «участник Лаборатории», имя появляется только с вашего согласия.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">3</span>Зачем</h2>
+    <p>Чтобы ответить на вопрос или заявку. Чтобы понять, какие разборы читают и где страница непонятна. Данные посетителей я не продаю и рекламой на сайте не пользуюсь.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">4</span>Кто еще получает данные</h2>
+    <ul>
+      <li>Яндекс — статистика посещений через Метрику.</li>
+      <li>Google — хранение заявок и ответы помощника (Gemini).</li>
+      <li>Deepgram — перевод голосовых вопросов в текст.</li>
+      <li>Телеграм — уведомления мне о вопросах, сообщениях и заявках.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="num">5</span>Сколько храню</h2>
+    <p>Разговор с оператором сервер держит в памяти и забывает через шесть часов тишины. Заявки храню, пока они нужны для разбора и истории Лаборатории. Напишите на <a class="ref" href="mailto:kavacham.project@gmail.com">kavacham.project@gmail.com</a> — удалю ваши данные и отвечу, что удалено.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">6</span>Cookie</h2>
+    <p>Cookie ставит Яндекс Метрика. Их можно запретить в настройках браузера: сайт работает и без них. Кнопка «Понятно» в полосе внизу страницы только прячет полосу.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">7</span>Изменения</h2>
+    <p>Когда меняется то, как сайт обращается с данными, я правлю эту страницу и поднимаю номер версии вверху.</p>
+  </section>
+
+  <footer class="doc">
+    <div class="om" aria-hidden="true">✦</div>
+    <p><a href="./">На главную →</a></p>
+    <p class="sign">KAVACHAM · DGD · ZERO ENTROPY</p>
+  </footer>
+
+</div>
+<script src="/metrika.js" defer></script>
+</body>
+</html>
